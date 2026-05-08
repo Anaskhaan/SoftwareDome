@@ -1,0 +1,109 @@
+@import "tailwindcss";
+
+:root {
+  --primary-navy: #0a192f;
+  --accent-blue: #112240;
+  --text-white: #e6f1ff;
+  --secondary-black: #020c1b;
+  --bg-white: #ffffff;
+  --background: var(--bg-white);
+  --foreground: var(--secondary-black);
+  --radius-lg: 0.5rem;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary-navy: var(--primary-navy);
+  --color-accent-blue: var(--accent-blue);
+  --radius-lg: var(--radius-lg);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/* Reduced Padding & Standardized Radius for Buttons */
+.btn {
+  border-radius: var(--radius-lg);
+  padding: 0.5rem 1.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
+}
+
+.btn-navy {
+  background-color: var(--primary-navy);
+  color: white;
+}
+
+.btn-navy:hover {
+  background-color: var(--accent-blue);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(10, 25, 47, 0.3);
+}
+
+/* Visible Glassmorphism & Unique 3D Animation */
+.glass-card {
+  background: rgba(10, 25, 47, 0.04);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(10, 25, 47, 0.1);
+  border-radius: var(--radius-lg);
+  position: relative;
+  transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+  transform-style: preserve-3d;
+  box-shadow: 0 4px 24px -1px rgba(10, 25, 47, 0.05);
+}
+
+.glass-card:hover {
+  background: rgba(10, 25, 47, 0.07);
+  border-color: var(--primary-navy);
+  transform: perspective(1000px) rotateX(4deg) rotateY(-4deg) translateY(-8px);
+  box-shadow:
+    15px 15px 30px rgba(10, 25, 47, 0.1),
+    0 0 0 1px var(--primary-navy);
+}
+
+/* Sheen effect */
+.glass-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, transparent 45%, rgba(255, 255, 255, 0.4) 50%, transparent 55%);
+  background-size: 250% 250%;
+  background-position: 100% 100%;
+  transition: background-position 0.8s ease;
+  pointer-events: none;
+}
+
+.glass-card:hover::after {
+  background-position: 0% 0%;
+}
+
+.skeleton-number {
+  font-size: 5rem;
+  font-weight: 900;
+  color: transparent;
+  -webkit-text-stroke: 3px var(--accent-blue);
+  line-height: 1;
+  letter-spacing: -0.05em;
+  transition: all 0.3s ease;
+}
+
+.group:hover .skeleton-number {
+  -webkit-text-stroke: 2px rgba(10, 25, 47, 0.3);
+  transform: translateY(-5px);
+}
