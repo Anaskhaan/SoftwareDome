@@ -40,14 +40,12 @@ export default function Navbar({ onMenuClick }: { onMenuClick: () => void }) {
         ))}
       </nav>
 
-      <div className="hidden lg:flex items-center gap-6 lg:gap-8">
-        <Link href="/login" className="flex items-center text-primary-navy font-semibold lg:text-gray-500">
-          <Icons.User size={24} className="lg:hidden" />
-          <span className="hidden lg:inline">Account</span>
+      <div className="hidden lg:flex items-center gap-4">
+        <Link href="/login" className="btn text-gray-700 hover:bg-gray-50 text-sm">
+          Login
         </Link>
-
-        <Link href="/join" className="hidden lg:flex btn btn-navy text-sm px-6 py-2.5">
-          Add Product
+        <Link href="/signup" className="btn btn-navy text-sm">
+          Get Started
         </Link>
       </div>
     </header>
