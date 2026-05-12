@@ -51,13 +51,12 @@ export default function SignupPage() {
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-[#0a192f] p-4">
+    <main className="min-h-screen flex items-center justify-center">
       <div className="w-full max-w-md bg-white rounded-xl shadow-2xl overflow-hidden border border-gray-100">
-        <div className="bg-primary-navy p-8 text-white">
+        <div className="bg-primary-navy p-4 text-center text-white">
           <h1 className="text-3xl font-bold tracking-tight">Create Account</h1>
-          <p className="text-blue-100 text-sm mt-2">Join the SoftwareDome business network.</p>
         </div>
-        
+
         <form onSubmit={handleSubmit} className="p-8 space-y-5">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
@@ -126,9 +125,9 @@ export default function SignupPage() {
               {error}
             </div>
           )}
-          
-          <button 
-            type="submit" 
+
+          <button
+            type="submit"
             disabled={loading}
             className="w-full py-3 bg-primary-navy text-white rounded-lg font-bold text-sm hover:bg-accent-blue transition-all disabled:opacity-50 transform hover:-translate-y-0.5 active:translate-y-0 shadow-lg"
           >

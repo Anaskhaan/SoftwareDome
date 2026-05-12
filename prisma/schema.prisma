@@ -55,4 +55,41 @@ model VerificationToken {
   @@unique([email, token])
 }
 
+model Software {
+  id                String   @id @default(cuid())
+  name              String
+  slug              String   @unique
+  logo              String?
+  website           String?
+  
+  // Section: Ratings and Reports
+  rating            Float?   @default(0)
+  reportUrl         String?
+  
+  // Section: Introduction & Verdict
+  introduction      String?  @db.Text
+  ourVerdict        String?  @db.Text
+  
+  // Section: Lists
+  keyTakeaways      String[] 
+  pros              String[]
+  cons              String[]
+  
+  // Section: Media
+  pictures          String[] // Gallery URLs
+  
+  // Section: Content Parts
+  howItWorks        String?  @db.Text
+  whoIsItFor        String?  @db.Text
+  howItIsDifferent  String?  @db.Text
+  sentiments        String?  @db.Text
+  
+  // Section: Flexible Data (Different for all softwares)
+  specifications    Json?    // Key-value pairs like { "Platform": "Windows", "License": "SaaS" }
+  faqs              Json?    // Array of { "question": "...", "answer": "..." }
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
+  @@index([slug])
+}
