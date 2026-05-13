@@ -93,7 +93,7 @@ export default function DashboardLayout({
       </aside>
 
       {/* Main Content */}
-      <div className={`flex-1 flex flex-col transition-all duration-300 ${isSidebarOpen ? "pl-64" : "pl-20"}`}>
+      <div className={`flex-1 flex flex-col min-w-0 overflow-x-hidden transition-all duration-300 ${isSidebarOpen ? "pl-64" : "pl-20"}`}>
         {/* Header */}
         <header className="h-16 bg-[#0a192f] text-white flex items-center justify-between px-6 sticky top-0 z-40 shadow-md">
           <div className="flex items-center gap-4">
@@ -117,7 +117,7 @@ export default function DashboardLayout({
         </header>
 
         {/* Page Area */}
-        <main className="p-8 flex-1 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <main className="p-8 flex-1 min-w-0 animate-in fade-in slide-in-from-bottom-4 duration-700">
           {children}
         </main>
       </div>

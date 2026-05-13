@@ -10,6 +10,10 @@ import {
   ArrowRight,
   ArrowDown,
   ArrowUp,
+  ArrowDownUp,
+  RefreshCcw,
+  SkipBack,
+  SkipForward,
   ShieldCheck,
   Zap,
   Layers
@@ -27,6 +31,10 @@ export const Icons = {
   Arrow: ArrowRight,
   ArrowDown,
   ArrowUp,
+  ArrowDownUp,
+  RefreshCcw,
+  SkipBack,
+  SkipForward,
   Security: ShieldCheck,
   Speed: Zap,
   Modular: Layers
