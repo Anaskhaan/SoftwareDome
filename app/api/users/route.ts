@@ -12,7 +12,6 @@ export async function GET() {
       },
     });
 
-    // Map Prisma models to the format expected by the frontend
     const formattedUsers = users.map(user => ({
       _id: user.id,
       name: user.name || "N/A",
@@ -20,8 +19,7 @@ export async function GET() {
       role: user.role,
       status: user.isEmailVerified ? "Active" : "Pending",
       organization: user.organization?.name || "N/A",
-      // API Key is not in schema yet, using a placeholder or null
-      apiKey: null, 
+      apiKey: null,
       createdAt: user.createdAt,
     }));
 

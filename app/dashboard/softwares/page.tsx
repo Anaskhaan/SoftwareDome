@@ -1,106 +1,132 @@
 "use client";
 
 import React from "react";
-import { 
-  Plus, 
-  Search, 
-  Filter, 
-  MoreVertical,
-  ExternalLink,
-  Edit2,
-  Trash2,
-  Box
-} from "lucide-react";
+import { Plus, Search, Filter, Edit2, Trash2, Box, AlertCircle } from "lucide-react";
+import AdminOutletHeading from "@/components/dashboard/AdminOutletHeading";
+import { getSoftwares } from "./actions";
+import Link from "next/link";
 
 export default function SoftwaresPage() {
-  const softwares = [
-    { id: 1, name: "Project Management Pro", category: "Productivity", rating: 4.8, status: "Active" },
-    { id: 2, name: "SecureVault VPN", category: "Security", rating: 4.5, status: "Active" },
-    { id: 3, name: "CloudScale Analytics", category: "Data", rating: 4.2, status: "Draft" },
-    { id: 4, name: "DevFlow IDE", category: "Development", rating: 4.9, status: "Active" },
-  ];
+  const [softwares, setSoftwares] = React.useState<any[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    async function fetchData() {
+      const result = await getSoftwares();
+      if (result.success) {
+        setSoftwares(result.data || []);
+      } else {
+        setError(result.error || "Failed to load softwares");
+      }
+      setIsLoading(false);
+    }
+    fetchData();
+  }, []);
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <AdminOutletHeading heading="Softwares List" />
+
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mt-6">
         <div>
-          <h2 className="text-2xl font-bold text-[#0a192f]">Softwares</h2>
-          <p className="text-gray-500">Manage your software directory and reviews.</p>
+          <h2 className="text-xl font-bold text-[#0a192f]">Software Directory</h2>
+          <p className="text-gray-500 text-sm">Manage your software listings and reviews.</p>
         </div>
-        <button className="btn btn-navy flex items-center gap-2">
+        <Link href="/dashboard/softwares/add" className="bg-[#0a192f] text-white px-4 py-2 rounded-xl flex items-center gap-2 hover:bg-slate-800 transition-all font-medium">
           <Plus size={18} /> Add New Software
-        </button>
+        </Link>
       </div>
 
       {/* Filters & Search */}
-      <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex flex-col md:flex-row gap-4">
+      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4">
         <div className="flex-1 relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
           <input 
             type="text" 
             placeholder="Search softwares..." 
-            className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all text-sm"
+            className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all text-sm"
           />
         </div>
         <div className="flex gap-2">
-          <button className="px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-600 flex items-center gap-2 hover:bg-gray-50">
+          <button className="px-4 py-2 border border-slate-200 rounded-xl text-sm font-medium text-slate-600 flex items-center gap-2 hover:bg-slate-50">
             <Filter size={16} /> Filters
           </button>
         </div>
       </div>
 
       {/* Software Table */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left">
-            <thead>
-              <tr className="bg-gray-50/50 border-b border-gray-100">
-                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Software</th>
-                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Category</th>
-                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Rating</th>
-                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {softwares.map((software) => (
-                <tr key={software.id} className="hover:bg-gray-50/50 transition-colors group">
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600">
-                        <Box size={20} />
-                      </div>
-                      <span className="font-semibold text-gray-900">{software.name}</span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">{software.category}</td>
-                  <td className="px-6 py-4 text-sm text-gray-600">
-                    <span className="flex items-center gap-1">⭐ {software.rating}</span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
-                      software.status === "Active" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"
-                    }`}>
-                      {software.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button className="p-2 hover:bg-blue-50 text-blue-600 rounded-lg transition-colors">
-                        <Edit2 size={16} />
-                      </button>
-                      <button className="p-2 hover:bg-red-50 text-red-600 rounded-lg transition-colors">
-                        <Trash2 size={16} />
-                      </button>
-                      <button className="p-2 hover:bg-gray-100 text-gray-600 rounded-lg transition-colors">
-                        <MoreVertical size={16} />
-                      </button>
-                    </div>
-                  </td>
+          {isLoading ? (
+            <div className="p-12 flex flex-col items-center justify-center gap-3">
+              <div className="w-8 h-8 border-4 border-slate-100 border-t-[#0a192f] rounded-full animate-spin" />
+              <p className="text-sm text-slate-500 font-medium">Loading softwares...</p>
+            </div>
+          ) : error ? (
+            <div className="p-12 text-center">
+              <div className="inline-flex p-3 bg-red-50 text-red-600 rounded-2xl mb-3">
+                <AlertCircle size={24} />
+              </div>
+              <p className="text-slate-900 font-semibold">{error}</p>
+            </div>
+          ) : softwares.length === 0 ? (
+            <div className="p-12 text-center">
+              <div className="inline-flex p-3 bg-slate-50 text-slate-400 rounded-2xl mb-3">
+                <Box size={24} />
+              </div>
+              <p className="text-slate-900 font-semibold">No softwares found</p>
+              <p className="text-sm text-slate-500 mt-1">Get started by adding your first software listing.</p>
+            </div>
+          ) : (
+            <table className="w-full text-left">
+              <thead>
+                <tr className="bg-slate-50/50 border-b border-slate-200">
+                  <th className="px-6 py-4 text-[11px] font-bold text-slate-500 uppercase tracking-wider">Software</th>
+                  <th className="px-6 py-4 text-[11px] font-bold text-slate-500 uppercase tracking-wider">Rating</th>
+                  <th className="px-6 py-4 text-[11px] font-bold text-slate-500 uppercase tracking-wider">Created At</th>
+                  <th className="px-6 py-4 text-[11px] font-bold text-slate-500 uppercase tracking-wider">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {softwares.map((software) => (
+                  <tr key={software.id} className="hover:bg-slate-50/50 transition-colors group">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 border border-blue-100/50">
+                          <Box size={20} />
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="font-bold text-slate-900">{software.name}</span>
+                          <span className="text-xs text-slate-500">{software.website || "No website"}</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-1">
+                        <span className="text-sm font-bold text-slate-900">⭐ {software.rating?.toFixed(1) || "0.0"}</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="text-sm text-slate-600 font-medium">
+                        {new Date(software.createdAt).toLocaleDateString()}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-2">
+                        <button className="p-2 hover:bg-blue-50 text-blue-600 rounded-xl transition-all border border-transparent hover:border-blue-100">
+                          <Edit2 size={16} />
+                        </button>
+                        <button className="p-2 hover:bg-red-50 text-red-600 rounded-xl transition-all border border-transparent hover:border-red-100">
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
     </div>

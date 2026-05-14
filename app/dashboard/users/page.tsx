@@ -1,75 +1,81 @@
 "use client";
 
 import React from "react";
-import { Key } from "lucide-react";
 import CustomTable from "@/components/constantComponents/CustomTable";
+import { getUsers } from "./actions";
+import AdminOutletHeading from "@/components/dashboard/AdminOutletHeading";
 
 export default function UsersPage() {
   const [selectedRow, setSelectedRow] = React.useState(null);
+  const [tableData, setTableData] = React.useState<any[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    async function fetchUsers() {
+      try {
+        setLoading(true);
+        const result = await getUsers();
+        if (result.success && result.data) {
+          const mappedUsers = result.data.map((user: any) => ({
+            _id: user.id,
+            name: user.name || "Unnamed User",
+            email: user.email,
+            role: user.role
+              ? (user.role.charAt(0) + user.role.slice(1).toLowerCase().replace(/_/g, ' '))
+              : "User",
+            status: user.status || "Active",
+          }));
+          setTableData(mappedUsers);
+          setError(null);
+        } else {
+          setError(result.error || "Failed to fetch users");
+        }
+      } catch (err) {
+        console.error("Error in fetchUsers:", err);
+        setError("An unexpected error occurred while connecting to the server.");
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchUsers();
+  }, []);
 
   const tableHeaders: any[] = [
     { key: "name", label: "User Name" },
     { key: "email", label: "Email Address" },
     { key: "role", label: "Access Level" },
     { key: "status", label: "Account Status" },
-    {
-      key: "apiKey",
-      label: "API Key",
-      render: (value: string | null) => value ? (
-        <code className="text-[10px] bg-slate-100 px-2 py-1 rounded-md text-slate-600 font-mono">
-          {value.substring(0, 8)}••••••••
-        </code>
-      ) : (
-        <span className="text-slate-400 italic">No Key</span>
-      )
-    },
-    {
-      key: "actions",
-      label: "Actions",
-      render: (_: any, item: any) => (
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            alert(`Generating API Key for ${item.name}...`);
-          }}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-brand-active/10 text-brand-active hover:bg-brand-active hover:text-white rounded-md transition-all text-xs font-semibold"
-        >
-          <Key size={14} />
-          {item.apiKey ? "Regenerate" : "Get Key"}
-        </button>
-      )
-    },
-  ];
-
-  const tableData = [
-    { _id: "1", name: "Mashhood Rehman", email: "mashhood@softwaredome.com", role: "Super Admin", status: "Active", apiKey: "sd_live_9823hfsd8923hf" },
-    { _id: "2", name: "John Smith", email: "john.s@enterprise.io", role: "Vendor", status: "Active", apiKey: null },
-    { _id: "3", name: "Sarah Connor", email: "s.connor@resistance.net", role: "User", status: "Pending", apiKey: null },
-    { _id: "4", name: "Alex Murphy", email: "murphy@ocp.corp", role: "Admin", status: "Inactive", apiKey: "sd_live_0000robocop" },
-    { _id: "5", name: "Ellen Ripley", email: "ripley@weyland-yutani.com", role: "User", status: "Active", apiKey: null },
-    { _id: "6", name: "Rick Deckard", email: "deckard@lapd.gov", role: "Admin", status: "Active", apiKey: "sd_live_nexus6hunter" },
   ];
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold text-[#0a192f]">User Management</h2>
-          <p className="text-gray-500">Manage platform users, their roles, and security credentials.</p>
-        </div>
-        <button className="px-4 py-2 bg-[#0a192f] text-white text-sm font-bold rounded-lg hover:bg-slate-800 transition-colors shadow-sm">
-          Add New User
-        </button>
-      </div>
+      <AdminOutletHeading heading="Users List" />
 
-      <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
-        <div className="p-6">
-          <CustomTable
-            tableHeaders={tableHeaders}
-            tableData={tableData}
-            selectedRow={selectedRow}
-            setSelectedRow={setSelectedRow}
-          />
+      <div>
+        <div>
+          {loading ? (
+            <div className="flex justify-center items-center py-10">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0a192f]"></div>
+            </div>
+          ) : error ? (
+            <div className="bg-red-50 border border-red-200 text-red-600 p-6 rounded-lg text-center">
+              <p className="mb-4">{error}</p>
+              <button
+                onClick={() => window.location.reload()}
+                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors text-sm font-semibold"
+              >
+                Retry Connection
+              </button>
+            </div>
+          ) : (
+            <CustomTable
+              tableHeaders={tableHeaders}
+              tableData={tableData}
+              selectedRow={selectedRow}
+              setSelectedRow={setSelectedRow}
+            />
+          )}
         </div>
       </div>
     </div>
