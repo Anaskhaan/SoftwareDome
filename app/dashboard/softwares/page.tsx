@@ -114,9 +114,9 @@ export default function SoftwaresPage() {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
-                        <button className="p-2 hover:bg-blue-50 text-blue-600 rounded-xl transition-all border border-transparent hover:border-blue-100">
+                        <Link href={`/dashboard/softwares/edit/${software.id}`} className="p-2 hover:bg-blue-50 text-blue-600 rounded-xl transition-all border border-transparent hover:border-blue-100">
                           <Edit2 size={16} />
-                        </button>
+                        </Link>
                         <button className="p-2 hover:bg-red-50 text-red-600 rounded-xl transition-all border border-transparent hover:border-red-100">
                           <Trash2 size={16} />
                         </button>

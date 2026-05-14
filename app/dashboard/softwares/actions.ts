@@ -115,3 +115,82 @@ export async function createSoftware(formData: FormData) {
     return { success: false, error: "Failed to create software" };
   }
 }
+
+export async function getSoftwareById(id: string) {
+  try {
+    const software = await prisma.software.findUnique({
+      where: { id },
+    });
+    return { success: true, data: software };
+  } catch (error) {
+    console.error("Error fetching software by ID:", error);
+    return { success: false, error: "Failed to fetch software" };
+  }
+}
+
+export async function updateSoftware(id: string, formData: FormData) {
+  try {
+    const name = formData.get("name") as string;
+    const website = formData.get("website") as string;
+    const introduction = formData.get("introduction") as string;
+    const ourVerdict = formData.get("ourVerdict") as string;
+    const rating = parseFloat(formData.get("rating") as string) || 0;
+    const reportUrl = formData.get("reportUrl") as string;
+    
+    const howItWorks = formData.get("howItWorks") as string;
+    const whoIsItFor = formData.get("whoIsItFor") as string;
+    const howItIsDifferent = formData.get("howItIsDifferent") as string;
+    const sentiments = formData.get("sentiments") as string;
+
+    const keyTakeaways = JSON.parse(formData.get("keyTakeaways") as string || "[]");
+    const pros = JSON.parse(formData.get("pros") as string || "[]");
+    const cons = JSON.parse(formData.get("cons") as string || "[]");
+
+    const specifications = JSON.parse(formData.get("specifications") as string || "{}");
+    const faqs = JSON.parse(formData.get("faqs") as string || "[]");
+
+    const updateData: any = {
+      name,
+      website,
+      rating,
+      reportUrl,
+      introduction,
+      ourVerdict,
+      keyTakeaways,
+      pros,
+      cons,
+      howItWorks,
+      whoIsItFor,
+      howItIsDifferent,
+      sentiments,
+      specifications,
+      faqs,
+    };
+
+    // Handle Image Uploads conditionally
+    const logoFile = formData.get("logo") as File;
+    if (logoFile && logoFile.size > 0) {
+      updateData.logo = await uploadToCloudinary(logoFile);
+    }
+
+    const pictureUrls: string[] = JSON.parse(formData.get("existingPictures") as string || "[]");
+    const newPictures = formData.getAll("pictures") as File[];
+    for (const pic of newPictures) {
+      if (pic && pic instanceof File && pic.size > 0) {
+        const url = await uploadToCloudinary(pic);
+        pictureUrls.push(url);
+      }
+    }
+    updateData.pictures = pictureUrls;
+
+    const software = await prisma.software.update({
+      where: { id },
+      data: updateData,
+    });
+
+    return { success: true, data: software };
+  } catch (error) {
+    console.error("Error updating software:", error);
+    return { success: false, error: "Failed to update software" };
+  }
+}
