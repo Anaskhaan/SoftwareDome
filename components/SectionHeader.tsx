@@ -4,7 +4,7 @@ export default function SectionHeader({ title, subtitle }: { title: string; subt
       <span className="text-primary-navy font-bold tracking-[0.3em] text-[10px] uppercase opacity-50">
         {subtitle}
       </span>
-      <h2 className="text-3xl lg:text-4xl font-black text-primary-navy tracking-tight">
+      <h2 className="text-3xl lg:text-4xl font-black text-primary-navy ">
         {title}
       </h2>
     </header>

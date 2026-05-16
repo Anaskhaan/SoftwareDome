@@ -19,14 +19,14 @@ export default function AboutSection() {
           <div className="flex gap-6 mt-4">
             <div className="flex items-center gap-4 group cursor-default">
               <div className="text-2xl font-black text-primary-navy">48</div>
-              <div className="text-sm font-semibold text-zinc-400 uppercase tracking-widest leading-tight">
+              <div className="text-sm font-semibold text-zinc-400 uppercase  leading-tight">
                 Point Security <br /> Verification
               </div>
             </div>
             <hr className="h-10 w-[1px] bg-zinc-200" />
             <div className="flex items-center gap-4 group cursor-default">
               <div className="text-2xl font-black text-primary-navy">12k+</div>
-              <div className="text-sm font-semibold text-zinc-400 uppercase tracking-widest leading-tight">
+              <div className="text-sm font-semibold text-zinc-400 uppercase  leading-tight">
                 Products <br /> Audited Monthly
               </div>
             </div>

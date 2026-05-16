@@ -3,6 +3,8 @@ import { isBusinessEmail, getEmailDomain } from "@/lib/auth-utils";
 // Note: You will need to install bcryptjs: npm install bcryptjs && npm install -D @types/bcryptjs
 import bcrypt from "bcryptjs";
 import prisma from "@/lib/prisma";
+import { signJWT } from "@/lib/jwt";
+import { cookies } from "next/headers";
 
 export async function POST(req: Request) {
   try {
@@ -93,7 +95,24 @@ export async function POST(req: Request) {
       return user;
     });
 
-    // 6. Return success (excluding password)
+    // 6. Create JWT
+    const token = await signJWT({
+      userId: newUser.id,
+      email: newUser.email,
+      role: newUser.role,
+    });
+
+    // 7. Set Cookie
+    const cookieStore = await cookies();
+    cookieStore.set("auth_token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24, // 1 day
+      path: "/",
+    });
+
+    // 8. Return success (excluding password)
     const { password: _, ...userWithoutPassword } = newUser;
 
     return NextResponse.json(

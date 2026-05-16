@@ -27,9 +27,7 @@ export default function Home() {
       <Navbar onMenuClick={() => setIsMenuOpen(true)} />
       <Sidebar isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
 
-      <PageSection>
-        <Hero />
-      </PageSection>
+      <Hero />
 
       <PageSection className="bg-zinc-50">
         <AboutSection />

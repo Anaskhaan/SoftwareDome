@@ -21,10 +21,10 @@ export default function VendorsPage() {
         <table className="w-full text-left">
           <thead className="bg-gray-50/50 border-b border-gray-100">
             <tr>
-              <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Vendor</th>
-              <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Products</th>
-              <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
-              <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Actions</th>
+              <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase ">Vendor</th>
+              <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase ">Products</th>
+              <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase ">Status</th>
+              <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase ">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -49,9 +49,8 @@ export default function VendorsPage() {
                   </span>
                 </td>
                 <td className="px-6 py-4">
-                  <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
-                    vendor.status === "Verified" ? "bg-blue-100 text-blue-700" : "bg-orange-100 text-orange-700"
-                  }`}>
+                  <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${vendor.status === "Verified" ? "bg-blue-100 text-blue-700" : "bg-orange-100 text-orange-700"
+                    }`}>
                     {vendor.status}
                   </span>
                 </td>

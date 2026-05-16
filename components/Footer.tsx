@@ -29,9 +29,9 @@ export default function Footer() {
           {/* Brand Info */}
           <div className="md:col-span-4 flex flex-col gap-6">
             <Link href="/" className="flex items-center">
-              <img 
-                src="/logo.png" 
-                alt="SoftwareDome Logo" 
+              <img
+                src="/logo.png"
+                alt="SoftwareDome Logo"
                 className="h-14 w-auto object-contain brightness-0 invert"
               />
             </Link>
@@ -54,7 +54,7 @@ export default function Footer() {
           {/* Links Grid */}
           <div className="md:col-span-8 grid grid-cols-2 md:grid-cols-3 gap-8">
             <div>
-              <h4 className="text-sm font-bold uppercase tracking-widest mb-6 text-blue-400">Directory</h4>
+              <h4 className="text-sm font-bold uppercase  mb-6 text-blue-400">Directory</h4>
               <ul className="flex flex-col gap-4">
                 {footerLinks.product.map(link => (
                   <li key={link.name}>
@@ -66,7 +66,7 @@ export default function Footer() {
               </ul>
             </div>
             <div>
-              <h4 className="text-sm font-bold uppercase tracking-widest mb-6 text-blue-400">Organization</h4>
+              <h4 className="text-sm font-bold uppercase  mb-6 text-blue-400">Organization</h4>
               <ul className="flex flex-col gap-4">
                 {footerLinks.company.map(link => (
                   <li key={link.name}>
@@ -78,7 +78,7 @@ export default function Footer() {
               </ul>
             </div>
             <div>
-              <h4 className="text-sm font-bold uppercase tracking-widest mb-6 text-blue-400">Legal</h4>
+              <h4 className="text-sm font-bold uppercase  mb-6 text-blue-400">Legal</h4>
               <ul className="flex flex-col gap-4">
                 {footerLinks.legal.map(link => (
                   <li key={link.name}>
@@ -98,8 +98,8 @@ export default function Footer() {
             © {new Date().getFullYear()} SoftwareDome Inc. All rights reserved.
           </p>
           <div className="flex gap-8 text-zinc-500 text-xs font-semibold">
-             <span>Verified Registry</span>
-             <span>Status: Operational</span>
+            <span>Verified Registry</span>
+            <span>Status: Operational</span>
           </div>
         </div>
       </div>

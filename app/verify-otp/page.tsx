@@ -13,17 +13,29 @@ export default function VerifyOTPPage() {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
-    const data = sessionStorage.getItem('pending_signup');
-    if (!data) {
-      router.push('/signup');
-      return;
+    const searchParams = new URLSearchParams(window.location.search);
+    const type = searchParams.get('type');
+
+    if (type === 'login') {
+      const email = sessionStorage.getItem('pending_login_email');
+      if (!email) {
+        router.push('/login');
+        return;
+      }
+      setSignupData({ email }); // Set a minimal signupData for display
+    } else {
+      const data = sessionStorage.getItem('pending_signup');
+      if (!data) {
+        router.push('/signup');
+        return;
+      }
+      setSignupData(JSON.parse(data));
     }
-    setSignupData(JSON.parse(data));
   }, [router]);
 
   const handleChange = (index: number, value: string) => {
     if (isNaN(Number(value))) return;
-    
+
     const newOtp = [...otp];
     newOtp[index] = value.substring(value.length - 1);
     setOtp(newOtp);
@@ -52,13 +64,23 @@ export default function VerifyOTPPage() {
     setError(null);
 
     try {
-      const res = await fetch('/api/auth/register', {
+      const searchParams = new URLSearchParams(window.location.search);
+      const type = searchParams.get('type');
+
+      let endpoint = '/api/auth/register';
+      let body: any = { ...signupData, otp: otpString };
+
+      if (type === 'login') {
+        endpoint = '/api/auth/login';
+        const loginEmail = sessionStorage.getItem('pending_login_email');
+        if (!loginEmail) throw new Error('Login session expired. Please try again.');
+        body = { email: loginEmail, otp: otpString };
+      }
+
+      const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...signupData,
-          otp: otpString,
-        }),
+        body: JSON.stringify(body),
       });
 
       const data = await res.json();
@@ -68,8 +90,13 @@ export default function VerifyOTPPage() {
       }
 
       // Cleanup and redirect
-      sessionStorage.removeItem('pending_signup');
-      router.push('/login?message=Account created successfully! Please sign in.');
+      if (type === 'login') {
+        sessionStorage.removeItem('pending_login_email');
+        router.push('/');
+      } else {
+        sessionStorage.removeItem('pending_signup');
+        router.push('/login?message=Account created successfully! Please sign in.');
+      }
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -82,10 +109,13 @@ export default function VerifyOTPPage() {
     setLoading(true);
     setError(null);
     try {
+      const searchParams = new URLSearchParams(window.location.search);
+      const type = searchParams.get('type') || 'signup';
+
       await fetch('/api/auth/send-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: signupData.email }),
+        body: JSON.stringify({ email: signupData.email, type }),
       });
       alert('Code resent successfully!');
     } catch (err) {
@@ -106,12 +136,12 @@ export default function VerifyOTPPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold tracking-tight">Verify Identity</h1>
+          <h1 className="text-2xl font-bold ">Verify Identity</h1>
           <p className="text-blue-100 text-sm mt-2">
             We've sent a 6-digit code to <span className="font-bold text-white">{signupData.email}</span>
           </p>
         </div>
-        
+
         <form onSubmit={handleSubmit} className="p-8 space-y-8">
           <div className="flex justify-between gap-2">
             {otp.map((digit, idx) => (
@@ -134,16 +164,16 @@ export default function VerifyOTPPage() {
               {error}
             </div>
           )}
-          
+
           <div className="space-y-4">
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               disabled={loading}
               className="w-full py-3 bg-primary-navy text-white rounded-lg font-bold text-sm hover:bg-accent-blue transition-all disabled:opacity-50 transform hover:-translate-y-0.5 active:translate-y-0 shadow-lg"
             >
-              {loading ? 'Verifying...' : 'Complete Registration'}
+              {loading ? 'Verifying...' : (new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '').get('type') === 'login' ? 'Complete Sign-in' : 'Complete Registration')}
             </button>
-            
+
             <button
               type="button"
               onClick={resendCode}

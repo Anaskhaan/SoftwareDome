@@ -41,10 +41,10 @@ const navItems: NavItem[] = [
       { label: "Add User", href: "/dashboard/users/add" },
     ]
   },
-  { 
-    label: "Softwares", 
-    href: "/dashboard/softwares", 
-    icon: Box, 
+  {
+    label: "Softwares",
+    href: "/dashboard/softwares",
+    icon: Box,
     roles: ["ADMIN", "VENDOR"],
     subItems: [
       { label: "Softwares List", href: "/dashboard/softwares" },
@@ -79,7 +79,7 @@ export default function Sidebar({ isSidebarOpen, setSidebarOpen, userRole }: Sid
         } bg-[#0a192f] text-white transition-all duration-300 ease-in-out flex flex-col fixed inset-y-0 z-50`}
     >
       <div className="p-4 flex items-center justify-between border-b border-white/10 h-16">
-        {isSidebarOpen && <span className="font-bold text-lg tracking-tight">SoftwareDome</span>}
+        {isSidebarOpen && <span className="font-bold text-lg ">SoftwareDome</span>}
         <button
           onClick={() => setSidebarOpen(!isSidebarOpen)}
           className="p-2 hover:bg-white/10 rounded-lg transition-colors"

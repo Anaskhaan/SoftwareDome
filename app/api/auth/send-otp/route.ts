@@ -6,7 +6,7 @@ import { sendOTPEmail } from "@/lib/mail";
 
 export async function POST(req: Request) {
   try {
-    const { email } = await req.json();
+    const { email, type } = await req.json();
 
     if (!email) {
       return NextResponse.json({ error: "Email is required." }, { status: 400 });
@@ -17,6 +17,24 @@ export async function POST(req: Request) {
       return NextResponse.json(
         { error: "SoftwareDome requires a business email (e.g., name@company.com)." },
         { status: 403 }
+      );
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (type === 'login' && !user) {
+      return NextResponse.json(
+        { error: "No account found with this email. Please sign up first." },
+        { status: 404 }
+      );
+    }
+
+    if (type === 'signup' && user) {
+      return NextResponse.json(
+        { error: "An account with this email already exists. Please log in." },
+        { status: 400 }
       );
     }
 

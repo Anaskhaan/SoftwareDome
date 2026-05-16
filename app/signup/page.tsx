@@ -29,7 +29,7 @@ export default function SignupPage() {
       const res = await fetch('/api/auth/send-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: formData.email }),
+        body: JSON.stringify({ email: formData.email, type: 'signup' }),
       });
 
       const data = await res.json();
@@ -54,13 +54,13 @@ export default function SignupPage() {
     <main className="min-h-screen flex items-center justify-center">
       <div className="w-full max-w-md bg-white rounded-xl shadow-2xl overflow-hidden border border-gray-100">
         <div className="bg-primary-navy p-4 text-center text-white">
-          <h1 className="text-3xl font-bold tracking-tight">Create Account</h1>
+          <h1 className="text-3xl font-bold ">Create Account</h1>
         </div>
 
         <form onSubmit={handleSubmit} className="p-8 space-y-5">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label htmlFor="name" className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+              <label htmlFor="name" className="text-xs font-bold text-gray-500 uppercase ">
                 Full Name
               </label>
               <input
@@ -74,7 +74,7 @@ export default function SignupPage() {
               />
             </div>
             <div className="space-y-1">
-              <label htmlFor="organizationName" className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+              <label htmlFor="organizationName" className="text-xs font-bold text-gray-500 uppercase ">
                 Company Name
               </label>
               <input
@@ -90,7 +90,7 @@ export default function SignupPage() {
           </div>
 
           <div className="space-y-1">
-            <label htmlFor="email" className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+            <label htmlFor="email" className="text-xs font-bold text-gray-500 uppercase ">
               Business Email
             </label>
             <input
@@ -105,7 +105,7 @@ export default function SignupPage() {
           </div>
 
           <div className="space-y-1">
-            <label htmlFor="password" className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+            <label htmlFor="password" className="text-xs font-bold text-gray-500 uppercase ">
               Password
             </label>
             <input

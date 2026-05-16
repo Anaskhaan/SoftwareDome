@@ -19,10 +19,10 @@ export default function DashboardPage() {
     <div className="space-y-8">
       <div className="flex justify-between items-end">
         <div>
-          <h2 className="text-3xl font-bold text-[#0a192f] tracking-tight">Dashboard Overview</h2>
+          <h2 className="text-3xl font-bold text-[#0a192f] ">Dashboard Overview</h2>
           <p className="text-slate-500 mt-1 font-medium">System status and performance metrics summary.</p>
         </div>
-        <div className="text-xs font-bold text-slate-400 bg-slate-100 px-3 py-1.5 rounded-full uppercase tracking-wider">
+        <div className="text-xs font-bold text-slate-400 bg-slate-100 px-3 py-1.5 rounded-full uppercase ">
           Last Updated: {new Date().toLocaleTimeString()}
         </div>
       </div>
@@ -35,7 +35,7 @@ export default function DashboardPage() {
               <stat.icon size={26} className="text-[#0a192f] group-hover:text-brand-active transition-colors" />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{stat.label}</p>
+              <p className="text-[10px] font-bold text-slate-400 uppercase ">{stat.label}</p>
               <h3 className="text-2xl font-bold text-[#0a192f] mt-0.5">{stat.value}</h3>
             </div>
           </div>

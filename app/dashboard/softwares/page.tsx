@@ -42,9 +42,9 @@ export default function SoftwaresPage() {
       <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4">
         <div className="flex-1 relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-          <input 
-            type="text" 
-            placeholder="Search softwares..." 
+          <input
+            type="text"
+            placeholder="Search softwares..."
             className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all text-sm"
           />
         </div>
@@ -82,10 +82,10 @@ export default function SoftwaresPage() {
             <table className="w-full text-left">
               <thead>
                 <tr className="bg-slate-50/50 border-b border-slate-200">
-                  <th className="px-6 py-4 text-[11px] font-bold text-slate-500 uppercase tracking-wider">Software</th>
-                  <th className="px-6 py-4 text-[11px] font-bold text-slate-500 uppercase tracking-wider">Rating</th>
-                  <th className="px-6 py-4 text-[11px] font-bold text-slate-500 uppercase tracking-wider">Created At</th>
-                  <th className="px-6 py-4 text-[11px] font-bold text-slate-500 uppercase tracking-wider">Actions</th>
+                  <th className="px-6 py-4 text-[11px] font-bold text-slate-500 uppercase ">Software</th>
+                  <th className="px-6 py-4 text-[11px] font-bold text-slate-500 uppercase ">Rating</th>
+                  <th className="px-6 py-4 text-[11px] font-bold text-slate-500 uppercase ">Created At</th>
+                  <th className="px-6 py-4 text-[11px] font-bold text-slate-500 uppercase ">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
