@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Navbar from '@/components/Navbar';
 import Sidebar from '@/components/Sidebar';
 import Hero from '@/components/Hero';
+import SoftwareSection from '@/components/SoftwareSection';
 import AboutSection from '@/components/AboutSection';
 import ProductCards from '@/components/ProductCards';
 import Footer from '@/components/Footer';
@@ -28,6 +29,10 @@ export default function Home() {
       <Sidebar isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
 
       <Hero />
+
+      <PageSection className="bg-white">
+        <SoftwareSection />
+      </PageSection>
 
       <PageSection className="bg-zinc-50">
         <AboutSection />

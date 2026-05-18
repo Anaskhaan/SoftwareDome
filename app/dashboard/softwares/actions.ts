@@ -37,6 +37,7 @@ export async function createSoftware(formData: FormData) {
   try {
     const name = formData.get("name") as string;
     const website = formData.get("website") as string;
+    const category = formData.get("category") as string || "";
     const introduction = formData.get("introduction") as string;
     const ourVerdict = formData.get("ourVerdict") as string;
     const rating = parseFloat(formData.get("rating") as string) || 0;
@@ -86,12 +87,13 @@ export async function createSoftware(formData: FormData) {
       }
     }
 
-    const software = await prisma.software.create({
+    const software = await (prisma.software as any).create({
       data: {
         name,
         slug,
         logo: logoUrl,
         website,
+        category,
         rating,
         reportUrl,
         introduction,
@@ -132,6 +134,7 @@ export async function updateSoftware(id: string, formData: FormData) {
   try {
     const name = formData.get("name") as string;
     const website = formData.get("website") as string;
+    const category = formData.get("category") as string || "";
     const introduction = formData.get("introduction") as string;
     const ourVerdict = formData.get("ourVerdict") as string;
     const rating = parseFloat(formData.get("rating") as string) || 0;
@@ -152,6 +155,7 @@ export async function updateSoftware(id: string, formData: FormData) {
     const updateData: any = {
       name,
       website,
+      category,
       rating,
       reportUrl,
       introduction,
@@ -183,7 +187,7 @@ export async function updateSoftware(id: string, formData: FormData) {
     }
     updateData.pictures = pictureUrls;
 
-    const software = await prisma.software.update({
+    const software = await (prisma.software as any).update({
       where: { id },
       data: updateData,
     });
@@ -192,5 +196,17 @@ export async function updateSoftware(id: string, formData: FormData) {
   } catch (error) {
     console.error("Error updating software:", error);
     return { success: false, error: "Failed to update software" };
+  }
+}
+
+export async function getSoftwareBySlug(slug: string) {
+  try {
+    const software = await prisma.software.findUnique({
+      where: { slug },
+    });
+    return { success: true, data: software };
+  } catch (error) {
+    console.error("Error fetching software by slug:", error);
+    return { success: false, error: "Failed to fetch software" };
   }
 }

@@ -63,6 +63,7 @@ model Software {
   slug              String   @unique
   logo              String?
   website           String?
+  category          String?
   
   // Section: Ratings and Reports
   rating            Float?   @default(0)

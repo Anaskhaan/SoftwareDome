@@ -36,6 +36,7 @@ export default function AddSoftwarePage() {
   const [basicInfo, setBasicInfo] = React.useState({
     name: "",
     website: "",
+    category: "",
     rating: 0,
     reportUrl: "",
     introduction: "",
@@ -100,6 +101,7 @@ export default function AddSoftwarePage() {
     // Basic Info
     formData.append("name", basicInfo.name);
     formData.append("website", basicInfo.website);
+    formData.append("category", basicInfo.category);
     formData.append("rating", basicInfo.rating.toString());
     formData.append("reportUrl", basicInfo.reportUrl);
     formData.append("introduction", basicInfo.introduction);
@@ -215,6 +217,18 @@ export default function AddSoftwarePage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="space-y-4">
                     <label className="text-sm font-bold text-slate-700 flex items-center gap-2">
+                      <Layers size={16} className="text-blue-500" /> Category
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 outline-none transition-all font-medium"
+                      placeholder="e.g. CRM, Healthcare, ERP"
+                      value={basicInfo.category}
+                      onChange={(e) => setBasicInfo({...basicInfo, category: e.target.value})}
+                    />
+                  </div>
+                  <div className="space-y-4">
+                    <label className="text-sm font-bold text-slate-700 flex items-center gap-2">
                       <Star size={16} className="text-yellow-500" /> Rating (0-5)
                     </label>
                     <input
@@ -227,18 +241,19 @@ export default function AddSoftwarePage() {
                       onChange={(e) => setBasicInfo({...basicInfo, rating: parseFloat(e.target.value) || 0})}
                     />
                   </div>
-                  <div className="space-y-4">
-                    <label className="text-sm font-bold text-slate-700 flex items-center gap-2">
-                      <FileText size={16} className="text-blue-500" /> External Report URL
-                    </label>
-                    <input
-                      type="url"
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 outline-none transition-all font-medium"
-                      placeholder="https://trustpilot.com/..."
-                      value={basicInfo.reportUrl}
-                      onChange={(e) => setBasicInfo({...basicInfo, reportUrl: e.target.value})}
-                    />
-                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <label className="text-sm font-bold text-slate-700 flex items-center gap-2">
+                    <FileText size={16} className="text-blue-500" /> External Report URL
+                  </label>
+                  <input
+                    type="url"
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 outline-none transition-all font-medium"
+                    placeholder="https://trustpilot.com/..."
+                    value={basicInfo.reportUrl}
+                    onChange={(e) => setBasicInfo({...basicInfo, reportUrl: e.target.value})}
+                  />
                 </div>
 
                 <div className="space-y-4">
