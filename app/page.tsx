@@ -7,12 +7,14 @@ import Hero from '@/components/Hero';
 import SoftwareSection from '@/components/SoftwareSection';
 import AboutSection from '@/components/AboutSection';
 import ProductCards from '@/components/ProductCards';
+import ListingProfileSection from '@/components/ListingProfileSection';
+import ForVendorsSection from '@/components/ForVendorsSection';
 import Footer from '@/components/Footer';
 
 
-function PageSection({ children, className = "" }: { children: React.ReactNode, className?: string }) {
+function PageSection({ children, className = "", id }: { children: React.ReactNode; className?: string; id?: string }) {
   return (
-    <section className={`px-6 lg:px-20 py-12 ${className}`}>
+    <section id={id} className={`px-6 lg:px-20 py-12 ${className}`}>
       <div className="max-w-7xl mx-auto">
         {children}
       </div>
@@ -30,7 +32,7 @@ export default function Home() {
 
       <Hero />
 
-      <PageSection className="bg-white">
+      <PageSection id="catalog" className="bg-white scroll-mt-20">
         <SoftwareSection />
       </PageSection>
 
@@ -38,8 +40,16 @@ export default function Home() {
         <AboutSection />
       </PageSection>
 
-      <PageSection className="bg-zinc-50/50">
+      <PageSection className="bg-zinc-50">
         <ProductCards />
+      </PageSection>
+
+      <PageSection className="bg-white">
+        <ListingProfileSection />
+      </PageSection>
+
+      <PageSection id="vendors" className="bg-zinc-50 scroll-mt-20">
+        <ForVendorsSection />
       </PageSection>
 
       <Footer />

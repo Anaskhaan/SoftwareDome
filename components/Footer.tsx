@@ -30,9 +30,11 @@ export default function Footer() {
           <div className="md:col-span-4 flex flex-col gap-6">
             <Link href="/" className="flex items-center">
               <img
-                src="/logo.png"
-                alt="SoftwareDome Logo"
-                className="h-14 w-auto object-contain brightness-0 invert"
+                src="/logo-light.svg"
+                alt="SoftwareDome"
+                className="h-9 w-auto object-contain"
+                width={232}
+                height={40}
               />
             </Link>
             <p className="text-zinc-400 text-sm leading-relaxed max-w-xs">

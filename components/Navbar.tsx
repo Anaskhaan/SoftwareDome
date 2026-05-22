@@ -67,9 +67,11 @@ export default function Navbar({ onMenuClick }: { onMenuClick: () => void }) {
 
         <Link href="/" className="flex items-center">
           <img
-            src="/logo.png"
-            alt="SoftwareDome Logo"
-            className="h-12 w-auto object-contain"
+            src="/logo.svg"
+            alt="SoftwareDome"
+            className="h-9 w-auto object-contain"
+            width={232}
+            height={40}
           />
         </Link>
       </div>

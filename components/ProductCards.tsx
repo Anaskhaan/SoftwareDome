@@ -1,71 +1,125 @@
 import SectionHeader from './SectionHeader';
-import { Icons } from '@/assets/icons';
+import { Search, GitCompare, FileCheck, CircleCheck } from 'lucide-react';
 
-const workflow = [
-  { id: '01', name: 'Discovery', desc: 'Understanding your vision, goals, and business requirements in depth.' },
-  { id: '02', name: 'Strategy', desc: 'Defining a technological roadmap and architectural blueprint.' },
-  { id: '03', name: 'Development', desc: 'Crafting high-performance code with precision and modern best practices.' },
-  { id: '04', name: 'Deployment', desc: 'Seamlessly launching your solution to the world with full support.' },
+const journey = [
+  {
+    id: '01',
+    name: 'Explore',
+    desc: 'Browse the live catalog by category, region, or keyword — every listing admin-approved.',
+    icon: Search,
+  },
+  {
+    id: '02',
+    name: 'Compare',
+    desc: 'Stack tools side by side on fit, pricing signals, and category — without leaving SoftwareDome.',
+    icon: GitCompare,
+  },
+  {
+    id: '03',
+    name: 'Verify',
+    desc: 'Read curated metadata and positioning written for clarity, not sponsored rankings.',
+    icon: FileCheck,
+  },
+  {
+    id: '04',
+    name: 'Decide',
+    desc: 'Shortlist with confidence and share choices with your team — no pay-to-play noise.',
+    icon: CircleCheck,
+  },
 ];
 
 export default function ProductCards() {
   return (
-    <div>
-      <SectionHeader
-        title="Our Process"
-        subtitle="HOW WE WORK"
-      />
-
-        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-11 gap-0 items-stretch min-h-[550px]">
-          {/* Step 1 */}
-          <article className="md:col-span-3 self-start bg-white border border-zinc-200 p-8 rounded-lg shadow-sm hover:shadow-xl hover:border-primary-navy/20 transition-all cursor-pointer group flex flex-col justify-between min-h-[250px]">
-            <div>
-              <div className="skeleton-number mb-6">
-                {workflow[0].id}
-              </div>
-              <h3 className="text-xl font-bold text-primary-navy mb-2">{workflow[0].name}</h3>
-              <p className="text-zinc-500 text-sm leading-relaxed">{workflow[0].desc}</p>
-            </div>
-          </article>
-
-          {/* Arrow 1: Down-Right */}
-          <div className="hidden md:flex md:col-span-1 self-center h-20 z-10">
-            <svg className="w-full h-full text-zinc-300" viewBox="0 0 100 100" preserveAspectRatio="none">
-              <line x1="0" y1="0" x2="100" y2="100" stroke="currentColor" strokeWidth="2" />
-              <path d="M85,100 L100,100 L100,85" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </div>
-
-          {/* Step 2 */}
-          <article className="md:col-span-3 self-end bg-white border border-zinc-200 p-8 rounded-lg shadow-sm hover:shadow-xl hover:border-primary-navy/20 transition-all cursor-pointer group flex flex-col justify-between min-h-[250px]">
-            <div>
-              <div className="skeleton-number mb-6">
-                {workflow[1].id}
-              </div>
-              <h3 className="text-xl font-bold text-primary-navy mb-2">{workflow[1].name}</h3>
-              <p className="text-zinc-500 text-sm leading-relaxed">{workflow[1].desc}</p>
-            </div>
-          </article>
-
-          {/* Arrow 2: Up-Right */}
-          <div className="hidden md:flex md:col-span-1 self-center h-20 z-10">
-            <svg className="w-full h-full text-zinc-300" viewBox="0 0 100 100" preserveAspectRatio="none">
-              <line x1="0" y1="100" x2="100" y2="0" stroke="currentColor" strokeWidth="2" />
-              <path d="M85,0 L100,0 L100,15" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </div>
-
-          {/* Step 3 */}
-          <article className="md:col-span-3 self-start bg-white border border-zinc-200 p-8 rounded-lg shadow-sm hover:shadow-xl hover:border-primary-navy/20 transition-all cursor-pointer group flex flex-col justify-between min-h-[250px]">
-            <div>
-              <div className="skeleton-number mb-6">
-                {workflow[2].id}
-              </div>
-              <h3 className="text-xl font-bold text-primary-navy mb-2">{workflow[2].name}</h3>
-              <p className="text-zinc-500 text-sm leading-relaxed">{workflow[2].desc}</p>
-            </div>
-          </article>
+    <div className="space-y-6">
+      <div className="[&_header]:mb-5">
+        <SectionHeader
+          title="From first search to final shortlist."
+          subtitle="HOW IT WORKS"
+        />
       </div>
+
+      {/* Bridge band — continues About without another hero block */}
+      <div className="flex flex-col gap-3 border border-zinc-200 bg-white px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5 rounded-sm">
+        <p className="max-w-2xl text-sm font-medium leading-snug text-primary-navy">
+          The mission section covers how listings enter the dome. Here is how teams move through
+          what you have already published.
+        </p>
+        <div className="flex shrink-0 items-center gap-2 font-mono text-[10px] uppercase tracking-[0.35em] text-zinc-400">
+          <span className="h-px w-6 bg-zinc-300" aria-hidden />
+          <span>Buyer path</span>
+        </div>
+      </div>
+
+      {/* Alternating timeline — skeleton numbers + zigzag offset, editorial shell */}
+      <div className="overflow-hidden rounded-sm border border-zinc-200">
+        <div className="border-b border-zinc-100 bg-zinc-50/80 px-4 py-2">
+          <span className="font-mono text-[10px] font-bold uppercase tracking-[0.35em] text-primary-navy/50">
+            Discovery flow
+          </span>
+        </div>
+
+        <div className="relative divide-y divide-zinc-100 bg-white">
+          <div
+            className="pointer-events-none absolute left-[1.65rem] top-6 bottom-6 hidden w-px bg-zinc-200 sm:block"
+            aria-hidden
+          />
+
+          {journey.map((step, index) => {
+            const Icon = step.icon;
+            const offset = index % 2 === 1;
+
+            return (
+              <article
+                key={step.id}
+                className={`relative flex flex-col gap-3 p-4 sm:flex-row sm:gap-5 sm:p-5 ${
+                  offset ? 'sm:pl-16 lg:pl-28' : 'sm:pl-5'
+                }`}
+              >
+                <div className="flex items-start gap-4 sm:w-[42%] sm:shrink-0 lg:w-[38%]">
+                  <div className="skeleton-number text-[3.25rem] leading-none sm:text-[4.5rem]">
+                    {step.id}
+                  </div>
+                  <Icon
+                    size={15}
+                    strokeWidth={2.25}
+                    className="mt-2 shrink-0 text-primary-navy/45 sm:hidden"
+                    aria-hidden
+                  />
+                </div>
+
+                <div className={`flex flex-1 flex-col gap-1.5 ${offset ? 'sm:items-end sm:text-right' : ''}`}>
+                  <div className={`flex items-center gap-2 ${offset ? 'sm:flex-row-reverse' : ''}`}>
+                    <h3 className="text-base font-bold text-primary-navy sm:text-lg">{step.name}</h3>
+                    <Icon
+                      size={14}
+                      strokeWidth={2.25}
+                      className="hidden shrink-0 text-primary-navy/45 sm:block"
+                      aria-hidden
+                    />
+                  </div>
+                  <p className="max-w-md text-xs leading-relaxed text-zinc-500 sm:text-sm">{step.desc}</p>
+                </div>
+
+                {index < journey.length - 1 && (
+                  <div
+                    className={`pointer-events-none absolute hidden h-8 w-8 border-zinc-200 sm:block ${
+                      offset
+                        ? 'bottom-0 left-16 border-b border-l lg:left-28'
+                        : 'bottom-0 right-8 border-b border-r lg:right-16'
+                    }`}
+                    aria-hidden
+                  />
+                )}
+              </article>
+            );
+          })}
+        </div>
+      </div>
+
+      <p className="text-sm leading-relaxed text-zinc-500">
+        <span className="font-semibold text-primary-navy">SoftwareDome</span> keeps discovery and
+        listing operations in one visual language — catalog above, path below, footer to close.
+      </p>
     </div>
   );
 }

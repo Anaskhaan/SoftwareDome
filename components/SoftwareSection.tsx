@@ -226,9 +226,6 @@ export default function SoftwareSection() {
       ) : (
         /* Dynamic Sleek Empty State */
         <div className="flex flex-col items-center justify-center py-20 px-6 border border-dashed border-slate-200 bg-slate-50/50 rounded-2xl text-center">
-          <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-4 animate-bounce">
-            <Sparkles size={24} />
-          </div>
           <h3 className="text-base font-bold text-[#0a192f] mb-1">No products match your criteria</h3>
           <p className="text-xs text-slate-500 max-w-sm">
             Try adjusting your search terms or picking another category tab to discover awesome softwares.

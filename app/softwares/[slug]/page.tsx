@@ -2,38 +2,99 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import {
   ArrowLeft,
+  ArrowUpRight,
   Star,
   Globe,
-  CheckCircle,
-  XCircle,
-  HelpCircle,
-  Cpu,
-  Layers,
-  Sparkles,
-  Info,
-  ListPlus,
-  BookOpen
+  FileText,
+  ChevronDown,
+  ImageIcon,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 import Footer from "@/components/Footer";
 import { getSoftwareBySlug } from "@/app/dashboard/softwares/actions";
 
+type FaqItem = { question?: string; answer?: string };
+type SoftwareRecord = {
+  id: string;
+  name: string;
+  slug: string;
+  logo: string | null;
+  website: string | null;
+  category?: string | null;
+  rating: number | null;
+  reportUrl: string | null;
+  introduction: string | null;
+  ourVerdict: string | null;
+  keyTakeaways: string[];
+  pros: string[];
+  cons: string[];
+  pictures: string[];
+  howItWorks: string | null;
+  whoIsItFor: string | null;
+  howItIsDifferent: string | null;
+  sentiments: string | null;
+  specifications: Record<string, string> | null;
+  faqs: FaqItem[] | null;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+};
+
+const sections = [
+  { id: "introduction", label: "Introduction" },
+  { id: "verdict", label: "Verdict" },
+  { id: "takeaways", label: "Takeaways" },
+  { id: "pros-cons", label: "Pros & cons" },
+  { id: "gallery", label: "Gallery" },
+  { id: "deep-dive", label: "Deep dive" },
+  { id: "specifications", label: "Specifications" },
+  { id: "faqs", label: "FAQs" },
+];
+
+function filterStrings(items: string[] | undefined | null) {
+  return (items || []).filter((s) => s?.trim());
+}
+
+function formatDate(iso: string | Date) {
+  return new Date(iso).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+}
+
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="font-mono text-[10px] font-bold uppercase tracking-[0.35em] text-primary-navy/45">
+      {children}
+    </span>
+  );
+}
+
+function EmptyBlock({ message }: { message: string }) {
+  return (
+    <p className="text-xs leading-relaxed text-zinc-400">{message}</p>
+  );
+}
+
+function ProseBlock({ text }: { text: string }) {
+  return (
+    <p className="text-sm leading-relaxed text-zinc-600 whitespace-pre-line">{text}</p>
+  );
+}
+
 export default function SoftwareDetailPage() {
   const params = useParams();
-  const router = useRouter();
   const slug = params?.slug as string;
 
-  const [software, setSoftware] = useState<any>(null);
+  const [software, setSoftware] = useState<SoftwareRecord | null>(null);
   const [loading, setLoading] = useState(true);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("overview");
-
-  // FAQ Accordion State
   const [expandedFaqs, setExpandedFaqs] = useState<Record<number, boolean>>({});
+  const [activeImage, setActiveImage] = useState(0);
 
   useEffect(() => {
     async function loadData() {
@@ -41,7 +102,7 @@ export default function SoftwareDetailPage() {
       try {
         const res = await getSoftwareBySlug(slug);
         if (res.success && res.data) {
-          setSoftware(res.data);
+          setSoftware(res.data as SoftwareRecord);
         } else {
           setSoftware(null);
         }
@@ -54,30 +115,18 @@ export default function SoftwareDetailPage() {
     loadData();
   }, [slug]);
 
-  const toggleFaq = (index: number) => {
-    setExpandedFaqs((prev) => ({
-      ...prev,
-      [index]: !prev[index],
-    }));
-  };
-
   if (loading) {
     return (
-      <main className="min-h-screen bg-slate-50/50 flex flex-col justify-between">
+      <main className="min-h-screen bg-zinc-50">
         <Navbar onMenuClick={() => setIsMenuOpen(true)} />
         <Sidebar isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
-        <div className="flex-1 max-w-5xl w-full mx-auto px-6 py-20 flex flex-col gap-8">
-          <div className="h-6 w-32 bg-slate-200 animate-pulse rounded" />
-          <div className="bg-white border border-slate-100 rounded-3xl p-8 animate-pulse flex flex-col gap-6">
-            <div className="flex gap-6 items-center">
-              <div className="w-20 h-20 bg-slate-200 rounded-2xl" />
-              <div className="space-y-3 flex-1">
-                <div className="h-6 bg-slate-200 rounded w-1/3" />
-                <div className="h-4 bg-slate-200 rounded w-1/4" />
-              </div>
-            </div>
-            <div className="h-20 bg-slate-200 rounded-xl" />
+        <div className="mx-auto max-w-7xl px-6 py-10 lg:px-20">
+          <div className="mb-6 h-4 w-28 animate-pulse rounded-sm bg-zinc-200" />
+          <div className="grid gap-px overflow-hidden rounded-sm border border-zinc-200 bg-zinc-200 lg:grid-cols-12">
+            <div className="h-40 animate-pulse bg-white lg:col-span-4" />
+            <div className="h-40 animate-pulse bg-white lg:col-span-8" />
           </div>
+          <div className="mt-6 h-64 animate-pulse rounded-sm border border-zinc-200 bg-white" />
         </div>
         <Footer />
       </main>
@@ -86,22 +135,21 @@ export default function SoftwareDetailPage() {
 
   if (!software) {
     return (
-      <main className="min-h-screen bg-slate-50/50 flex flex-col justify-between">
+      <main className="min-h-screen bg-zinc-50">
         <Navbar onMenuClick={() => setIsMenuOpen(true)} />
         <Sidebar isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
-        <div className="flex-1 flex flex-col items-center justify-center py-32 px-6 text-center">
-          <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-6">
-            <Info size={32} />
-          </div>
-          <h1 className="text-2xl font-black text-[#0a192f] mb-2">Review Profile Not Found</h1>
-          <p className="text-sm text-slate-500 max-w-md mb-8">
-            The software page you are trying to view doesn't exist or has been removed by the administrator.
+        <div className="mx-auto max-w-lg px-6 py-28 text-center">
+          <SectionLabel>Not found</SectionLabel>
+          <h1 className="mt-3 text-xl font-black text-primary-navy">Profile not in index</h1>
+          <p className="mt-2 text-sm text-zinc-500">
+            This software slug does not exist or was removed from the catalog.
           </p>
           <Link
-            href="/"
-            className="px-6 py-3 bg-[#0a192f] hover:bg-[#142d52] text-white font-bold rounded-xl shadow-md transition-all text-sm"
+            href="/#catalog"
+            className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-primary-navy hover:underline"
           >
-            Return to Homepage
+            <ArrowLeft size={14} />
+            Back to catalog
           </Link>
         </div>
         <Footer />
@@ -109,347 +157,449 @@ export default function SoftwareDetailPage() {
     );
   }
 
-  // Parse custom structures safely
-  const specifications = software.specifications as Record<string, string> || {};
-  const faqs = (software.faqs as any[]) || [];
+  const specifications =
+    software.specifications && typeof software.specifications === "object"
+      ? (software.specifications as Record<string, string>)
+      : {};
+  const specEntries = Object.entries(specifications).filter(([, v]) => v?.trim());
+  const faqs = Array.isArray(software.faqs) ? software.faqs : [];
+  const validFaqs = faqs.filter((f) => f?.question?.trim());
+  const takeaways = filterStrings(software.keyTakeaways);
+  const pros = filterStrings(software.pros);
+  const cons = filterStrings(software.cons);
+  const pictures = filterStrings(software.pictures);
+  const rating = software.rating ?? 0;
+
+  const deepDive = [
+    { id: "how-it-works", title: "How it works", body: software.howItWorks },
+    { id: "who-is-it-for", title: "Who it is for", body: software.whoIsItFor },
+    { id: "how-it-is-different", title: "How it is different", body: software.howItIsDifferent },
+    { id: "sentiments", title: "Market sentiment", body: software.sentiments },
+  ].filter((s) => s.body?.trim());
 
   return (
-    <main className="min-h-screen bg-slate-50/50 flex flex-col justify-between font-sans">
+    <main className="min-h-screen bg-zinc-50">
       <Navbar onMenuClick={() => setIsMenuOpen(true)} />
       <Sidebar isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
 
-      <div className="flex-1 max-w-5xl w-full mx-auto px-6 py-12">
-        {/* Back Link */}
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 text-slate-500 hover:text-[#0a192f] font-bold text-sm mb-8 transition-colors group"
-        >
-          <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
-          Back to Softwares
-        </Link>
+      <div className="mx-auto max-w-7xl px-6 py-8 lg:px-20 lg:py-10">
+        {/* Meta rail */}
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-zinc-200 pb-4">
+          <Link
+            href="/#catalog"
+            className="inline-flex items-center gap-2 text-xs font-bold text-zinc-500 transition-colors hover:text-primary-navy"
+          >
+            <ArrowLeft size={14} />
+            Catalog
+          </Link>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 font-mono text-[10px] uppercase tracking-wider text-zinc-400">
+            <span>{software.slug}</span>
+            <span className="hidden h-3 w-px bg-zinc-200 sm:inline" aria-hidden />
+            <span>Added {formatDate(software.createdAt)}</span>
+            {software.updatedAt !== software.createdAt && (
+              <>
+                <span className="hidden h-3 w-px bg-zinc-200 sm:inline" aria-hidden />
+                <span>Updated {formatDate(software.updatedAt)}</span>
+              </>
+            )}
+          </div>
+        </div>
 
-        {/* Premium Product Header Card */}
-        <div className="bg-white border border-slate-200 rounded-3xl p-8 shadow-sm relative overflow-hidden mb-10">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50/30 rounded-full blur-2xl -z-10" />
-          
-          <div className="flex flex-col md:flex-row gap-8 items-start md:items-center justify-between">
-            <div className="flex flex-col sm:flex-row gap-6 items-start sm:items-center">
-              {/* Product Logo */}
-              <div className="w-20 h-20 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center overflow-hidden shrink-0 shadow-inner">
-                {software.logo ? (
-                  <img
-                    src={software.logo}
-                    alt={software.name}
-                    className="w-full h-full object-contain p-2"
-                  />
-                ) : (
-                  <span className="text-3xl font-black text-[#0a192f]/30">
-                    {software.name?.charAt(0)}
-                  </span>
-                )}
+        <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_11rem] lg:gap-10">
+          {/* Main column */}
+          <div className="space-y-6 min-w-0">
+            {/* Header bento */}
+            <div className="grid overflow-hidden rounded-sm border border-zinc-200 bg-zinc-200 gap-px lg:grid-cols-12">
+              <div className="flex items-center justify-center bg-white p-4 lg:col-span-3">
+                <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-sm border border-zinc-100 bg-zinc-50">
+                  {software.logo ? (
+                    <img
+                      src={software.logo}
+                      alt=""
+                      className="h-full w-full object-contain p-2"
+                    />
+                  ) : (
+                    <span className="text-2xl font-black text-primary-navy/25">
+                      {software.name.charAt(0)}
+                    </span>
+                  )}
+                </div>
               </div>
 
-              {/* Title & Stats */}
-              <div>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-bold uppercase tracking-wider mb-2">
-                  <Layers size={12} />
-                  {software.category || "Uncategorized"}
-                </span>
-                <h1 className="text-3xl font-black text-[#0a192f] tracking-tight leading-none mb-2">
+              <div className="flex flex-col justify-center gap-3 bg-white p-4 sm:p-5 lg:col-span-6">
+                <SectionLabel>{software.category || "Uncategorized"}</SectionLabel>
+                <h1 className="text-2xl font-black tracking-tight text-primary-navy sm:text-3xl">
                   {software.name}
                 </h1>
-                
-                {software.rating > 0 && (
+                {rating > 0 && (
                   <div className="flex items-center gap-2">
                     <div className="flex gap-0.5">
                       {[1, 2, 3, 4, 5].map((star) => (
                         <Star
                           key={star}
-                          size={14}
-                          className={`${
-                            star <= Math.round(software.rating)
-                              ? "text-yellow-500 fill-yellow-500"
-                              : "text-slate-200 fill-slate-200"
-                          }`}
+                          size={12}
+                          className={
+                            star <= Math.round(rating)
+                              ? "fill-primary-navy text-primary-navy"
+                              : "text-zinc-200"
+                          }
                         />
                       ))}
                     </div>
-                    <span className="text-xs font-black text-slate-700">
-                      {software.rating.toFixed(1)} / 5 Rating
+                    <span className="text-xs font-bold tabular-nums text-zinc-600">
+                      {rating.toFixed(1)}
                     </span>
                   </div>
                 )}
               </div>
-            </div>
 
-            {/* Action Buttons */}
-            <div className="flex flex-wrap gap-3 w-full md:w-auto">
-              {software.website && (
-                <a
-                  href={software.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex-1 md:flex-none inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#0a192f] hover:bg-[#142d52] text-white font-extrabold rounded-xl shadow-sm text-sm transition-all"
-                >
-                  <Globe size={16} />
-                  Visit Website
-                </a>
-              )}
-              {software.reportUrl && (
-                <a
-                  href={software.reportUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex-1 md:flex-none inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-50 hover:bg-slate-100 text-[#0a192f] font-extrabold rounded-xl border border-slate-200 text-sm transition-all"
-                >
-                  External Report
-                </a>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Tab Navigation */}
-        <div className="flex border-b border-slate-200 mb-8 overflow-x-auto gap-8 scrollbar-none">
-          {[
-            { id: "overview", label: "Overview & Verdict", icon: Sparkles },
-            { id: "deepdive", label: "Deep Dive Analysis", icon: BookOpen },
-            { id: "specs", label: "Specifications", icon: Cpu },
-            { id: "faqs", label: "Frequently Asked FAQs", icon: HelpCircle }
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 py-4 border-b-2 font-bold text-sm shrink-0 transition-all ${
-                activeTab === tab.id
-                  ? "border-[#0a192f] text-[#0a192f]"
-                  : "border-transparent text-slate-400 hover:text-slate-600"
-              }`}
-            >
-              <tab.icon size={16} />
-              {tab.label}
-            </button>
-          ))}
-        </div>
-
-        {/* TAB CONTENTS */}
-        <div>
-          {/* TAB 1: OVERVIEW */}
-          {activeTab === "overview" && (
-            <div className="space-y-10">
-              {/* Introduction & Verdict */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div className="lg:col-span-2 space-y-6">
-                  <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
-                    <h2 className="text-xl font-black text-[#0a192f] mb-4">Introduction</h2>
-                    <p className="text-slate-600 text-sm leading-relaxed whitespace-pre-line">
-                      {software.introduction || "No introduction has been provided for this product yet."}
-                    </p>
+              <div className="grid gap-px bg-zinc-200 sm:grid-cols-2 lg:col-span-3 lg:grid-cols-1">
+                {software.website && (
+                  <a
+                    href={software.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group flex items-center justify-between gap-2 bg-white px-4 py-3 text-sm font-bold text-primary-navy transition-colors hover:bg-zinc-50"
+                  >
+                    Website
+                    <ArrowUpRight
+                      size={14}
+                      className="text-zinc-400 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                    />
+                  </a>
+                )}
+                {software.reportUrl && (
+                  <a
+                    href={software.reportUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group flex items-center justify-between gap-2 bg-white px-4 py-3 text-sm font-bold text-primary-navy transition-colors hover:bg-zinc-50"
+                  >
+                    Report
+                    <FileText size={14} className="text-zinc-400" />
+                  </a>
+                )}
+                {!software.website && !software.reportUrl && (
+                  <div className="flex items-center bg-white px-4 py-3 text-xs text-zinc-400">
+                    No external links
                   </div>
+                )}
+              </div>
+            </div>
 
-                  {/* Key Takeaways */}
-                  {software.keyTakeaways && software.keyTakeaways.length > 0 && (
-                    <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
-                      <h2 className="text-xl font-black text-[#0a192f] mb-4">Key Takeaways</h2>
-                      <ul className="space-y-3.5">
-                        {software.keyTakeaways.map((takeaway: string, idx: number) => (
-                          takeaway && (
-                            <li key={idx} className="flex items-start gap-3">
-                              <CheckCircle size={18} className="text-emerald-500 shrink-0 mt-0.5" />
-                              <span className="text-slate-600 text-sm">{takeaway}</span>
-                            </li>
-                          )
-                        ))}
-                      </ul>
-                    </div>
+            {/* Introduction */}
+            <section id="introduction" className="scroll-mt-24">
+              <div className="overflow-hidden rounded-sm border border-zinc-200 bg-white">
+                <div className="border-b border-zinc-100 bg-zinc-50/80 px-4 py-2">
+                  <SectionLabel>Introduction</SectionLabel>
+                </div>
+                <div className="p-4 sm:p-5">
+                  {software.introduction?.trim() ? (
+                    <ProseBlock text={software.introduction} />
+                  ) : (
+                    <EmptyBlock message="No introduction added by admin." />
                   )}
                 </div>
+              </div>
+            </section>
 
-                {/* Our Verdict Panel */}
-                <div className="bg-gradient-to-br from-[#0a192f] to-[#1a365d] rounded-2xl p-6 text-white shadow-md relative overflow-hidden flex flex-col justify-between">
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full blur-xl" />
-                  <div>
-                    <h3 className="text-lg font-black tracking-tight mb-4 flex items-center gap-2">
-                      <Sparkles size={18} className="text-yellow-400 fill-yellow-400" />
-                      Our Verdict
-                    </h3>
-                    <p className="text-slate-200 text-xs leading-relaxed whitespace-pre-line">
-                      {software.ourVerdict ||
-                        "Our dedicated review experts are compiling testing evaluations for this software. Stay tuned for our finalized review score and in-depth breakdown!"}
+            {/* Verdict */}
+            <section id="verdict" className="scroll-mt-24">
+              <div className="relative overflow-hidden rounded-sm border border-primary-navy/20 bg-primary-navy text-white">
+                <div
+                  className="pointer-events-none absolute inset-0 opacity-[0.1]"
+                  style={{
+                    backgroundImage:
+                      "radial-gradient(circle at 1px 1px, rgba(255,255,255,0.85) 1px, transparent 0)",
+                    backgroundSize: "24px 24px",
+                  }}
+                  aria-hidden
+                />
+                <div className="relative border-b border-white/10 px-4 py-2">
+                  <SectionLabel>
+                    <span className="text-white/45">Our verdict</span>
+                  </SectionLabel>
+                </div>
+                <div className="relative p-4 sm:p-5">
+                  {software.ourVerdict?.trim() ? (
+                    <p className="text-sm leading-relaxed text-white/85 whitespace-pre-line">
+                      {software.ourVerdict}
                     </p>
-                  </div>
-                  {software.rating > 0 && (
-                    <div className="border-t border-white/10 pt-4 mt-6">
-                      <div className="text-[10px] uppercase font-extrabold tracking-wider text-slate-400 mb-1">
-                        Antigravity Grade
-                      </div>
-                      <div className="text-3xl font-black">{software.rating.toFixed(1)} / 5.0</div>
+                  ) : (
+                    <p className="text-sm text-white/50">Verdict not published yet.</p>
+                  )}
+                  {rating > 0 && (
+                    <div className="mt-4 flex items-baseline gap-2 border-t border-white/10 pt-4">
+                      <span className="text-2xl font-black tabular-nums">{rating.toFixed(1)}</span>
+                      <span className="font-mono text-[10px] uppercase tracking-wider text-white/40">
+                        Admin rating
+                      </span>
                     </div>
                   )}
                 </div>
               </div>
+            </section>
 
-              {/* Pros & Cons Side-by-Side */}
-              {((software.pros && software.pros.length > 0) || (software.cons && software.cons.length > 0)) && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  {/* Pros */}
-                  <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
-                    <h3 className="text-lg font-black text-emerald-700 flex items-center gap-2 mb-4">
-                      <CheckCircle size={20} className="text-emerald-500" /> Pros
-                    </h3>
-                    <ul className="space-y-3">
-                      {software.pros?.map((pro: string, idx: number) => (
-                        pro && (
-                          <li key={idx} className="flex items-start gap-2.5">
-                            <span className="text-emerald-500 text-sm font-bold mt-0.5">•</span>
-                            <span className="text-slate-600 text-sm leading-relaxed">{pro}</span>
-                          </li>
-                        )
+            {/* Takeaways */}
+            <section id="takeaways" className="scroll-mt-24">
+              <div className="overflow-hidden rounded-sm border border-zinc-200 bg-white">
+                <div className="border-b border-zinc-100 bg-zinc-50/80 px-4 py-2">
+                  <SectionLabel>Key takeaways</SectionLabel>
+                </div>
+                <div className="p-4 sm:p-5">
+                  {takeaways.length > 0 ? (
+                    <ul className="space-y-2.5">
+                      {takeaways.map((item, idx) => (
+                        <li
+                          key={idx}
+                          className="flex gap-3 text-sm leading-relaxed text-zinc-600"
+                        >
+                          <span className="shrink-0 font-mono text-[10px] font-bold text-primary-navy/35 pt-0.5">
+                            {String(idx + 1).padStart(2, "0")}
+                          </span>
+                          {item}
+                        </li>
                       ))}
                     </ul>
+                  ) : (
+                    <EmptyBlock message="No key takeaways listed." />
+                  )}
+                </div>
+              </div>
+            </section>
+
+            {/* Pros & cons */}
+            <section id="pros-cons" className="scroll-mt-24">
+              <div className="grid gap-px overflow-hidden rounded-sm border border-zinc-200 bg-zinc-200 sm:grid-cols-2">
+                <div className="bg-white">
+                  <div className="border-b border-zinc-100 bg-zinc-50/80 px-4 py-2">
+                    <SectionLabel>Pros</SectionLabel>
                   </div>
-
-                  {/* Cons */}
-                  <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
-                    <h3 className="text-lg font-black text-rose-700 flex items-center gap-2 mb-4">
-                      <XCircle size={20} className="text-rose-500" /> Cons
-                    </h3>
-                    <ul className="space-y-3">
-                      {software.cons?.map((con: string, idx: number) => (
-                        con && (
-                          <li key={idx} className="flex items-start gap-2.5">
-                            <span className="text-rose-500 text-sm font-bold mt-0.5">•</span>
-                            <span className="text-slate-600 text-sm leading-relaxed">{con}</span>
+                  <div className="p-4 sm:p-5">
+                    {pros.length > 0 ? (
+                      <ul className="space-y-2">
+                        {pros.map((item, idx) => (
+                          <li
+                            key={idx}
+                            className="border-l-2 border-primary-navy/20 pl-3 text-sm text-zinc-600"
+                          >
+                            {item}
                           </li>
-                        )
-                      ))}
-                    </ul>
+                        ))}
+                      </ul>
+                    ) : (
+                      <EmptyBlock message="No pros documented." />
+                    )}
                   </div>
                 </div>
-              )}
-            </div>
-          )}
-
-          {/* TAB 2: DEEP DIVE */}
-          {activeTab === "deepdive" && (
-            <div className="space-y-8">
-              {[
-                { title: "How It Works", content: software.howItWorks },
-                { title: "Who Is It For?", content: software.whoIsItFor },
-                { title: "How It Stands Out", content: software.howItIsDifferent },
-                { title: "Market & User Sentiment", content: software.sentiments }
-              ].map((section, idx) => (
-                section.content && (
-                  <div key={idx} className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
-                    <h2 className="text-xl font-black text-[#0a192f] mb-4 flex items-center gap-2">
-                      <ListPlus size={18} className="text-blue-500" />
-                      {section.title}
-                    </h2>
-                    <p className="text-slate-600 text-sm leading-relaxed whitespace-pre-line">
-                      {section.content}
-                    </p>
+                <div className="bg-white">
+                  <div className="border-b border-zinc-100 bg-zinc-50/80 px-4 py-2">
+                    <SectionLabel>Cons</SectionLabel>
                   </div>
-                )
-              ))}
+                  <div className="p-4 sm:p-5">
+                    {cons.length > 0 ? (
+                      <ul className="space-y-2">
+                        {cons.map((item, idx) => (
+                          <li
+                            key={idx}
+                            className="border-l-2 border-zinc-300 pl-3 text-sm text-zinc-600"
+                          >
+                            {item}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <EmptyBlock message="No cons documented." />
+                    )}
+                  </div>
+                </div>
+              </div>
+            </section>
 
-              {!software.howItWorks &&
-                !software.whoIsItFor &&
-                !software.howItIsDifferent &&
-                !software.sentiments && (
-                  <div className="text-center py-16 bg-white border border-slate-200 rounded-2xl shadow-sm">
-                    <BookOpen size={32} className="mx-auto text-slate-300 mb-4" />
-                    <h3 className="text-base font-bold text-[#0a192f]">Deep Dive Pending</h3>
-                    <p className="text-xs text-slate-500 max-w-xs mx-auto mt-1">
-                      Detailed structural blueprints and architectural analyses are currently compiling.
-                    </p>
+            {/* Gallery — was missing entirely */}
+            <section id="gallery" className="scroll-mt-24">
+              <div className="overflow-hidden rounded-sm border border-zinc-200 bg-white">
+                <div className="border-b border-zinc-100 bg-zinc-50/80 px-4 py-2">
+                  <SectionLabel>Gallery</SectionLabel>
+                </div>
+                <div className="p-4 sm:p-5">
+                  {pictures.length > 0 ? (
+                    <div className="space-y-3">
+                      <div className="relative aspect-video overflow-hidden rounded-sm border border-zinc-100 bg-zinc-50">
+                        <img
+                          src={pictures[activeImage]}
+                          alt={`${software.name} screenshot ${activeImage + 1}`}
+                          className="h-full w-full object-contain"
+                        />
+                      </div>
+                      {pictures.length > 1 && (
+                        <div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
+                          {pictures.map((src, idx) => (
+                            <button
+                              key={idx}
+                              type="button"
+                              onClick={() => setActiveImage(idx)}
+                              className={`aspect-video overflow-hidden rounded-sm border transition-colors ${
+                                activeImage === idx
+                                  ? "border-primary-navy"
+                                  : "border-zinc-100 hover:border-zinc-300"
+                              }`}
+                            >
+                              <img
+                                src={src}
+                                alt=""
+                                className="h-full w-full object-cover"
+                              />
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-3 text-zinc-400">
+                      <ImageIcon size={18} />
+                      <EmptyBlock message="No gallery images uploaded." />
+                    </div>
+                  )}
+                </div>
+              </div>
+            </section>
+
+            {/* Deep dive */}
+            <section id="deep-dive" className="scroll-mt-24">
+              <div className="overflow-hidden rounded-sm border border-zinc-200 bg-zinc-200 gap-px">
+                <div className="border-b border-zinc-100 bg-zinc-50/80 px-4 py-2 bg-white">
+                  <SectionLabel>Deep dive</SectionLabel>
+                </div>
+                {deepDive.length > 0 ? (
+                  <div className="grid gap-px bg-zinc-200">
+                    {deepDive.map((block) => (
+                      <article key={block.id} className="bg-white p-4 sm:p-5">
+                        <h3 className="text-sm font-bold text-primary-navy">{block.title}</h3>
+                        <div className="mt-2">
+                          <ProseBlock text={block.body!} />
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="bg-white p-4 sm:p-5">
+                    <EmptyBlock message="Deep dive sections not filled in yet." />
                   </div>
                 )}
-            </div>
-          )}
+              </div>
+            </section>
 
-          {/* TAB 3: SPECIFICATIONS */}
-          {activeTab === "specs" && (
-            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
-              <h2 className="text-xl font-black text-[#0a192f] mb-6 flex items-center gap-2">
-                <Cpu size={18} className="text-blue-500" />
-                Technical Specifications
-              </h2>
-
-              {Object.keys(specifications).length > 0 &&
-              Object.values(specifications).some(Boolean) ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {Object.entries(specifications).map(([key, value]) => (
-                    value && (
+            {/* Specifications */}
+            <section id="specifications" className="scroll-mt-24">
+              <div className="overflow-hidden rounded-sm border border-zinc-200 bg-white">
+                <div className="border-b border-zinc-100 bg-zinc-50/80 px-4 py-2">
+                  <SectionLabel>Specifications</SectionLabel>
+                </div>
+                {specEntries.length > 0 ? (
+                  <dl className="divide-y divide-zinc-100">
+                    {specEntries.map(([key, value]) => (
                       <div
                         key={key}
-                        className="flex justify-between items-center px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl"
+                        className="grid grid-cols-1 gap-1 px-4 py-3 sm:grid-cols-[10rem_1fr] sm:gap-4 sm:px-5"
                       >
-                        <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">
+                        <dt className="font-mono text-[10px] font-bold uppercase tracking-wider text-zinc-400">
                           {key}
-                        </span>
-                        <span className="text-sm font-extrabold text-slate-800">{value}</span>
+                        </dt>
+                        <dd className="text-sm font-medium text-zinc-700">{value}</dd>
                       </div>
-                    )
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-12">
-                  <Cpu size={32} className="mx-auto text-slate-300 mb-3" />
-                  <p className="text-xs text-slate-500">No specifications listed for this software profile.</p>
-                </div>
-              )}
-            </div>
-          )}
+                    ))}
+                  </dl>
+                ) : (
+                  <div className="p-4 sm:p-5">
+                    <EmptyBlock message="No specification fields added." />
+                  </div>
+                )}
+              </div>
+            </section>
 
-          {/* TAB 4: FAQS */}
-          {activeTab === "faqs" && (
-            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
-              <h2 className="text-xl font-black text-[#0a192f] mb-6 flex items-center gap-2">
-                <HelpCircle size={18} className="text-blue-500" />
-                Frequently Asked Questions
-              </h2>
-
-              {faqs.length > 0 && faqs.some((f) => f.question) ? (
-                <div className="space-y-4">
-                  {faqs.map((faq: any, idx: number) => (
-                    faq.question && (
-                      <div
-                        key={idx}
-                        className="border border-slate-100 rounded-xl overflow-hidden transition-all duration-200"
-                      >
+            {/* FAQs */}
+            <section id="faqs" className="scroll-mt-24">
+              <div className="overflow-hidden rounded-sm border border-zinc-200 bg-white">
+                <div className="border-b border-zinc-100 bg-zinc-50/80 px-4 py-2">
+                  <SectionLabel>FAQs</SectionLabel>
+                </div>
+                {validFaqs.length > 0 ? (
+                  <div className="divide-y divide-zinc-100">
+                    {validFaqs.map((faq, idx) => (
+                      <div key={idx}>
                         <button
-                          onClick={() => toggleFaq(idx)}
-                          className="w-full flex justify-between items-center text-left px-5 py-4 bg-slate-50/50 hover:bg-slate-50 transition-colors"
+                          type="button"
+                          onClick={() =>
+                            setExpandedFaqs((prev) => ({ ...prev, [idx]: !prev[idx] }))
+                          }
+                          className="flex w-full items-start justify-between gap-4 px-4 py-3.5 text-left transition-colors hover:bg-zinc-50/80 sm:px-5"
                         >
-                          <span className="text-sm font-bold text-[#0a192f] pr-4">
+                          <span className="text-sm font-bold text-primary-navy">
                             {faq.question}
                           </span>
-                          <span
-                            className={`text-slate-400 font-bold transition-transform duration-200 shrink-0 ${
+                          <ChevronDown
+                            size={16}
+                            className={`shrink-0 text-zinc-400 transition-transform ${
                               expandedFaqs[idx] ? "rotate-180" : ""
                             }`}
-                          >
-                            ▼
-                          </span>
+                          />
                         </button>
-
-                        {expandedFaqs[idx] && (
-                          <div className="px-5 py-4 bg-white border-t border-slate-50 text-slate-600 text-xs leading-relaxed whitespace-pre-line animate-fadeIn">
-                            {faq.answer || "Answer is pending update."}
+                        {expandedFaqs[idx] && faq.answer?.trim() && (
+                          <div className="border-t border-zinc-50 bg-zinc-50/50 px-4 pb-4 pt-0 sm:px-5">
+                            <p className="pt-3 text-sm leading-relaxed text-zinc-600 whitespace-pre-line">
+                              {faq.answer}
+                            </p>
                           </div>
                         )}
                       </div>
-                    )
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-12">
-                  <HelpCircle size={32} className="mx-auto text-slate-300 mb-3" />
-                  <p className="text-xs text-slate-500">No FAQs have been loaded for this profile yet.</p>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-4 sm:p-5">
+                    <EmptyBlock message="No FAQs published for this product." />
+                  </div>
+                )}
+              </div>
+            </section>
+          </div>
+
+          {/* Sticky section index — desktop only */}
+          <aside className="hidden lg:block">
+            <nav
+              className="sticky top-24 overflow-hidden rounded-sm border border-zinc-200 bg-white"
+              aria-label="On this page"
+            >
+              <div className="border-b border-zinc-100 bg-zinc-50/80 px-3 py-2">
+                <SectionLabel>On this page</SectionLabel>
+              </div>
+              <ul className="p-2">
+                {sections.map((s) => (
+                  <li key={s.id}>
+                    <a
+                      href={`#${s.id}`}
+                      className="block rounded-sm px-2 py-1.5 text-xs font-semibold text-zinc-500 transition-colors hover:bg-zinc-50 hover:text-primary-navy"
+                    >
+                      {s.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+              {software.website && (
+                <div className="border-t border-zinc-100 p-2">
+                  <a
+                    href={software.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-1.5 rounded-sm bg-primary-navy px-3 py-2 text-xs font-bold text-white transition-colors hover:bg-accent-blue"
+                  >
+                    <Globe size={12} />
+                    Visit site
+                  </a>
                 </div>
               )}
-            </div>
-          )}
+            </nav>
+          </aside>
         </div>
       </div>
 
