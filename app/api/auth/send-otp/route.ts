@@ -61,7 +61,6 @@ export async function POST(req: Request) {
       },
     });
 
-    // 4. Send Email using Nodemailer
     await sendOTPEmail(email, otp);
 
     return NextResponse.json(

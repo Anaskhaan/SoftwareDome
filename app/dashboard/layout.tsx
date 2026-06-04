@@ -10,7 +10,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
-  const [userRole, setUserRole] = useState<"ADMIN" | "VENDOR">("ADMIN"); // Mock role
+  const [userRole, setUserRole] = useState<"ADMIN" | "VENDOR">("ADMIN");
 
   return (
     <div className="min-h-screen bg-gray-50 flex">

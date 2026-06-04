@@ -64,11 +64,11 @@ export default function Hero() {
               The first screen is the index itself — vendors worldwide, one dome, admin-curated
               entries, zero paid rank slots.
             </p>
-            <div className="select-none leading-[0.82] tracking-tighter">
+            <div className="select-none leading-[1] tracking-tighter">
               <span className="block text-[clamp(2.75rem,11vw,7.5rem)] font-black text-white">
                 WORLD
               </span>
-              <span className="block text-[clamp(2.75rem,11vw,7.5rem)] font-black text-white/90">
+              <span className="block text-[clamp(2.0rem,10vw,7rem)] font-black text-white/90">
                 SOFTWARE
               </span>
               <span
