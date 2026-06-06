@@ -35,6 +35,24 @@ body {
   overflow-x: hidden;
 }
 
+.custom_input {
+  width: 100%;
+  padding: 0.25rem 1rem 0.25rem 2.5rem;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.375rem;
+  outline: none;
+}
+
+.custom_input:focus {
+  outline: none;
+}
+
+.custom_input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* Reduced Padding & Standardized Radius for Buttons */
 .btn {
   border-radius: var(--radius-lg);
@@ -62,7 +80,7 @@ body {
 
 /* Hero Specific Buttons */
 .btn-hero-primary {
-  background-color: white;
+  background-color: var(--light-gray);
   color: var(--primary-navy);
   position: relative;
   overflow: hidden;

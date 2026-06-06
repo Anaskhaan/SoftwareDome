@@ -1,7 +1,7 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-
+import { isBusinessEmail } from "@/lib/auth-utils";
 import bcrypt from "bcryptjs";
 
 export async function getUsers() {
@@ -21,12 +21,27 @@ export async function getUsers() {
   }
 }
 
-export async function createUser(formData: { name: string; email: string; role: string }) {
+export async function createUser(formData: {
+  name: string;
+  email: string;
+  role: string;
+  companyName?: string;
+  companyEmail?: string;
+  companyAddress?: string;
+  companyPhone?: string;
+}) {
   try {
-    const { name, email, role } = formData;
+    const { name, email, role, companyName, companyEmail, companyAddress, companyPhone } = formData;
 
     if (!name || !email || !role) {
       return { success: false, error: "All fields are required" };
+    }
+
+    if (!isBusinessEmail(email)) {
+      return {
+        success: false,
+        error: "Personal email addresses are not allowed. Please use a business email.",
+      };
     }
 
     // Check if user already exists
@@ -49,6 +64,10 @@ export async function createUser(formData: { name: string; email: string; role: 
         role: role as any,
         password: hashedPassword,
         status: "Active",
+        companyName: role === "VENDOR" ? companyName : null,
+        companyEmail: role === "VENDOR" ? companyEmail : null,
+        companyAddress: role === "VENDOR" ? companyAddress : null,
+        companyPhone: role === "VENDOR" ? companyPhone : null,
       },
     });
 

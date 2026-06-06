@@ -36,6 +36,10 @@ export async function GET() {
             domain: true,
           },
         },
+        companyName: true,
+        companyEmail: true,
+        companyAddress: true,
+        companyPhone: true,
         createdAt: true,
       },
     });

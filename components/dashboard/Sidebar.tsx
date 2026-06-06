@@ -6,7 +6,7 @@ import {
   Users,
   Box,
   Store,
-  Settings,
+  UserPen,
   Menu,
   X,
   ChevronRight,
@@ -52,7 +52,7 @@ const navItems: NavItem[] = [
     ]
   },
   { label: "Vendors", href: "/dashboard/vendors", icon: Store, roles: ["ADMIN"] },
-  { label: "Settings", href: "/dashboard/settings", icon: Settings, roles: ["ADMIN", "VENDOR"] },
+  { label: "Edit Profile", href: "/dashboard/edit-profile", icon: UserPen, roles: ["ADMIN", "VENDOR"] },
 ];
 
 interface SidebarProps {

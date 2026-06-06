@@ -23,6 +23,10 @@ model User {
   isEmailVerified Boolean      @default(false)
   organizationId  String?
   organization    Organization? @relation(fields: [organizationId], references: [id])
+  companyName     String?
+  companyEmail    String?
+  companyAddress  String?
+  companyPhone    String?
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
 

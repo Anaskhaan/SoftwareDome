@@ -8,7 +8,7 @@ import { cookies } from "next/headers";
 
 export async function POST(req: Request) {
   try {
-    const { email, password, name, organizationName, otp } = await req.json();
+    const { email, password, name, organizationName, otp, role, companyName, companyEmail, companyAddress, companyPhone } = await req.json();
 
     // 1. Basic validation
     if (!email || !password || !otp) {
@@ -84,6 +84,11 @@ export async function POST(req: Request) {
           password: hashedPassword,
           organizationId: organization.id,
           isEmailVerified: true, // Mark as verified since OTP was correct
+          role: role === "VENDOR" ? "VENDOR" : "USER",
+          companyName: role === "VENDOR" ? companyName : null,
+          companyEmail: role === "VENDOR" ? companyEmail : null,
+          companyAddress: role === "VENDOR" ? companyAddress : null,
+          companyPhone: role === "VENDOR" ? companyPhone : null,
         },
       });
 
