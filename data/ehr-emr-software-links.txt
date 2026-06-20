@@ -1,0 +1,15 @@
+Epic: https://www.epic.com
+Oracle Health (Cerner): https://www.oracle.com/health/
+athenahealth: https://www.athenahealth.com
+eClinicalWorks: https://www.eclinicalworks.com
+NextGen Healthcare: https://www.nextgen.com
+Veradigm (Allscripts): https://veradigm.com
+MEDITECH Expanse: https://ehr.meditech.com
+Practice Fusion: https://www.practicefusion.com
+DrChrono: https://www.drchrono.com
+Greenway Health (Intergy): https://www.greenwayhealth.com
+Kareo / Tebra: https://www.tebra.com
+AdvancedMD: https://www.advancedmd.com
+CareCloud: https://www.carecloud.com
+ModMed (Modernizing Medicine): https://www.modmed.com
+SimplePractice: https://www.simplepractice.com
