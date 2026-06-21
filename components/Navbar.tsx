@@ -4,17 +4,27 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Icons } from '@/assets/icons';
+import Logo from '@/components/Logo';
 
 const navLinks = [
-  { name: 'Explore', href: '/categories' },
-  { name: 'Trends', href: '/top-software' },
-  { name: 'Deals', href: '/deals' },
-  { name: 'Blog', href: '/blog' },
+  { name: 'Software Categories', href: '/categories' },
+  { name: 'For Vendors', href: '/vendors' },
+  { name: 'Resource Center', href: '/blog' },
+  { name: 'Write a Review', href: '/write-review' },
 ];
 
-export default function Navbar({ onMenuClick }: { onMenuClick: () => void }) {
+export default function Navbar({
+  onMenuClick,
+  transparent = false,
+  heroTheme = 'light',
+}: {
+  onMenuClick: () => void;
+  transparent?: boolean;
+  heroTheme?: 'light' | 'dark';
+}) {
   const [user, setUser] = useState<any>(null);
   const [showTooltip, setShowTooltip] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const router = useRouter();
 
@@ -32,6 +42,17 @@ export default function Navbar({ onMenuClick }: { onMenuClick: () => void }) {
     };
     fetchUser();
   }, []);
+
+  useEffect(() => {
+    if (!transparent) return;
+    const onScroll = () => setScrolled(window.scrollY > 24);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [transparent]);
+
+  const isBlended = transparent && !scrolled;
+  const isDarkBlend = isBlended && heroTheme === 'dark';
 
   const handleMouseEnter = () => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -56,46 +77,78 @@ export default function Navbar({ onMenuClick }: { onMenuClick: () => void }) {
   };
 
   return (
-    <header className="flex items-center justify-between px-6 lg:px-16 py-5 border-b border-gray-100 bg-white sticky top-0 z-40">
-      <div className="flex items-center gap-4 lg:gap-0">
+    <header
+      className={`py-4 transition-all duration-300 ${
+        transparent
+          ? `fixed top-0 inset-x-0 z-50 ${
+              isBlended
+                ? 'bg-transparent border-b border-transparent'
+                : 'bg-white/85 backdrop-blur-xl border-b border-gray-100 shadow-[0_4px_24px_-8px_rgba(10,25,47,0.08)]'
+            }`
+          : 'sticky top-0 z-40 bg-white/95 backdrop-blur-xl border-b border-gray-100 shadow-[0_1px_0_rgba(10,25,47,0.04)]'
+      }`}
+    >
+    <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 md:px-10 lg:px-20">
+      <div className="flex items-center gap-3 md:gap-0">
         <button
           onClick={onMenuClick}
-          className="lg:hidden flex items-center justify-start text-primary-navy"
+          className={`md:hidden flex items-center justify-start rounded-lg p-1.5 transition-colors ${
+            isDarkBlend ? 'text-white hover:bg-white/10' : 'text-primary-navy hover:bg-primary-navy/5'
+          }`}
+          aria-label="Open menu"
         >
-          <Icons.Menu size={28} />
+          <Icons.Menu size={24} />
         </button>
 
-        <Link href="/" className="flex items-center">
-          <img
-            src="/logo.svg"
-            alt="SoftwareDome"
-            className="h-9 w-auto object-contain"
-            width={232}
-            height={40}
-          />
-        </Link>
+        <Logo size="md" variant={isDarkBlend ? 'dark' : 'light'} />
       </div>
 
-      <nav className="hidden lg:flex items-center gap-10 font-semibold text-gray-600">
+      <nav
+        className={`hidden md:flex items-center gap-1 font-semibold text-sm transition-colors ${
+          isDarkBlend ? 'text-white/80' : 'text-gray-600'
+        }`}
+      >
         {navLinks.map((link) => (
           <Link
             key={link.name}
             href={link.href}
-            className="hover:text-primary-navy transition-colors whitespace-nowrap"
+            className={`rounded-full px-3.5 py-2 whitespace-nowrap transition-colors ${
+              isDarkBlend
+                ? 'hover:bg-white/10 hover:text-white'
+                : 'hover:bg-brand-green/8 hover:text-brand-green-dark'
+            }`}
           >
             {link.name}
           </Link>
         ))}
       </nav>
 
-      <div className="hidden lg:flex items-center gap-4 relative">
+      <div className="hidden md:flex items-center gap-2 relative">
+        <Link
+          href="/categories"
+          aria-label="Search"
+          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border transition-colors duration-300 ${
+            isDarkBlend
+              ? 'border-white/15 text-white/80 hover:bg-white/10 hover:text-white'
+              : 'border-transparent text-gray-500 hover:bg-brand-green/8 hover:text-brand-green-dark'
+          }`}
+        >
+          <Icons.Search size={18} />
+        </Link>
+
         {user ? (
           <div
             className="relative"
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
           >
-            <button className="w-10 h-10 cursor-pointer rounded-full bg-primary-navy/10 flex items-center justify-center text-primary-navy hover:bg-primary-navy/20 transition-all border border-primary-navy/10">
+            <button
+              className={`w-10 h-10 cursor-pointer rounded-full flex items-center justify-center transition-all border hover:ring-2 hover:ring-brand-green/30 ${
+                isDarkBlend
+                  ? 'bg-white/10 text-white border-white/15 hover:bg-white/15'
+                  : 'bg-primary-navy/10 text-primary-navy border-primary-navy/10 hover:bg-primary-navy/20'
+              }`}
+            >
               <Icons.User size={20} />
             </button>
 
@@ -135,17 +188,58 @@ export default function Navbar({ onMenuClick }: { onMenuClick: () => void }) {
               </div>
             )}
           </div>
+        ) : isDarkBlend ? (
+          <Link
+            href="/signup"
+            className="group inline-flex items-center gap-2 rounded-full border border-brand-green/50 px-5 py-2 text-sm font-bold text-brand-green-light transition-all hover:border-brand-green hover:bg-brand-green/10"
+          >
+            <Icons.User size={15} />
+            Join Free or Log In
+          </Link>
         ) : (
           <>
-            <Link href="/login" className="btn text-gray-700 hover:bg-gray-50 text-sm">
+            <Link
+              href="/login"
+              className="rounded-full px-4 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-100"
+            >
               Login
             </Link>
-            <Link href="/signup" className="btn btn-navy text-sm">
+            <Link
+              href="/signup"
+              className="group inline-flex items-center gap-1.5 rounded-full bg-brand-green px-5 py-2.5 text-sm font-bold text-white shadow-[0_4px_16px_-2px_rgba(95,194,74,0.45)] transition-all hover:bg-brand-green-dark hover:shadow-[0_6px_20px_-2px_rgba(95,194,74,0.55)] hover:-translate-y-0.5"
+            >
               Get Started
+              <Icons.Arrow size={14} className="transition-transform group-hover:translate-x-0.5" />
             </Link>
           </>
         )}
       </div>
+
+      {/* Mobile quick actions */}
+      <div className="flex items-center gap-1 md:hidden">
+        <Link
+          href="/categories"
+          aria-label="Search"
+          className={`flex h-9 w-9 items-center justify-center rounded-full transition-colors ${
+            isDarkBlend ? 'text-white/80 hover:bg-white/10' : 'text-gray-500 hover:bg-gray-100'
+          }`}
+        >
+          <Icons.Search size={18} />
+        </Link>
+        {!user && (
+          <Link
+            href="/signup"
+            className={`rounded-full px-3.5 py-2 text-xs font-bold whitespace-nowrap ${
+              isDarkBlend
+                ? 'border border-brand-green/50 text-brand-green-light'
+                : 'bg-brand-green text-white shadow-sm'
+            }`}
+          >
+            {isDarkBlend ? 'Join' : 'Get Started'}
+          </Link>
+        )}
+      </div>
+    </div>
     </header>
   );
 }

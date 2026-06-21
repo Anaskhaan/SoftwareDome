@@ -10,7 +10,7 @@ import {
   FileText,
   AlertCircle,
   Loader2,
-} from "lucide-react";
+} from "@/lib/fa-icons";
 import AdminOutletBtnHeading from "@/components/dashboard/AdminOutletBtnHeading";
 import { deleteBlog, getBlogs } from "./actions";
 

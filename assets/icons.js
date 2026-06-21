@@ -17,7 +17,7 @@ import {
   ShieldCheck,
   Zap,
   Layers
-} from 'lucide-react';
+} from '@/lib/fa-icons';
 
 export const Icons = {
   Menu,

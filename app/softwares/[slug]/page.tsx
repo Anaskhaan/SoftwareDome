@@ -11,10 +11,11 @@ import {
   FileText,
   ChevronDown,
   ImageIcon,
-} from "lucide-react";
+} from "@/lib/fa-icons";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 import Footer from "@/components/Footer";
+import Container from "@/components/Container";
 import SoftwareReviews from "@/components/SoftwareReviews";
 import { getSoftwareBySlug } from "@/app/dashboard/softwares/actions";
 
@@ -122,14 +123,14 @@ export default function SoftwareDetailPage() {
       <main className="min-h-screen bg-zinc-50">
         <Navbar onMenuClick={() => setIsMenuOpen(true)} />
         <Sidebar isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
-        <div className="mx-auto max-w-7xl px-6 py-10 lg:px-20">
+        <Container className="py-10">
           <div className="mb-6 h-4 w-28 animate-pulse rounded-sm bg-zinc-200" />
           <div className="grid gap-px overflow-hidden rounded-sm border border-zinc-200 bg-zinc-200 lg:grid-cols-12">
             <div className="h-40 animate-pulse bg-white lg:col-span-4" />
             <div className="h-40 animate-pulse bg-white lg:col-span-8" />
           </div>
           <div className="mt-6 h-64 animate-pulse rounded-sm border border-zinc-200 bg-white" />
-        </div>
+        </Container>
         <Footer />
       </main>
     );
@@ -184,7 +185,7 @@ export default function SoftwareDetailPage() {
       <Navbar onMenuClick={() => setIsMenuOpen(true)} />
       <Sidebar isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
 
-      <div className="mx-auto max-w-7xl px-6 py-8 lg:px-20 lg:py-10">
+      <Container className="py-8 lg:py-10">
         {/* Meta rail */}
         <div className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-zinc-200 pb-4">
           <Link
@@ -605,7 +606,7 @@ export default function SoftwareDetailPage() {
             </nav>
           </aside>
         </div>
-      </div>
+      </Container>
 
       <Footer />
     </main>

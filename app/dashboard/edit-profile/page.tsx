@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { User, Mail, Shield, Building2, Activity } from "lucide-react";
+import { User, Mail, Shield, Building2, Activity } from "@/lib/fa-icons";
 import AdminOutletHeading from "@/components/dashboard/AdminOutletHeading";
 import { isBusinessEmail } from "@/lib/auth-utils";
 

@@ -172,7 +172,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
               <input
                 type="text"
                 placeholder="Search records..."
-                className="border rounded-lg border-slate-200 pl-10 pr-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-brand-active/20"
+                className="border rounded-lg border-slate-200 pl-10 pr-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-brand-green/20 focus:border-brand-green"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
@@ -257,9 +257,9 @@ const CustomTable: React.FC<CustomTableProps> = ({
                       : undefined
                   }
                   onDoubleClick={() => onRowDoubleClick?.(item)}
-                  className={`border-b border-slate-100 last:border-0 hover:bg-blue-50/50 transition-colors ${setSelectedRow ? "cursor-pointer " : ""
+                  className={`border-b border-slate-100 last:border-0 hover:bg-brand-green/5 transition-colors ${setSelectedRow ? "cursor-pointer " : ""
                     } ${setSelectedRow && selectedRow === item._id
-                      ? "bg-blue-50"
+                      ? "bg-brand-green/10"
                       : "bg-white"
                     }`}
                 >

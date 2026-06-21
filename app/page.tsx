@@ -10,14 +10,13 @@ import ProductCards from '@/components/ProductCards';
 import BlogsSection from '@/components/BlogsSection';
 import ForVendorsSection from '@/components/ForVendorsSection';
 import Footer from '@/components/Footer';
+import Container from '@/components/Container';
 
 
 function PageSection({ children, className = "", id }: { children: React.ReactNode; className?: string; id?: string }) {
   return (
-    <section id={id} className={`px-6 lg:px-20 py-12 ${className}`}>
-      <div className="max-w-7xl mx-auto">
-        {children}
-      </div>
+    <section id={id} className={`py-12 ${className}`}>
+      <Container>{children}</Container>
     </section>
   );
 }
@@ -27,7 +26,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-white">
-      <Navbar onMenuClick={() => setIsMenuOpen(true)} />
+      <Navbar onMenuClick={() => setIsMenuOpen(true)} transparent heroTheme="dark" />
       <Sidebar isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
 
       <Hero />

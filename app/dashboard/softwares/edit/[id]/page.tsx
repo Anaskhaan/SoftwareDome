@@ -21,7 +21,7 @@ import {
   X,
   Trash2,
   Upload
-} from "lucide-react";
+} from "@/lib/fa-icons";
 import AdminOutletHeading from "@/components/dashboard/AdminOutletHeading";
 import { getSoftwareById, updateSoftware } from "../../actions";
 import { useRouter, useParams } from "next/navigation";
@@ -251,11 +251,11 @@ export default function EditSoftwarePage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="space-y-4">
                     <label className="text-sm font-bold text-slate-700 flex items-center gap-2">
-                      <Box size={16} className="text-blue-500" /> Software Name
+                      <Box size={16} className="text-brand-green-dark" /> Software Name
                     </label>
                     <input
                       type="text"
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 outline-none transition-all font-medium"
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-green/15 outline-none transition-all font-medium"
                       placeholder="e.g. SoftwareDome"
                       value={basicInfo.name}
                       onChange={(e) => setBasicInfo({...basicInfo, name: e.target.value})}
@@ -264,11 +264,11 @@ export default function EditSoftwarePage() {
                   </div>
                   <div className="space-y-4">
                     <label className="text-sm font-bold text-slate-700 flex items-center gap-2">
-                      <Globe size={16} className="text-blue-500" /> Website URL
+                      <Globe size={16} className="text-brand-green-dark" /> Website URL
                     </label>
                     <input
                       type="url"
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 outline-none transition-all font-medium"
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-green/15 outline-none transition-all font-medium"
                       placeholder="https://example.com"
                       value={basicInfo.website}
                       onChange={(e) => setBasicInfo({...basicInfo, website: e.target.value})}
@@ -279,11 +279,11 @@ export default function EditSoftwarePage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="space-y-4">
                     <label className="text-sm font-bold text-slate-700 flex items-center gap-2">
-                      <Layers size={16} className="text-blue-500" /> Category
+                      <Layers size={16} className="text-brand-green-dark" /> Category
                     </label>
                     <input
                       type="text"
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 outline-none transition-all font-medium"
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-green/15 outline-none transition-all font-medium"
                       placeholder="e.g. CRM, Healthcare, ERP"
                       value={basicInfo.category}
                       onChange={(e) => setBasicInfo({...basicInfo, category: e.target.value})}
@@ -298,7 +298,7 @@ export default function EditSoftwarePage() {
                       step="0.1"
                       min="0"
                       max="5"
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 outline-none transition-all font-medium"
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-green/15 outline-none transition-all font-medium"
                       value={basicInfo.rating}
                       onChange={(e) => setBasicInfo({...basicInfo, rating: parseFloat(e.target.value) || 0})}
                     />
@@ -307,11 +307,11 @@ export default function EditSoftwarePage() {
 
                 <div className="space-y-4">
                   <label className="text-sm font-bold text-slate-700 flex items-center gap-2">
-                    <FileText size={16} className="text-blue-500" /> External Report URL
+                    <FileText size={16} className="text-brand-green-dark" /> External Report URL
                   </label>
                   <input
                     type="url"
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 outline-none transition-all font-medium"
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-green/15 outline-none transition-all font-medium"
                     placeholder="https://trustpilot.com/..."
                     value={basicInfo.reportUrl}
                     onChange={(e) => setBasicInfo({...basicInfo, reportUrl: e.target.value})}
@@ -320,7 +320,7 @@ export default function EditSoftwarePage() {
 
                 <div className="space-y-4">
                   <label className="text-sm font-bold text-slate-700 flex items-center gap-2">
-                    <Upload size={16} className="text-blue-500" /> Software Logo
+                    <Upload size={16} className="text-brand-green-dark" /> Software Logo
                   </label>
                   <div className="flex items-center gap-6 p-6 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50/50">
                     <div className="w-16 h-16 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-400 overflow-hidden">
@@ -353,7 +353,7 @@ export default function EditSoftwarePage() {
                   <label className="text-sm font-bold text-slate-700">Introduction</label>
                   <textarea
                     rows={4}
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500/20 outline-none transition-all font-medium resize-none"
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-brand-green/15 outline-none transition-all font-medium resize-none"
                     placeholder="Briefly describe the software..."
                     value={basicInfo.introduction}
                     onChange={(e) => setBasicInfo({...basicInfo, introduction: e.target.value})}
@@ -369,7 +369,7 @@ export default function EditSoftwarePage() {
                   <label className="text-sm font-bold text-slate-700">Our Verdict</label>
                   <textarea
                     rows={4}
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500/20 outline-none transition-all font-medium resize-none"
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-brand-green/15 outline-none transition-all font-medium resize-none"
                     placeholder="Our professional take..."
                     value={analysis.ourVerdict}
                     onChange={(e) => setAnalysis({...analysis, ourVerdict: e.target.value})}
@@ -381,14 +381,14 @@ export default function EditSoftwarePage() {
                     <label className="text-sm font-bold text-slate-700 flex items-center gap-2">
                       <CheckCircle size={16} className="text-emerald-500" /> Key Takeaways
                     </label>
-                    <button type="button" onClick={() => addArrayItem(setAnalysis, "keyTakeaways")} className="text-blue-600 text-xs font-bold hover:underline">+ Add Point</button>
+                    <button type="button" onClick={() => addArrayItem(setAnalysis, "keyTakeaways")} className="text-brand-green-dark text-xs font-bold hover:underline">+ Add Point</button>
                   </div>
                   <div className="space-y-3">
                     {analysis.keyTakeaways.map((item, idx) => (
                       <div key={idx} className="relative group">
                         <input
                           type="text"
-                          className="w-full pl-4 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 font-medium"
+                          className="w-full pl-4 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-brand-green/15 font-medium"
                           value={item}
                           onChange={(e) => handleArrayChange(setAnalysis, idx, e.target.value, "keyTakeaways")}
                           placeholder={`Takeaway #${idx + 1}`}
@@ -407,14 +407,14 @@ export default function EditSoftwarePage() {
                       <label className="text-sm font-bold text-slate-700 flex items-center gap-2">
                         <CheckCircle size={16} className="text-emerald-500" /> Pros
                       </label>
-                      <button type="button" onClick={() => addArrayItem(setAnalysis, "pros")} className="text-blue-600 text-xs font-bold hover:underline">+ Add Pro</button>
+                      <button type="button" onClick={() => addArrayItem(setAnalysis, "pros")} className="text-brand-green-dark text-xs font-bold hover:underline">+ Add Pro</button>
                     </div>
                     <div className="space-y-3">
                       {analysis.pros.map((item, idx) => (
                         <div key={idx} className="relative group">
                           <input
                             type="text"
-                            className="w-full pl-4 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 font-medium"
+                            className="w-full pl-4 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-brand-green/15 font-medium"
                             value={item}
                             onChange={(e) => handleArrayChange(setAnalysis, idx, e.target.value, "pros")}
                             placeholder={`Pro #${idx + 1}`}
@@ -431,14 +431,14 @@ export default function EditSoftwarePage() {
                       <label className="text-sm font-bold text-slate-700 flex items-center gap-2">
                         <XCircle size={16} className="text-red-500" /> Cons
                       </label>
-                      <button type="button" onClick={() => addArrayItem(setAnalysis, "cons")} className="text-blue-600 text-xs font-bold hover:underline">+ Add Con</button>
+                      <button type="button" onClick={() => addArrayItem(setAnalysis, "cons")} className="text-brand-green-dark text-xs font-bold hover:underline">+ Add Con</button>
                     </div>
                     <div className="space-y-3">
                       {analysis.cons.map((item, idx) => (
                         <div key={idx} className="relative group">
                           <input
                             type="text"
-                            className="w-full pl-4 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 font-medium"
+                            className="w-full pl-4 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-brand-green/15 font-medium"
                             value={item}
                             onChange={(e) => handleArrayChange(setAnalysis, idx, e.target.value, "cons")}
                             placeholder={`Con #${idx + 1}`}
@@ -463,7 +463,7 @@ export default function EditSoftwarePage() {
                   </label>
                   <textarea
                     rows={4}
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500/20 outline-none transition-all font-medium resize-none"
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-brand-green/15 outline-none transition-all font-medium resize-none"
                     placeholder="Describe the workflow or architecture..."
                     value={contentParts.howItWorks}
                     onChange={(e) => setContentParts({...contentParts, howItWorks: e.target.value})}
@@ -471,11 +471,11 @@ export default function EditSoftwarePage() {
                 </div>
                 <div className="space-y-4">
                   <label className="text-sm font-bold text-slate-700 flex items-center gap-2">
-                    <UsersIcon size={16} className="text-blue-500" /> Who Is It For?
+                    <UsersIcon size={16} className="text-brand-green-dark" /> Who Is It For?
                   </label>
                   <textarea
                     rows={4}
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500/20 outline-none transition-all font-medium resize-none"
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-brand-green/15 outline-none transition-all font-medium resize-none"
                     placeholder="Target audience or industry..."
                     value={contentParts.whoIsItFor}
                     onChange={(e) => setContentParts({...contentParts, whoIsItFor: e.target.value})}
@@ -487,7 +487,7 @@ export default function EditSoftwarePage() {
                   </label>
                   <textarea
                     rows={4}
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500/20 outline-none transition-all font-medium resize-none"
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-brand-green/15 outline-none transition-all font-medium resize-none"
                     placeholder="Unique selling points..."
                     value={contentParts.howItIsDifferent}
                     onChange={(e) => setContentParts({...contentParts, howItIsDifferent: e.target.value})}
@@ -499,7 +499,7 @@ export default function EditSoftwarePage() {
                   </label>
                   <textarea
                     rows={4}
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500/20 outline-none transition-all font-medium resize-none"
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-brand-green/15 outline-none transition-all font-medium resize-none"
                     placeholder="General market perception..."
                     value={contentParts.sentiments}
                     onChange={(e) => setContentParts({...contentParts, sentiments: e.target.value})}
@@ -530,7 +530,7 @@ export default function EditSoftwarePage() {
                     ))}
                     {/* New Pictures */}
                     {galleryFiles.map((file, idx) => (
-                      <div key={`new-${idx}`} className="aspect-video relative rounded-2xl border border-blue-200 bg-blue-50/50 overflow-hidden group">
+                      <div key={`new-${idx}`} className="aspect-video relative rounded-2xl border border-brand-green/30 bg-brand-green/5 overflow-hidden group">
                         <img src={URL.createObjectURL(file)} className="w-full h-full object-cover" />
                         <button 
                           type="button" 
@@ -539,7 +539,7 @@ export default function EditSoftwarePage() {
                         >
                           <X size={14} />
                         </button>
-                        <div className="absolute bottom-1 left-1 px-1.5 py-0.5 bg-blue-500 text-white text-[8px] font-bold rounded uppercase">New</div>
+                        <div className="absolute bottom-1 left-1 px-1.5 py-0.5 bg-brand-green/100 text-white text-[8px] font-bold rounded uppercase">New</div>
                       </div>
                     ))}
                     <label className="aspect-video flex flex-col items-center justify-center gap-2 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50/50 cursor-pointer hover:bg-slate-50 transition-colors">
@@ -563,14 +563,14 @@ export default function EditSoftwarePage() {
                 <div className="space-y-6">
                   <div className="flex items-center justify-between">
                     <label className="text-sm font-bold text-slate-700">Specifications (Key-Value)</label>
-                    <button type="button" onClick={() => setExtraData(prev => ({ ...prev, specifications: [...prev.specifications, { key: "", value: "" }] }))} className="text-blue-600 text-xs font-bold hover:underline">+ Add Spec</button>
+                    <button type="button" onClick={() => setExtraData(prev => ({ ...prev, specifications: [...prev.specifications, { key: "", value: "" }] }))} className="text-brand-green-dark text-xs font-bold hover:underline">+ Add Spec</button>
                   </div>
                   <div className="space-y-3">
                     {extraData.specifications.map((spec, idx) => (
                       <div key={idx} className="flex gap-4 items-center group">
                         <input
                           type="text"
-                          className="flex-1 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 text-sm"
+                          className="flex-1 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-brand-green/15 text-sm"
                           placeholder="e.g. License"
                           value={spec.key}
                           onChange={(e) => {
@@ -581,7 +581,7 @@ export default function EditSoftwarePage() {
                         />
                         <input
                           type="text"
-                          className="flex-1 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 text-sm"
+                          className="flex-1 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-brand-green/15 text-sm"
                           placeholder="e.g. SaaS"
                           value={spec.value}
                           onChange={(e) => {
@@ -602,14 +602,14 @@ export default function EditSoftwarePage() {
                 <div className="space-y-6">
                   <div className="flex items-center justify-between">
                     <label className="text-sm font-bold text-slate-700">FAQs</label>
-                    <button type="button" onClick={() => setExtraData(prev => ({ ...prev, faqs: [...prev.faqs, { question: "", answer: "" }] }))} className="text-blue-600 text-xs font-bold hover:underline">+ Add FAQ</button>
+                    <button type="button" onClick={() => setExtraData(prev => ({ ...prev, faqs: [...prev.faqs, { question: "", answer: "" }] }))} className="text-brand-green-dark text-xs font-bold hover:underline">+ Add FAQ</button>
                   </div>
                   <div className="space-y-6">
                     {extraData.faqs.map((faq, idx) => (
                       <div key={idx} className="space-y-3 p-4 bg-slate-50/50 border border-slate-100 rounded-2xl relative group">
                         <input
                           type="text"
-                          className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 text-sm font-semibold"
+                          className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-brand-green/15 text-sm font-semibold"
                           placeholder="Question..."
                           value={faq.question}
                           onChange={(e) => {
@@ -620,7 +620,7 @@ export default function EditSoftwarePage() {
                         />
                         <textarea
                           rows={2}
-                          className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 text-sm resize-none"
+                          className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-brand-green/15 text-sm resize-none"
                           placeholder="Answer..."
                           value={faq.answer}
                           onChange={(e) => {
@@ -655,7 +655,7 @@ export default function EditSoftwarePage() {
                   <button
                     type="button"
                     onClick={() => setActiveTab(activeTab + 1)}
-                    className="flex items-center gap-2 px-8 py-3 bg-blue-50 text-blue-600 font-bold rounded-2xl hover:bg-blue-100 transition-all"
+                    className="flex items-center gap-2 px-8 py-3 bg-brand-green/10 text-brand-green-dark font-bold rounded-2xl hover:bg-brand-green/20 transition-all"
                   >
                     Next Section
                     <ChevronRight size={20} />

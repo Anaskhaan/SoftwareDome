@@ -2,10 +2,11 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Search, Calendar, ArrowRight } from "lucide-react";
+import { Search, Calendar, ArrowRight } from "@/lib/fa-icons";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 import Footer from "@/components/Footer";
+import Container from "@/components/Container";
 
 interface Blog {
   id: string;
@@ -53,7 +54,7 @@ export default function BlogAllPage() {
         <Navbar onMenuClick={() => setIsMenuOpen(true)} />
         <Sidebar isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
 
-        <div className="mx-auto max-w-7xl px-6 py-8 lg:px-20 lg:py-12">
+        <Container className="py-8 lg:py-12">
           {/* Header */}
           <div className="mb-8">
             <span className="font-mono text-[10px] font-bold uppercase tracking-[0.35em] text-primary-navy/45">
@@ -173,7 +174,7 @@ export default function BlogAllPage() {
               </p>
             </div>
           )}
-        </div>
+        </Container>
       </div>
       <Footer />
     </main>

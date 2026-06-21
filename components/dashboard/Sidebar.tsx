@@ -7,19 +7,19 @@ import {
   Box,
   Store,
   UserPen,
-  Menu,
   X,
   ChevronRight,
   LogOut,
   FileText,
-} from "lucide-react";
+  Settings,
+} from "@/lib/fa-icons";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import Logo from "@/components/Logo";
 
 interface NavSubItem {
   label: string;
   href: string;
-  icon?: React.ElementType;
 }
 
 interface NavItem {
@@ -31,7 +31,7 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { label: "My Dashboard", href: "/dashboard", icon: LayoutDashboard, roles: ["ADMIN", "VENDOR"] },
+  { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, roles: ["ADMIN", "VENDOR"] },
   {
     label: "Users",
     href: "/dashboard/users",
@@ -40,7 +40,7 @@ const navItems: NavItem[] = [
     subItems: [
       { label: "Users List", href: "/dashboard/users" },
       { label: "Add User", href: "/dashboard/users/add" },
-    ]
+    ],
   },
   {
     label: "Softwares",
@@ -50,7 +50,7 @@ const navItems: NavItem[] = [
     subItems: [
       { label: "Softwares List", href: "/dashboard/softwares" },
       { label: "Add Software", href: "/dashboard/softwares/add" },
-    ]
+    ],
   },
   {
     label: "Blogs",
@@ -60,20 +60,30 @@ const navItems: NavItem[] = [
     subItems: [
       { label: "Blogs List", href: "/dashboard/blogs" },
       { label: "Add Blog", href: "/dashboard/blogs/add" },
-    ]
+    ],
   },
   { label: "Vendors", href: "/dashboard/vendors", icon: Store, roles: ["ADMIN"] },
+  { label: "Settings", href: "/dashboard/settings", icon: Settings, roles: ["ADMIN"] },
   { label: "Edit Profile", href: "/dashboard/edit-profile", icon: UserPen, roles: ["ADMIN", "VENDOR"] },
 ];
 
 interface SidebarProps {
   isSidebarOpen: boolean;
   setSidebarOpen: (open: boolean) => void;
+  isMobileOpen: boolean;
+  setMobileOpen: (open: boolean) => void;
   userRole: "ADMIN" | "VENDOR";
 }
 
-export default function Sidebar({ isSidebarOpen, setSidebarOpen, userRole }: SidebarProps) {
+export default function Sidebar({
+  isSidebarOpen,
+  setSidebarOpen,
+  isMobileOpen,
+  setMobileOpen,
+  userRole,
+}: SidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const [expandedItems, setExpandedItems] = React.useState<string[]>([]);
 
   const toggleExpand = (label: string) => {
@@ -82,25 +92,39 @@ export default function Sidebar({ isSidebarOpen, setSidebarOpen, userRole }: Sid
     );
   };
 
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch (err) {
+      console.error("Logout failed:", err);
+    } finally {
+      router.push("/login");
+      router.refresh();
+    }
+  };
+
   const filteredNavItems = navItems.filter((item) => item.roles.includes(userRole));
 
-  return (
-    <aside
-      className={`${isSidebarOpen ? "w-64" : "w-20"
-        } bg-[#0a192f] text-white transition-all duration-300 ease-in-out flex flex-col fixed inset-y-0 z-50`}
-    >
-      <div className="p-4 flex items-center justify-between border-b border-white/10 h-16">
-        {isSidebarOpen && <span className="font-bold text-lg ">SoftwareDome</span>}
+  const content = (
+    <>
+      <div className="flex h-16 items-center justify-between border-b border-white/10 px-4">
+        {isSidebarOpen ? (
+          <Logo size="sm" variant="dark" href={null} />
+        ) : (
+          <Logo size="sm" variant="dark" href={null} iconOnly />
+        )}
         <button
-          onClick={() => setSidebarOpen(!isSidebarOpen)}
-          className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+          onClick={() => setMobileOpen(false)}
+          className="rounded-lg p-2 transition-colors hover:bg-white/10 lg:hidden"
+          aria-label="Close menu"
         >
-          {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
+          <X size={20} />
         </button>
       </div>
 
-      <nav className="flex-1 py-4 overflow-y-auto no-scrollbar">
+      <nav className="flex-1 overflow-y-auto py-4 no-scrollbar">
         {filteredNavItems.map((item) => {
+          const Icon = item.icon;
           const hasSubItems = item.subItems && item.subItems.length > 0;
           const isExpanded = expandedItems.includes(item.label);
           const isActive = pathname === item.href || (hasSubItems && pathname.startsWith(item.href));
@@ -110,18 +134,18 @@ export default function Sidebar({ isSidebarOpen, setSidebarOpen, userRole }: Sid
               {hasSubItems ? (
                 <button
                   onClick={() => toggleExpand(item.label)}
-                  className={`flex items-center cursor-pointer w-full px-4 py-3 mx-2 rounded-lg transition-all group ${isActive
-                    ? "bg-[#112240] text-white"
-                    : "text-white/60 hover:bg-white/5 hover:text-white"
-                    }`}
-                  style={{ width: "calc(100% - 16px)" }}
+                  title={!isSidebarOpen ? item.label : undefined}
+                  className={`mx-2 flex w-[calc(100%-1rem)] cursor-pointer items-center rounded-lg px-4 py-3 transition-all ${
+                    isActive ? "bg-white/10 text-white" : "text-white/60 hover:bg-white/5 hover:text-white"
+                  }`}
                 >
+                  <Icon size={18} className="shrink-0" />
                   {isSidebarOpen && (
                     <>
-                      <span className="ml-3 font-medium flex-1 text-left">{item.label}</span>
+                      <span className="ml-3 flex-1 text-left text-sm font-semibold">{item.label}</span>
                       <ChevronRight
-                        size={16}
-                        className={`transition-transform duration-200 ${isExpanded ? "rotate-90" : ""} opacity-50`}
+                        size={14}
+                        className={`opacity-50 transition-transform duration-200 ${isExpanded ? "rotate-90" : ""}`}
                       />
                     </>
                   )}
@@ -129,30 +153,31 @@ export default function Sidebar({ isSidebarOpen, setSidebarOpen, userRole }: Sid
               ) : (
                 <Link
                   href={item.href}
-                  className={`flex items-center px-4 py-3 mx-2 rounded-lg transition-all group ${isActive
-                    ? "bg-[#112240] text-white shadow-lg"
-                    : "text-white/60 hover:bg-white/5 hover:text-white"
-                    }`}
+                  title={!isSidebarOpen ? item.label : undefined}
+                  className={`mx-2 flex items-center rounded-lg px-4 py-3 transition-all ${
+                    isActive
+                      ? "bg-brand-green/15 text-white shadow-sm ring-1 ring-brand-green/30"
+                      : "text-white/60 hover:bg-white/5 hover:text-white"
+                  }`}
                 >
-                  {isSidebarOpen && (
-                    <span className="ml-3 font-medium flex-1">{item.label}</span>
-                  )}
-                  {isSidebarOpen && isActive && <ChevronRight size={16} className="opacity-50" />}
+                  <Icon size={18} className="shrink-0" />
+                  {isSidebarOpen && <span className="ml-3 text-sm font-semibold">{item.label}</span>}
                 </Link>
               )}
 
               {isSidebarOpen && hasSubItems && isExpanded && (
-                <div className="mt-1 ml-4 space-y-1">
+                <div className="ml-4 mt-1 space-y-1">
                   {item.subItems!.map((subItem) => {
                     const isSubActive = pathname === subItem.href;
                     return (
                       <Link
                         key={subItem.href}
                         href={subItem.href}
-                        className={`flex cursor-pointer items-center px-4 py-2 mx-2 rounded-lg text-sm transition-all ${isSubActive
-                          ? "text-blue-400 font-semibold bg-white/5"
-                          : "text-white/40 hover:text-white/80 hover:bg-white/5"
-                          }`}
+                        className={`mx-2 flex cursor-pointer items-center rounded-lg px-4 py-2 text-sm transition-all ${
+                          isSubActive
+                            ? "bg-white/5 font-semibold text-brand-green-light"
+                            : "text-white/40 hover:bg-white/5 hover:text-white/80"
+                        }`}
                       >
                         {subItem.label}
                       </Link>
@@ -165,12 +190,53 @@ export default function Sidebar({ isSidebarOpen, setSidebarOpen, userRole }: Sid
         })}
       </nav>
 
-      <div className="p-4 border-t border-white/10">
-        <button className="flex items-center w-full px-4 py-3 text-white/60 hover:text-white hover:bg-white/5 rounded-lg transition-all">
-          <LogOut size={20} />
-          {isSidebarOpen && <span className="ml-3 font-medium">Logout</span>}
+      <div className="border-t border-white/10 p-4">
+        <button
+          onClick={handleLogout}
+          className="flex w-full items-center rounded-lg px-4 py-3 text-white/60 transition-all hover:bg-status-danger/20 hover:text-white"
+        >
+          <LogOut size={18} className="shrink-0" />
+          {isSidebarOpen && <span className="ml-3 text-sm font-semibold">Logout</span>}
         </button>
       </div>
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      {/* Desktop sidebar */}
+      <aside
+        className={`fixed inset-y-0 z-50 hidden flex-col bg-navy-800 text-white transition-all duration-300 ease-in-out lg:flex ${
+          isSidebarOpen ? "w-64" : "w-20"
+        }`}
+      >
+        {content}
+        <button
+          onClick={() => setSidebarOpen(!isSidebarOpen)}
+          className="absolute -right-3 top-20 hidden h-6 w-6 items-center justify-center rounded-full border border-white/10 bg-navy-700 text-white/70 shadow-md transition-colors hover:bg-navy-600 hover:text-white lg:flex"
+          aria-label="Toggle sidebar width"
+        >
+          <ChevronRight size={12} className={`transition-transform ${isSidebarOpen ? "rotate-180" : ""}`} />
+        </button>
+      </aside>
+
+      {/* Mobile/tablet drawer */}
+      <div className={`fixed inset-0 z-50 lg:hidden ${isMobileOpen ? "visible" : "invisible"}`}>
+        <button
+          aria-label="Close menu overlay"
+          onClick={() => setMobileOpen(false)}
+          className={`absolute inset-0 bg-navy-900/50 backdrop-blur-sm transition-opacity duration-300 ${
+            isMobileOpen ? "opacity-100" : "opacity-0"
+          }`}
+        />
+        <aside
+          className={`absolute inset-y-0 left-0 flex w-72 flex-col bg-navy-800 text-white shadow-2xl transition-transform duration-300 ease-out ${
+            isMobileOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
+        >
+          {content}
+        </aside>
+      </div>
+    </>
   );
 }
