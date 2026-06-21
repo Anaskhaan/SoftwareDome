@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import { Icons } from '@/assets/icons';
+import Logo from '@/components/Logo';
+import Container from '@/components/Container';
 
 export default function Footer() {
   const footerLinks = {
@@ -24,19 +26,11 @@ export default function Footer() {
 
   return (
     <footer className="bg-primary-navy text-white pt-20 pb-10">
-      <div className="max-w-7xl mx-auto px-6 lg:px-20">
+      <Container>
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12 mb-20">
           {/* Brand Info */}
           <div className="md:col-span-4 flex flex-col gap-6">
-            <Link href="/" className="flex items-center">
-              <img
-                src="/logo-light.svg"
-                alt="SoftwareDome"
-                className="h-9 w-auto object-contain"
-                width={232}
-                height={40}
-              />
-            </Link>
+            <Logo size="md" variant="dark" />
             <p className="text-zinc-400 text-sm leading-relaxed max-w-xs">
               The industry's most trusted verification layer for SaaS tools. We audit, compare, and verify so you don't have to.
             </p>
@@ -104,7 +98,7 @@ export default function Footer() {
             <span>Status: Operational</span>
           </div>
         </div>
-      </div>
+      </Container>
     </footer>
   );
 }

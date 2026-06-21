@@ -7,7 +7,7 @@ import {
   Plus,
   Upload,
   X,
-} from "lucide-react";
+} from "@/lib/fa-icons";
 import AdminOutletHeading from "@/components/dashboard/AdminOutletHeading";
 import { createBlog } from "../actions";
 import { useRouter } from "next/navigation";

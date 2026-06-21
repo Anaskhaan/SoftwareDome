@@ -1,16 +1,30 @@
 "use client";
 
 import React from "react";
-import { UserPlus, Mail, Shield, AlertCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
 import AdminOutletHeading from "@/components/dashboard/AdminOutletHeading";
-
+import { Card } from "@/components/dashboard/ui/Card";
+import FormField from "@/components/dashboard/ui/FormField";
+import { Input, Select } from "@/components/dashboard/ui/Input";
+import Button from "@/components/dashboard/ui/Button";
+import { useToast } from "@/components/dashboard/ui/Toast";
 import { createUser } from "../actions";
 import { isBusinessEmail } from "@/lib/auth-utils";
-import { useRouter } from "next/navigation";
+
+interface FormState {
+  name: string;
+  email: string;
+  role: string;
+  companyName: string;
+  companyEmail: string;
+  companyAddress: string;
+  companyPhone: string;
+}
 
 export default function AddUserPage() {
   const router = useRouter();
-  const [formData, setFormData] = React.useState({
+  const { show } = useToast();
+  const [formData, setFormData] = React.useState<FormState>({
     name: "",
     email: "",
     role: "USER",
@@ -19,185 +33,154 @@ export default function AddUserPage() {
     companyAddress: "",
     companyPhone: "",
   });
+  const [errors, setErrors] = React.useState<Partial<Record<keyof FormState, string>>>({});
   const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
+  const [formError, setFormError] = React.useState<string | null>(null);
+
+  const validate = (): boolean => {
+    const next: Partial<Record<keyof FormState, string>> = {};
+
+    if (!formData.name.trim()) next.name = "Full name is required.";
+    if (!formData.email.trim()) {
+      next.email = "Email is required.";
+    } else if (!isBusinessEmail(formData.email)) {
+      next.email = "Please use a business email — personal domains are not allowed.";
+    }
+
+    if (formData.role === "VENDOR") {
+      if (!formData.companyName.trim()) next.companyName = "Company name is required.";
+      if (!formData.companyEmail.trim()) next.companyEmail = "Company email is required.";
+      if (!formData.companyPhone.trim()) next.companyPhone = "Company phone is required.";
+      if (!formData.companyAddress.trim()) next.companyAddress = "Company address is required.";
+    }
+
+    setErrors(next);
+    return Object.keys(next).length === 0;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
-    setError(null);
+    setFormError(null);
+    if (!validate()) return;
 
+    setIsSubmitting(true);
     try {
       const result = await createUser(formData);
       if (result.success) {
+        show("User created successfully.", "success");
         router.push("/dashboard/users");
       } else {
-        setError(result.error || "Failed to create user");
+        setFormError(result.error || "Failed to create user");
       }
     } catch (err) {
       console.error(err);
-      setError("An unexpected error occurred.");
+      setFormError("An unexpected error occurred.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  const set = (field: keyof FormState) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
+    setFormData((prev) => ({ ...prev, [field]: e.target.value }));
+
   return (
     <div className="space-y-6">
-      <AdminOutletHeading heading="Add User" />
+      <AdminOutletHeading heading="Add User" subtitle="Create a new user, vendor, or admin account." />
 
-      <div>
-        <div>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {error && (
-              <div className="p-4 bg-red-50 border border-red-100 text-red-600 rounded-xl text-sm font-medium">
-                {error}
-              </div>
-            )}
-            <div className="grid grid-cols-12 gap-4">
+      <Card className="max-w-3xl">
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {formError && (
+            <div className="rounded-xl border border-status-danger/20 bg-status-danger-bg px-4 py-3 text-sm font-medium text-status-danger">
+              {formError}
+            </div>
+          )}
 
-              <div className="space-y-2 md:col-span-6 col-span-1">
-                <label className="block text-sm font-semibold text-slate-700">Full Name</label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="e.g. John Doe"
-                    className="custom_input"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    required
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <FormField label="Full Name" required error={errors.name}>
+              <Input
+                placeholder="e.g. John Doe"
+                value={formData.name}
+                onChange={set("name")}
+                disabled={isSubmitting}
+                error={!!errors.name}
+              />
+            </FormField>
+
+            <FormField label="Business Email" required error={errors.email}>
+              <Input
+                type="email"
+                placeholder="name@company.com"
+                value={formData.email}
+                onChange={set("email")}
+                disabled={isSubmitting}
+                error={!!errors.email}
+              />
+            </FormField>
+          </div>
+
+          <FormField label="Access Level" required helperText="Vendors get an additional company profile.">
+            <Select value={formData.role} onChange={set("role")} disabled={isSubmitting}>
+              <option value="USER">User</option>
+              <option value="VENDOR">Vendor</option>
+            </Select>
+          </FormField>
+
+          {formData.role === "VENDOR" && (
+            <div className="space-y-4 border-t border-border-subtle pt-5">
+              <h3 className="text-sm font-bold text-primary-navy">Company Details</h3>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <FormField label="Company Name" required error={errors.companyName}>
+                  <Input
+                    placeholder="Acme Corp"
+                    value={formData.companyName}
+                    onChange={set("companyName")}
                     disabled={isSubmitting}
+                    error={!!errors.companyName}
                   />
-                  <div className="absolute left-3 top-2.5 text-slate-400">
-                    <UserPlus size={13} />
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-2 md:col-span-6 col-span-1">
-                <label className="block text-sm font-semibold text-slate-700">Business Email</label>
-                <div className="relative">
-                  <input
+                </FormField>
+                <FormField label="Company Email" required error={errors.companyEmail}>
+                  <Input
                     type="email"
-                    placeholder="name@company.com"
-                    className="custom_input"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    required
+                    placeholder="contact@company.com"
+                    value={formData.companyEmail}
+                    onChange={set("companyEmail")}
                     disabled={isSubmitting}
+                    error={!!errors.companyEmail}
                   />
-                  <div className="absolute left-3 top-2.5 text-slate-400">
-                    <Mail size={13} />
-                  </div>
-                </div>
-              </div>
-
-            <div className="space-y-4 md:col-span-6 col-span-12">
-              <label className="block text-sm font-semibold text-slate-700">Access Level</label>
-              <div className="relative">
-                <select
-                  className="custom_input"
-                  value={formData.role}
-                  onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                  disabled={isSubmitting}
-                >
-                  <option value="USER">User</option>
-                  <option value="VENDOR">Vendor</option>
-                </select>
-                <div className="absolute left-3 top-2 text-slate-400">
-                  <Shield size={13} />
-                </div>
+                </FormField>
+                <FormField label="Company Phone" required error={errors.companyPhone}>
+                  <Input
+                    type="tel"
+                    placeholder="+1 (555) 000-0000"
+                    value={formData.companyPhone}
+                    onChange={set("companyPhone")}
+                    disabled={isSubmitting}
+                    error={!!errors.companyPhone}
+                  />
+                </FormField>
+                <FormField label="Company Address" required error={errors.companyAddress}>
+                  <Input
+                    placeholder="123 Corporate Blvd"
+                    value={formData.companyAddress}
+                    onChange={set("companyAddress")}
+                    disabled={isSubmitting}
+                    error={!!errors.companyAddress}
+                  />
+                </FormField>
               </div>
             </div>
+          )}
 
-            {formData.role === "VENDOR" && (
-              <div className="col-span-12 space-y-4 pt-4 border-t border-slate-100">
-                <h3 className="text-sm font-bold text-[#0a192f]">Company Details</h3>
-                
-                <div className="grid grid-cols-12 gap-4">
-                  <div className="space-y-2 md:col-span-6 col-span-12">
-                    <label className="block text-sm font-semibold text-slate-700">Company Name</label>
-                    <input
-                      type="text"
-                      className="custom_input"
-                      placeholder="Acme Corp"
-                      value={formData.companyName}
-                      onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
-                      required
-                      disabled={isSubmitting}
-                    />
-                  </div>
-                  
-                  <div className="space-y-2 md:col-span-6 col-span-12">
-                    <label className="block text-sm font-semibold text-slate-700">Company Email</label>
-                    <input
-                      type="email"
-                      className="custom_input"
-                      placeholder="contact@company.com"
-                      value={formData.companyEmail}
-                      onChange={(e) => setFormData({ ...formData, companyEmail: e.target.value })}
-                      required
-                      disabled={isSubmitting}
-                    />
-                  </div>
-
-                  <div className="space-y-2 md:col-span-6 col-span-12">
-                    <label className="block text-sm font-semibold text-slate-700">Company Phone</label>
-                    <input
-                      type="tel"
-                      className="custom_input"
-                      placeholder="+1 (555) 000-0000"
-                      value={formData.companyPhone}
-                      onChange={(e) => setFormData({ ...formData, companyPhone: e.target.value })}
-                      required
-                      disabled={isSubmitting}
-                    />
-                  </div>
-
-                  <div className="space-y-2 md:col-span-6 col-span-12">
-                    <label className="block text-sm font-semibold text-slate-700">Company Address</label>
-                    <input
-                      type="text"
-                      className="custom_input"
-                      placeholder="123 Corporate Blvd"
-                      value={formData.companyAddress}
-                      onChange={(e) => setFormData({ ...formData, companyAddress: e.target.value })}
-                      required
-                      disabled={isSubmitting}
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-            </div>
-
-            <div className="pt-4 flex gap-3">
-              <button
-                type="button"
-                onClick={() => router.push("/dashboard/users")}
-                className="btn btn-hero-primary"
-                disabled={isSubmitting}
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="btn btn-navy"
-              >
-                {isSubmitting ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    Creating...
-                  </>
-                ) : (
-                  "Create User Account"
-                )}
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
+          <div className="flex gap-3 pt-2">
+            <Button type="button" variant="secondary" onClick={() => router.push("/dashboard/users")} disabled={isSubmitting}>
+              Cancel
+            </Button>
+            <Button type="submit" loading={isSubmitting}>
+              {isSubmitting ? "Creating…" : "Create User Account"}
+            </Button>
+          </div>
+        </form>
+      </Card>
     </div>
   );
 }

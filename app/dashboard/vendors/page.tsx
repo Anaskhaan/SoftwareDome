@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Store, Globe, Package, MoreVertical } from "lucide-react";
+import { Store, Globe, Package, MoreVertical } from "@/lib/fa-icons";
 
 export default function VendorsPage() {
   const vendors = [

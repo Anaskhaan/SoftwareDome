@@ -62,7 +62,7 @@ export default function BlogsSection() {
             {blogs.map((blog) => (
               <article
                 key={blog.id}
-                className="bg-white border border-zinc-200 rounded-md overflow-hidden hover:border-primary-navy/40 hover:shadow-md transition-all flex flex-col h-full"
+                className="group bg-white border border-border-subtle rounded-3xl overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:border-brand-green/40 hover:shadow-[0_16px_36px_-18px_rgba(95,194,74,0.35)] flex flex-col h-full"
               >
                 {blog.coverImage ? (
                   <div className="h-40 w-full relative bg-slate-100 overflow-hidden">
@@ -84,14 +84,14 @@ export default function BlogsSection() {
                       {blog.tags.slice(0, 2).map((tag) => (
                         <span
                           key={tag}
-                          className="px-2 py-0.5 bg-zinc-50 border border-zinc-200 text-zinc-600 rounded-md text-[10px] font-semibold uppercase tracking-wider"
+                          className="px-2 py-0.5 bg-brand-green/10 border border-brand-green/20 text-brand-green-dark rounded-full text-[10px] font-semibold uppercase tracking-wider"
                         >
                           {tag}
                         </span>
                       ))}
                     </div>
 
-                    <h3 className="text-sm font-extrabold text-[#0a192f] hover:text-blue-900 transition-colors leading-snug mb-2 line-clamp-2">
+                    <h3 className="font-brand text-sm font-bold text-primary-navy group-hover:text-brand-green-dark transition-colors leading-snug mb-2 line-clamp-2">
                       <Link href={`/blog/${blog.slug}`}>{blog.title}</Link>
                     </h3>
 
@@ -116,7 +116,7 @@ export default function BlogsSection() {
                     </span>
                     <Link
                       href={`/blog/${blog.slug}`}
-                      className="text-xs font-bold text-primary-navy hover:underline flex items-center gap-1"
+                      className="text-xs font-bold text-brand-green-dark hover:text-brand-green flex items-center gap-1"
                     >
                       Read More <span aria-hidden>→</span>
                     </Link>
@@ -129,7 +129,7 @@ export default function BlogsSection() {
           <div className="flex justify-center mt-8">
             <Link
               href="/blog"
-              className="inline-flex items-center justify-center px-6 py-2 border border-primary-navy text-primary-navy hover:bg-primary-navy hover:text-white transition-colors text-xs font-bold rounded-md"
+              className="inline-flex items-center justify-center rounded-full bg-brand-green-light px-6 py-2.5 text-xs font-bold text-primary-navy shadow-sm transition-all hover:bg-brand-green hover:text-white hover:-translate-y-0.5"
             >
               View All
             </Link>

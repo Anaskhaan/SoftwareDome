@@ -1,5 +1,5 @@
 import SectionHeader from './SectionHeader';
-import { Search, GitCompare, FileCheck, CircleCheck } from 'lucide-react';
+import { Search, GitCompare, FileCheck, CircleCheck } from '@/lib/fa-icons';
 
 const journey = [
   {
@@ -30,93 +30,58 @@ const journey = [
 
 export default function ProductCards() {
   return (
-    <div className="space-y-6">
-      <div className="[&_header]:mb-5">
-        <SectionHeader
-          title="From first search to final shortlist."
-          subtitle="HOW IT WORKS"
-        />
-      </div>
+    <div className="space-y-8 xl:space-y-10">
+      <SectionHeader title="From first search to final shortlist." subtitle="HOW IT WORKS" />
 
-      {/* Bridge band — continues About without another hero block */}
-      <div className="flex flex-col gap-3 border border-zinc-200 bg-white px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5 rounded-sm">
+      {/* Bridge band */}
+      <div className="flex flex-col gap-3 rounded-3xl border border-border-subtle bg-surface-muted px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
         <p className="max-w-2xl text-sm font-medium leading-snug text-primary-navy">
           The mission section covers how listings enter the dome. Here is how teams move through
           what you have already published.
         </p>
-        <div className="flex shrink-0 items-center gap-2 font-mono text-[10px] uppercase tracking-[0.35em] text-zinc-400">
-          <span className="h-px w-6 bg-zinc-300" aria-hidden />
+        <div className="flex shrink-0 items-center gap-2 text-[10px] font-bold uppercase tracking-[0.3em] text-brand-green-dark">
+          <span className="h-1.5 w-1.5 rounded-full bg-brand-green" aria-hidden />
           <span>Buyer path</span>
         </div>
       </div>
 
-      {/* Alternating timeline — skeleton numbers + zigzag offset, editorial shell */}
-      <div className="overflow-hidden rounded-sm border border-zinc-200">
-        <div className="border-b border-zinc-100 bg-zinc-50/80 px-4 py-2">
-          <span className="font-mono text-[10px] font-bold uppercase tracking-[0.35em] text-primary-navy/50">
+      {/* Connected step grid */}
+      <div className="rounded-3xl border border-border-subtle bg-white p-6 sm:p-7 xl:p-8">
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+          <span className="text-[10px] font-bold uppercase tracking-[0.35em] text-brand-green-dark">
             Discovery flow
+          </span>
+          <span className="hidden text-[10px] font-medium uppercase tracking-wider text-text-muted sm:inline">
+            Step-by-step
           </span>
         </div>
 
-        <div className="relative divide-y divide-zinc-100 bg-white">
-          <div
-            className="pointer-events-none absolute left-[1.65rem] top-6 bottom-6 hidden w-px bg-zinc-200 sm:block"
-            aria-hidden
-          />
-
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 xl:gap-8">
           {journey.map((step, index) => {
             const Icon = step.icon;
-            const offset = index % 2 === 1;
-
             return (
-              <article
-                key={step.id}
-                className={`relative flex flex-col gap-3 p-4 sm:flex-row sm:gap-5 sm:p-5 ${
-                  offset ? 'sm:pl-16 lg:pl-28' : 'sm:pl-5'
-                }`}
-              >
-                <div className="flex items-start gap-4 sm:w-[42%] sm:shrink-0 lg:w-[38%]">
-                  <div className="skeleton-number text-[3.25rem] leading-none sm:text-[4.5rem]">
-                    {step.id}
-                  </div>
-                  <Icon
-                    size={15}
-                    strokeWidth={2.25}
-                    className="mt-2 shrink-0 text-primary-navy/45 sm:hidden"
-                    aria-hidden
-                  />
-                </div>
-
-                <div className={`flex flex-1 flex-col gap-1.5 ${offset ? 'sm:items-end sm:text-right' : ''}`}>
-                  <div className={`flex items-center gap-2 ${offset ? 'sm:flex-row-reverse' : ''}`}>
-                    <h3 className="text-base font-bold text-primary-navy sm:text-lg">{step.name}</h3>
-                    <Icon
-                      size={14}
-                      strokeWidth={2.25}
-                      className="hidden shrink-0 text-primary-navy/45 sm:block"
-                      aria-hidden
-                    />
-                  </div>
-                  <p className="max-w-md text-xs leading-relaxed text-zinc-500 sm:text-sm">{step.desc}</p>
-                </div>
-
+              <div key={step.id} className="group relative">
                 {index < journey.length - 1 && (
                   <div
-                    className={`pointer-events-none absolute hidden h-8 w-8 border-zinc-200 sm:block ${
-                      offset
-                        ? 'bottom-0 left-16 border-b border-l lg:left-28'
-                        : 'bottom-0 right-8 border-b border-r lg:right-16'
-                    }`}
+                    className="absolute left-6 top-6 hidden h-px w-[calc(100%-1.5rem)] bg-gradient-to-r from-brand-green/50 to-transparent lg:block"
                     aria-hidden
                   />
                 )}
-              </article>
+                <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-green to-brand-green-dark text-white shadow-[0_10px_24px_-8px_rgba(95,194,74,0.55)] transition-transform duration-300 group-hover:-translate-y-1">
+                  <Icon size={18} />
+                  <span className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-primary-navy text-[10px] font-bold text-white ring-2 ring-white">
+                    {index + 1}
+                  </span>
+                </div>
+                <h3 className="mt-4 font-brand text-base font-bold text-primary-navy">{step.name}</h3>
+                <p className="mt-1.5 text-sm leading-relaxed text-text-muted">{step.desc}</p>
+              </div>
             );
           })}
         </div>
       </div>
 
-      <p className="text-sm leading-relaxed text-zinc-500">
+      <p className="text-sm leading-relaxed text-text-muted">
         <span className="font-semibold text-primary-navy">SoftwareDome</span> keeps discovery and
         listing operations in one visual language — catalog above, path below, footer to close.
       </p>

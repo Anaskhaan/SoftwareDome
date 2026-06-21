@@ -2,6 +2,7 @@
 
 import prisma from "@/lib/prisma";
 import cloudinary from "@/lib/cloudinary";
+import { requireAdmin } from "@/lib/require-admin";
 
 export async function getSoftwares() {
   try {
@@ -15,6 +16,10 @@ export async function getSoftwares() {
     console.error("Error fetching softwares:", error);
     return { success: false, error: "Failed to fetch softwares" };
   }
+}
+
+function slugify(name: string): string {
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 }
 
 async function uploadToCloudinary(file: File): Promise<string> {
@@ -35,6 +40,9 @@ async function uploadToCloudinary(file: File): Promise<string> {
 
 export async function createSoftware(formData: FormData) {
   try {
+    const auth = await requireAdmin();
+    if (auth.error) return { success: false, error: "Admin access required." };
+
     const name = formData.get("name") as string;
     const website = formData.get("website") as string;
     const category = formData.get("category") as string || "";
@@ -61,7 +69,7 @@ export async function createSoftware(formData: FormData) {
       return { success: false, error: "Software name is required" };
     }
 
-    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+    const slug = slugify(name);
 
     const existingSoftware = await prisma.software.findUnique({
       where: { slug },
@@ -132,6 +140,9 @@ export async function getSoftwareById(id: string) {
 
 export async function updateSoftware(id: string, formData: FormData) {
   try {
+    const auth = await requireAdmin();
+    if (auth.error) return { success: false, error: "Admin access required." };
+
     const name = formData.get("name") as string;
     const website = formData.get("website") as string;
     const category = formData.get("category") as string || "";
@@ -152,8 +163,19 @@ export async function updateSoftware(id: string, formData: FormData) {
     const specifications = JSON.parse(formData.get("specifications") as string || "{}");
     const faqs = JSON.parse(formData.get("faqs") as string || "[]");
 
+    if (!name) {
+      return { success: false, error: "Software name is required" };
+    }
+
+    const slug = slugify(name);
+    const slugOwner = await prisma.software.findUnique({ where: { slug } });
+    if (slugOwner && slugOwner.id !== id) {
+      return { success: false, error: "A software with this name/slug already exists" };
+    }
+
     const updateData: any = {
       name,
+      slug,
       website,
       category,
       rating,
@@ -196,6 +218,37 @@ export async function updateSoftware(id: string, formData: FormData) {
   } catch (error) {
     console.error("Error updating software:", error);
     return { success: false, error: "Failed to update software" };
+  }
+}
+
+function cloudinaryPublicId(url: string): string {
+  return url.split("/").slice(-2).join("/").replace(/\.[a-zA-Z]+$/, "");
+}
+
+export async function deleteSoftware(id: string) {
+  try {
+    const auth = await requireAdmin();
+    if (auth.error) return { success: false, error: "Admin access required." };
+
+    const software = await prisma.software.findUnique({ where: { id } });
+    if (!software) {
+      return { success: false, error: "Software not found." };
+    }
+
+    const assetUrls = [software.logo, ...(software.pictures || [])].filter(Boolean) as string[];
+    for (const url of assetUrls) {
+      try {
+        await cloudinary.uploader.destroy(cloudinaryPublicId(url));
+      } catch (err) {
+        console.error("Failed to remove Cloudinary asset:", url, err);
+      }
+    }
+
+    await prisma.software.delete({ where: { id } });
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting software:", error);
+    return { success: false, error: "Failed to delete software" };
   }
 }
 

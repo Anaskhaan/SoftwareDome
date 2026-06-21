@@ -2,10 +2,14 @@
 
 import prisma from "@/lib/prisma";
 import { isBusinessEmail } from "@/lib/auth-utils";
+import { requireAdmin } from "@/lib/require-admin";
 import bcrypt from "bcryptjs";
 
 export async function getUsers() {
   try {
+    const auth = await requireAdmin();
+    if (auth.error) return { success: false, error: "Admin access required." };
+
     const users = await prisma.user.findMany({
       include: {
         organization: true,
@@ -31,6 +35,9 @@ export async function createUser(formData: {
   companyPhone?: string;
 }) {
   try {
+    const auth = await requireAdmin();
+    if (auth.error) return { success: false, error: "Admin access required." };
+
     const { name, email, role, companyName, companyEmail, companyAddress, companyPhone } = formData;
 
     if (!name || !email || !role) {
@@ -72,10 +79,71 @@ export async function createUser(formData: {
     });
 
     console.log(`User created: ${newUser.email}. Temp password: ${tempPassword}`);
-    
+
     return { success: true, data: newUser };
   } catch (error) {
     console.error("Error creating user:", error);
     return { success: false, error: "Failed to create user" };
+  }
+}
+
+export async function updateUser(
+  id: string,
+  formData: { name: string; role: string }
+) {
+  try {
+    const auth = await requireAdmin();
+    if (auth.error) return { success: false, error: "Admin access required." };
+
+    const { name, role } = formData;
+
+    if (!name || !role) {
+      return { success: false, error: "Name and role are required" };
+    }
+
+    const updated = await prisma.user.update({
+      where: { id },
+      data: { name, role: role as any },
+    });
+
+    return { success: true, data: updated };
+  } catch (error) {
+    console.error("Error updating user:", error);
+    return { success: false, error: "Failed to update user" };
+  }
+}
+
+export async function setUserStatus(id: string, status: "Active" | "Suspended") {
+  try {
+    const auth = await requireAdmin();
+    if (auth.error) return { success: false, error: "Admin access required." };
+    if (auth.session.userId === id) {
+      return { success: false, error: "You can't change the status of your own account." };
+    }
+
+    const updated = await prisma.user.update({
+      where: { id },
+      data: { status },
+    });
+    return { success: true, data: updated };
+  } catch (error) {
+    console.error("Error updating user status:", error);
+    return { success: false, error: "Failed to update user status" };
+  }
+}
+
+export async function deleteUser(id: string) {
+  try {
+    const auth = await requireAdmin();
+    if (auth.error) return { success: false, error: "Admin access required." };
+    if (auth.session.userId === id) {
+      return { success: false, error: "You can't delete your own account." };
+    }
+
+    await prisma.user.delete({ where: { id } });
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    return { success: false, error: "Failed to delete user" };
   }
 }

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { MessageSquare, Loader2 } from "lucide-react";
+import { MessageSquare, Loader2 } from "@/lib/fa-icons";
 
 type ReviewUser = {
   id: string;
