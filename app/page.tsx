@@ -7,7 +7,7 @@ import Hero from '@/components/Hero';
 import SoftwareSection from '@/components/SoftwareSection';
 import AboutSection from '@/components/AboutSection';
 import ProductCards from '@/components/ProductCards';
-import ListingProfileSection from '@/components/ListingProfileSection';
+import BlogsSection from '@/components/BlogsSection';
 import ForVendorsSection from '@/components/ForVendorsSection';
 import Footer from '@/components/Footer';
 
@@ -45,7 +45,7 @@ export default function Home() {
       </PageSection>
 
       <PageSection className="bg-white">
-        <ListingProfileSection />
+        <BlogsSection />
       </PageSection>
 
       <PageSection id="vendors" className="bg-zinc-50 scroll-mt-20">

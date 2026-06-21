@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Plus, Search, Filter, Edit2, Trash2, Box, AlertCircle } from "lucide-react";
-import AdminOutletHeading from "@/components/dashboard/AdminOutletHeading";
+import AdminOutletBtnHeading from "@/components/dashboard/AdminOutletBtnHeading";
 import { getSoftwares } from "./actions";
 import Link from "next/link";
 
@@ -26,16 +26,13 @@ export default function SoftwaresPage() {
 
   return (
     <div className="space-y-6">
-      <AdminOutletHeading heading="Softwares List" />
+      <AdminOutletBtnHeading heading="Softwares List" btnText="Add New Software" btnUrl="/dashboard/softwares/add" />
 
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mt-6">
         <div>
           <h2 className="text-xl font-bold text-[#0a192f]">Software Directory</h2>
           <p className="text-gray-500 text-sm">Manage your software listings and reviews.</p>
         </div>
-        <Link href="/dashboard/softwares/add" className="bg-[#0a192f] text-white px-4 py-2 rounded-xl flex items-center gap-2 hover:bg-slate-800 transition-all font-medium">
-          <Plus size={18} /> Add New Software
-        </Link>
       </div>
 
       {/* Filters & Search */}

@@ -15,6 +15,7 @@ import {
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 import Footer from "@/components/Footer";
+import SoftwareReviews from "@/components/SoftwareReviews";
 import { getSoftwareBySlug } from "@/app/dashboard/softwares/actions";
 
 type FaqItem = { question?: string; answer?: string };
@@ -52,6 +53,7 @@ const sections = [
   { id: "deep-dive", label: "Deep dive" },
   { id: "specifications", label: "Specifications" },
   { id: "faqs", label: "FAQs" },
+  { id: "reviews", label: "Reviews" },
 ];
 
 function filterStrings(items: string[] | undefined | null) {
@@ -562,6 +564,8 @@ export default function SoftwareDetailPage() {
                 )}
               </div>
             </section>
+
+            <SoftwareReviews slug={software.slug} />
           </div>
 
           {/* Sticky section index — desktop only */}

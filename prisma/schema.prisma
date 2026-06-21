@@ -29,6 +29,8 @@ model User {
   companyPhone    String?
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
+  reviews         Review[]
+  blogs           Blog[]
 
   @@index([email])
 }
@@ -49,6 +51,12 @@ enum UserRole {
   USER
   ADMIN
   VENDOR
+}
+
+enum BlogStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
 }
 
 model VerificationToken {
@@ -97,6 +105,45 @@ model Software {
   
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
+  reviews           Review[]
 
   @@index([slug])
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  content    String   @db.Text
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  softwareId String
+  software   Software @relation(fields: [softwareId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([userId, softwareId])
+  @@index([softwareId])
+}
+
+model Blog {
+  id              String     @id @default(cuid())
+  title           String
+  slug            String     @unique
+  excerpt         String?    @db.Text
+  content         String     @db.Text
+  coverImage      String?
+  images          String[]
+  tags            String[]
+  status          BlogStatus @default(DRAFT)
+  metaTitle       String?
+  metaDescription String?    @db.Text
+  publishedAt     DateTime?
+  authorId        String
+  author          User       @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  @@index([slug])
+  @@index([status])
+  @@index([authorId])
+  @@index([publishedAt])
 }

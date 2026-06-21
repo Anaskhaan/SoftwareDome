@@ -10,7 +10,8 @@ import {
   Menu,
   X,
   ChevronRight,
-  LogOut
+  LogOut,
+  FileText,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -51,6 +52,16 @@ const navItems: NavItem[] = [
       { label: "Add Software", href: "/dashboard/softwares/add" },
     ]
   },
+  {
+    label: "Blogs",
+    href: "/dashboard/blogs",
+    icon: FileText,
+    roles: ["ADMIN"],
+    subItems: [
+      { label: "Blogs List", href: "/dashboard/blogs" },
+      { label: "Add Blog", href: "/dashboard/blogs/add" },
+    ]
+  },
   { label: "Vendors", href: "/dashboard/vendors", icon: Store, roles: ["ADMIN"] },
   { label: "Edit Profile", href: "/dashboard/edit-profile", icon: UserPen, roles: ["ADMIN", "VENDOR"] },
 ];
@@ -88,7 +99,7 @@ export default function Sidebar({ isSidebarOpen, setSidebarOpen, userRole }: Sid
         </button>
       </div>
 
-      <nav className="flex-1 py-4 overflow-y-auto custom-scrollbar">
+      <nav className="flex-1 py-4 overflow-y-auto no-scrollbar">
         {filteredNavItems.map((item) => {
           const hasSubItems = item.subItems && item.subItems.length > 0;
           const isExpanded = expandedItems.includes(item.label);

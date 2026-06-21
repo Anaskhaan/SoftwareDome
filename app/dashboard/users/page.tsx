@@ -3,7 +3,7 @@
 import React from "react";
 import CustomTable from "@/components/constantComponents/CustomTable";
 import { getUsers } from "./actions";
-import AdminOutletHeading from "@/components/dashboard/AdminOutletHeading";
+import AdminOutletBtnHeading from "@/components/dashboard/AdminOutletBtnHeading";
 
 export default function UsersPage() {
   const [selectedRow, setSelectedRow] = React.useState(null);
@@ -50,7 +50,7 @@ export default function UsersPage() {
 
   return (
     <div className="space-y-6">
-      <AdminOutletHeading heading="Users List" />
+      <AdminOutletBtnHeading heading="Users List" btnText="Add User" btnUrl="/dashboard/users/add" />
 
       <div>
         <div>
