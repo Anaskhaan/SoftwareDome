@@ -55,7 +55,10 @@ const sections = [
 ];
 
 function filterStrings(items: string[] | undefined | null) {
-  return (items || []).filter((s) => s?.trim());
+  return (items || [])
+    .filter((s) => s !== null && s !== undefined)
+    .map((s) => (typeof s === "string" ? s : String(s)))
+    .filter((s) => s.trim());
 }
 
 function formatDate(iso: string | Date) {
@@ -161,9 +164,11 @@ export default function SoftwareDetailPage() {
     software.specifications && typeof software.specifications === "object"
       ? (software.specifications as Record<string, string>)
       : {};
-  const specEntries = Object.entries(specifications).filter(([, v]) => v?.trim());
+  const specEntries = Object.entries(specifications)
+    .map(([k, v]) => [k, v === null || v === undefined ? "" : typeof v === "string" ? v : String(v)] as [string, string])
+    .filter(([, v]) => v.trim());
   const faqs = Array.isArray(software.faqs) ? software.faqs : [];
-  const validFaqs = faqs.filter((f) => f?.question?.trim());
+  const validFaqs = faqs.filter((f) => typeof f?.question === "string" && f.question.trim());
   const takeaways = filterStrings(software.keyTakeaways);
   const pros = filterStrings(software.pros);
   const cons = filterStrings(software.cons);
