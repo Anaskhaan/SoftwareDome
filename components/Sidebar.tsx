@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Icons } from '@/assets/icons';
+import { findBestCategoryForQuery } from '@/app/dashboard/softwares/actions';
 
 const navLinks = [
   { name: 'Software Categories', href: '/categories', icon: 'Categories' },
@@ -14,10 +15,21 @@ export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose:
   const [query, setQuery] = useState('');
   const router = useRouter();
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
+    const term = query.trim();
     onClose();
-    router.push(query.trim() ? `/categories?q=${encodeURIComponent(query.trim())}` : '/categories');
+    if (!term) {
+      router.push('/categories');
+      return;
+    }
+
+    const res = await findBestCategoryForQuery(term);
+    if (res.success && res.data) {
+      router.push(`/categories/${res.data.categorySlug}?q=${encodeURIComponent(term)}`);
+    } else {
+      router.push('/categories');
+    }
   };
 
   return (

@@ -35,7 +35,7 @@ async function main() {
       howItWorks: row.howItWorks ? String(row.howItWorks) : null,
       whoIsItFor: row.whoIsItFor ? String(row.whoIsItFor) : null,
       howItIsDifferent: row.howItIsDifferent ? String(row.howItIsDifferent) : null,
-      sentiments: row.sentiments ? String(row.sentiments) : null,
+      sentiments: parseJson(row.sentiments),
       specifications: parseJson(row.specifications),
       faqs: parseJson(row.faqs),
     };

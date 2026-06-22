@@ -39,6 +39,7 @@ export default function CategoryPage() {
   const categorySlug = params.category as string;
   const page = Math.max(parseInt(searchParams.get("page") || "1", 10) || 1, 1);
   const sort = searchParams.get("sort") || "rating";
+  const q = searchParams.get("q") || "";
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -54,7 +55,7 @@ export default function CategoryPage() {
     let cancelled = false;
     async function load() {
       setLoading(true);
-      const res = await getSoftwaresByCategory(categorySlug, { page, pageSize: 12 });
+      const res = await getSoftwaresByCategory(categorySlug, { page, pageSize: 12, q });
       if (!cancelled && res.success) {
         setData(res.data as any);
       }
@@ -64,7 +65,7 @@ export default function CategoryPage() {
     return () => {
       cancelled = true;
     };
-  }, [categorySlug, page]);
+  }, [categorySlug, page, q]);
 
   useEffect(() => {
     getCategories().then((res) => {
@@ -72,23 +73,29 @@ export default function CategoryPage() {
     });
   }, []);
 
+  const qSuffix = q ? `&q=${encodeURIComponent(q)}` : "";
+
   const handlePageChange = useCallback(
     (newPage: number) => {
-      router.push(`/categories/${categorySlug}?page=${newPage}&sort=${sort}`);
+      router.push(`/categories/${categorySlug}?page=${newPage}&sort=${sort}${qSuffix}`);
     },
-    [router, categorySlug, sort]
+    [router, categorySlug, sort, qSuffix]
   );
 
   const handleSortChange = (newSort: string) => {
-    router.push(`/categories/${categorySlug}?page=1&sort=${newSort}`);
+    router.push(`/categories/${categorySlug}?page=1&sort=${newSort}${qSuffix}`);
   };
 
+  // With an active search term the list is already ranked by name relevance
+  // server-side — applying the rating/newest/name sort here would discard that.
   const sortedSoftwares = data
-    ? [...data.softwares].sort((a, b) => {
-        if (sort === "name") return (a.name || "").localeCompare(b.name || "");
-        if (sort === "newest") return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-        return (b.rating || 0) - (a.rating || 0);
-      })
+    ? q
+      ? data.softwares
+      : [...data.softwares].sort((a, b) => {
+          if (sort === "name") return (a.name || "").localeCompare(b.name || "");
+          if (sort === "newest") return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+          return (b.rating || 0) - (a.rating || 0);
+        })
     : [];
 
   const categoryLabel = data?.categoryName || (loading ? "Loading…" : "Category");
@@ -118,6 +125,17 @@ export default function CategoryPage() {
             <p className="mt-2 max-w-xl text-sm text-zinc-500">
               Compare {data.total} admin-verified {categoryLabel.toLowerCase()} listing
               {data.total === 1 ? "" : "s"} and find the right fit for your team.
+            </p>
+          )}
+          {q && (
+            <p className="mt-3 inline-flex items-center gap-2 text-xs font-semibold text-zinc-500">
+              Showing results for <span className="text-primary-navy">“{q}”</span>
+              <Link
+                href={`/categories/${categorySlug}`}
+                className="text-brand-green-dark hover:underline"
+              >
+                Clear search
+              </Link>
             </p>
           )}
         </Container>

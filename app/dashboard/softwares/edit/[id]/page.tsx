@@ -53,11 +53,11 @@ export default function EditSoftwarePage() {
     howItWorks: "",
     whoIsItFor: "",
     howItIsDifferent: "",
-    sentiments: "",
   });
   const [extraData, setExtraData] = React.useState({
     specifications: [{ key: "", value: "" }],
     faqs: [{ question: "", answer: "" }],
+    sentiments: [{ theme: "", sentiment: "Positive", summary: "" }],
   });
   
   // Files & Existing Media
@@ -89,16 +89,16 @@ export default function EditSoftwarePage() {
           howItWorks: s.howItWorks || "",
           whoIsItFor: s.whoIsItFor || "",
           howItIsDifferent: s.howItIsDifferent || "",
-          sentiments: s.sentiments || "",
         });
-        
+
         // Specs: Convert Map/Object to Array
         const specs = s.specifications as Record<string, string>;
         const specArray = specs ? Object.entries(specs).map(([key, value]) => ({ key, value })) : [{ key: "", value: "" }];
-        
+
         setExtraData({
           specifications: specArray.length > 0 ? specArray : [{ key: "", value: "" }],
           faqs: (s.faqs as any[])?.length > 0 ? (s.faqs as any[]) : [{ question: "", answer: "" }],
+          sentiments: (s.sentiments as any[])?.length > 0 ? (s.sentiments as any[]) : [{ theme: "", sentiment: "Positive", summary: "" }],
         });
         
         setExistingLogo(s.logo || null);
@@ -164,8 +164,7 @@ export default function EditSoftwarePage() {
     formData.append("howItWorks", contentParts.howItWorks);
     formData.append("whoIsItFor", contentParts.whoIsItFor);
     formData.append("howItIsDifferent", contentParts.howItIsDifferent);
-    formData.append("sentiments", contentParts.sentiments);
-    
+
     // Extra Data
     const specs = extraData.specifications.reduce((acc: any, curr) => {
       if (curr.key.trim()) acc[curr.key] = curr.value;
@@ -173,6 +172,7 @@ export default function EditSoftwarePage() {
     }, {});
     formData.append("specifications", JSON.stringify(specs));
     formData.append("faqs", JSON.stringify(extraData.faqs.filter(f => f.question.trim())));
+    formData.append("sentiments", JSON.stringify(extraData.sentiments.filter(s => s.theme.trim())));
     
     // Files
     if (logoFile) formData.append("logo", logoFile);
@@ -477,18 +477,6 @@ export default function EditSoftwarePage() {
                     onChange={(e) => setContentParts({...contentParts, howItIsDifferent: e.target.value})}
                   />
                 </div>
-                <div className="space-y-4">
-                  <label className="text-sm font-bold text-slate-700 flex items-center gap-2">
-                    <MessageSquare size={16} className="text-emerald-500" /> Sentiments
-                  </label>
-                  <textarea
-                    rows={4}
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-brand-green/15 outline-none transition-all font-medium resize-none"
-                    placeholder="General market perception..."
-                    value={contentParts.sentiments}
-                    onChange={(e) => setContentParts({...contentParts, sentiments: e.target.value})}
-                  />
-                </div>
               </div>
             )}
 
@@ -614,6 +602,63 @@ export default function EditSoftwarePage() {
                           }}
                         />
                         <button type="button" onClick={() => setExtraData(prev => ({ ...prev, faqs: prev.faqs.filter((_, i) => i !== idx) }))} className="absolute -top-2 -right-2 p-1.5 bg-white border border-slate-200 text-slate-400 hover:text-red-500 rounded-full opacity-0 group-hover:opacity-100 transition-all shadow-sm">
+                          <X size={12} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* SENTIMENTS */}
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-bold text-slate-700 flex items-center gap-2">
+                      <MessageSquare size={16} className="text-emerald-500" /> Market Sentiment
+                    </label>
+                    <button type="button" onClick={() => setExtraData(prev => ({ ...prev, sentiments: [...prev.sentiments, { theme: "", sentiment: "Positive", summary: "" }] }))} className="text-brand-green-dark text-xs font-bold hover:underline">+ Add Row</button>
+                  </div>
+                  <div className="space-y-6">
+                    {extraData.sentiments.map((row, idx) => (
+                      <div key={idx} className="space-y-3 p-4 bg-slate-50/50 border border-slate-100 rounded-2xl relative group">
+                        <div className="flex gap-4">
+                          <input
+                            type="text"
+                            className="flex-1 px-4 py-2.5 bg-white border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-brand-green/15 text-sm font-semibold"
+                            placeholder="Theme, e.g. Customer Support"
+                            value={row.theme}
+                            onChange={(e) => {
+                              const next = [...extraData.sentiments];
+                              next[idx] = { ...next[idx], theme: e.target.value };
+                              setExtraData({ ...extraData, sentiments: next });
+                            }}
+                          />
+                          <select
+                            className="px-4 py-2.5 bg-white border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-brand-green/15 text-sm font-semibold"
+                            value={row.sentiment}
+                            onChange={(e) => {
+                              const next = [...extraData.sentiments];
+                              next[idx] = { ...next[idx], sentiment: e.target.value };
+                              setExtraData({ ...extraData, sentiments: next });
+                            }}
+                          >
+                            <option value="Positive">Positive</option>
+                            <option value="Negative">Negative</option>
+                            <option value="Neutral">Neutral</option>
+                            <option value="Mixed">Mixed</option>
+                          </select>
+                        </div>
+                        <textarea
+                          rows={2}
+                          className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-brand-green/15 text-sm resize-none"
+                          placeholder="What users say, in plain English..."
+                          value={row.summary}
+                          onChange={(e) => {
+                            const next = [...extraData.sentiments];
+                            next[idx] = { ...next[idx], summary: e.target.value };
+                            setExtraData({ ...extraData, sentiments: next });
+                          }}
+                        />
+                        <button type="button" onClick={() => setExtraData(prev => ({ ...prev, sentiments: prev.sentiments.filter((_, i) => i !== idx) }))} className="absolute -top-2 -right-2 p-1.5 bg-white border border-slate-200 text-slate-400 hover:text-red-500 rounded-full opacity-0 group-hover:opacity-100 transition-all shadow-sm">
                           <X size={12} />
                         </button>
                       </div>
