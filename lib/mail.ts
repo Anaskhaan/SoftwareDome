@@ -42,3 +42,54 @@ export const sendOTPEmail = async (email: string, otp: string) => {
 
   return transporter.sendMail(mailOptions);
 };
+
+export const sendContactEmail = async (data: {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+}) => {
+  return transporter.sendMail({
+    from: `"SoftwareDome Contact Form" <${process.env.GMAIL_USER}>`,
+    to: process.env.GMAIL_USER,
+    replyTo: data.email,
+    subject: `[Contact] ${data.subject}`,
+    html: `
+      <div style="font-family: 'Inter', sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2>New contact form submission</h2>
+        <p><strong>Name:</strong> ${data.name}</p>
+        <p><strong>Email:</strong> ${data.email}</p>
+        <p><strong>Subject:</strong> ${data.subject}</p>
+        <p><strong>Message:</strong></p>
+        <p>${data.message.replace(/\n/g, "<br/>")}</p>
+      </div>
+    `,
+  });
+};
+
+export const sendProductSubmissionEmail = async (data: {
+  productName: string;
+  website: string;
+  category: string;
+  contactName: string;
+  contactEmail: string;
+  description: string;
+}) => {
+  return transporter.sendMail({
+    from: `"SoftwareDome Submissions" <${process.env.GMAIL_USER}>`,
+    to: process.env.GMAIL_USER,
+    replyTo: data.contactEmail,
+    subject: `[Product Submission] ${data.productName}`,
+    html: `
+      <div style="font-family: 'Inter', sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2>New product submission</h2>
+        <p><strong>Product:</strong> ${data.productName}</p>
+        <p><strong>Website:</strong> ${data.website}</p>
+        <p><strong>Category:</strong> ${data.category}</p>
+        <p><strong>Submitted by:</strong> ${data.contactName} (${data.contactEmail})</p>
+        <p><strong>Description:</strong></p>
+        <p>${data.description.replace(/\n/g, "<br/>")}</p>
+      </div>
+    `,
+  });
+};

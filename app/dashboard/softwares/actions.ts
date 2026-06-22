@@ -23,6 +23,79 @@ function slugify(name: string): string {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 }
 
+export async function getCategories() {
+  try {
+    const grouped = await prisma.software.groupBy({
+      by: ["category"],
+      _count: { _all: true },
+      where: { category: { not: null } },
+    });
+
+    const categories = grouped
+      .filter((g) => g.category && g.category.trim())
+      .map((g) => ({
+        name: g.category as string,
+        slug: slugify(g.category as string),
+        count: g._count._all,
+      }))
+      .sort((a, b) => b.count - a.count);
+
+    return { success: true, data: categories };
+  } catch (error) {
+    console.error("Error fetching categories:", error);
+    return { success: false, error: "Failed to fetch categories" };
+  }
+}
+
+export async function getSoftwaresByCategory(
+  categorySlug: string,
+  options: { page?: number; pageSize?: number } = {}
+) {
+  try {
+    const page = Math.max(options.page || 1, 1);
+    const pageSize = options.pageSize || 12;
+
+    const allCategories = await prisma.software.findMany({
+      where: { category: { not: null } },
+      select: { category: true },
+      distinct: ["category"],
+    });
+    const matchingCategories = allCategories
+      .map((c) => c.category as string)
+      .filter((c) => slugify(c) === categorySlug);
+
+    if (matchingCategories.length === 0) {
+      return { success: true, data: { softwares: [], total: 0, page, pageSize, totalPages: 0, categoryName: null } };
+    }
+
+    const where = { category: { in: matchingCategories } };
+    const [softwares, total] = await Promise.all([
+      prisma.software.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+      }),
+      prisma.software.count({ where }),
+    ]);
+
+    return {
+      success: true,
+      data: {
+        softwares,
+        total,
+        page,
+        pageSize,
+        totalPages: Math.max(Math.ceil(total / pageSize), 1),
+        categoryName: matchingCategories[0],
+      },
+    };
+  } catch (error) {
+    console.error("Error fetching softwares by category:", error);
+    return { success: false, error: "Failed to fetch softwares" };
+  }
+}
+
 async function uploadToCloudinary(file: File): Promise<string> {
   const bytes = await file.arrayBuffer();
   const buffer = Buffer.from(bytes);
