@@ -249,6 +249,34 @@ export async function deleteSoftware(id: string) {
   }
 }
 
+export async function deleteSoftwares(ids: string[]) {
+  try {
+    const auth = await requireAdmin();
+    if (auth.error) return { success: false, error: "Admin access required." };
+
+    if (!ids.length) return { success: false, error: "No softwares selected." };
+
+    const softwares = await prisma.software.findMany({ where: { id: { in: ids } } });
+
+    for (const software of softwares) {
+      const assetUrls = [software.logo, ...(software.pictures || [])].filter(Boolean) as string[];
+      for (const url of assetUrls) {
+        try {
+          await cloudinary.uploader.destroy(cloudinaryPublicId(url));
+        } catch (err) {
+          console.error("Failed to remove Cloudinary asset:", url, err);
+        }
+      }
+    }
+
+    const result = await prisma.software.deleteMany({ where: { id: { in: ids } } });
+    return { success: true, data: { count: result.count } };
+  } catch (error) {
+    console.error("Error deleting softwares:", error);
+    return { success: false, error: "Failed to delete softwares" };
+  }
+}
+
 export async function getSoftwareBySlug(slug: string) {
   try {
     const software = await prisma.software.findUnique({
