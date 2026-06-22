@@ -526,9 +526,12 @@ export default function SoftwareDetailPage() {
                             <td className="px-4 py-3 align-top sm:px-5">
                               <SentimentPill value={row.sentiment || "Neutral"} />
                             </td>
-                            <td className="px-4 py-3 align-top text-zinc-600 sm:px-5">
-                              {row.summary?.trim() || "—"}
-                            </td>
+                            <td
+                              className="px-4 py-3 align-top whitespace-pre-line text-zinc-600 [&_table]:my-2 [&_table]:w-full [&_td]:p-1.5 sm:px-5"
+                              dangerouslySetInnerHTML={{
+                                __html: row.summary?.trim() || "—",
+                              }}
+                            />
                           </tr>
                         ))}
                       </tbody>
