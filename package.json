@@ -21,6 +21,7 @@
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.3",
     "cloudinary": "^1.41.3",
+    "csv-parse": "^7.0.0",
     "dotenv": "^17.4.2",
     "jose": "^6.2.3",
     "lucide-react": "^1.14.0",

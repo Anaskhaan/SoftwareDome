@@ -5,9 +5,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import {
   ArrowLeft,
-  ArrowUpRight,
   Star,
-  Globe,
   FileText,
   ChevronDown,
   ImageIcon,
@@ -25,7 +23,6 @@ type SoftwareRecord = {
   name: string;
   slug: string;
   logo: string | null;
-  website: string | null;
   category?: string | null;
   rating: number | null;
   reportUrl: string | null;
@@ -257,20 +254,6 @@ export default function SoftwareDetailPage() {
               </div>
 
               <div className="grid gap-px bg-zinc-200 sm:grid-cols-2 lg:col-span-3 lg:grid-cols-1">
-                {software.website && (
-                  <a
-                    href={software.website}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group flex items-center justify-between gap-2 bg-white px-4 py-3 text-sm font-bold text-primary-navy transition-colors hover:bg-zinc-50"
-                  >
-                    Website
-                    <ArrowUpRight
-                      size={14}
-                      className="text-zinc-400 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-                    />
-                  </a>
-                )}
                 {software.reportUrl && (
                   <a
                     href={software.reportUrl}
@@ -282,7 +265,7 @@ export default function SoftwareDetailPage() {
                     <FileText size={14} className="text-zinc-400" />
                   </a>
                 )}
-                {!software.website && !software.reportUrl && (
+                {!software.reportUrl && (
                   <div className="flex items-center bg-white px-4 py-3 text-xs text-zinc-400">
                     No external links
                   </div>
@@ -590,19 +573,6 @@ export default function SoftwareDetailPage() {
                   </li>
                 ))}
               </ul>
-              {software.website && (
-                <div className="border-t border-zinc-100 p-2">
-                  <a
-                    href={software.website}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-1.5 rounded-sm bg-primary-navy px-3 py-2 text-xs font-bold text-white transition-colors hover:bg-accent-blue"
-                  >
-                    <Globe size={12} />
-                    Visit site
-                  </a>
-                </div>
-              )}
             </nav>
           </aside>
         </div>

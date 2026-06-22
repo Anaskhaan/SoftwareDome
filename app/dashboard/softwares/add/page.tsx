@@ -1,10 +1,9 @@
 "use client";
 
 import React from "react";
-import { 
-  Plus, 
-  Globe, 
-  FileText, 
+import {
+  Plus,
+  FileText,
   Star, 
   AlertCircle, 
   Box, 
@@ -35,7 +34,6 @@ export default function AddSoftwarePage() {
   // Form State
   const [basicInfo, setBasicInfo] = React.useState({
     name: "",
-    website: "",
     category: "",
     rating: 0,
     reportUrl: "",
@@ -100,7 +98,6 @@ export default function AddSoftwarePage() {
     
     // Basic Info
     formData.append("name", basicInfo.name);
-    formData.append("website", basicInfo.website);
     formData.append("category", basicInfo.category);
     formData.append("rating", basicInfo.rating.toString());
     formData.append("reportUrl", basicInfo.reportUrl);
@@ -202,21 +199,6 @@ export default function AddSoftwarePage() {
                   </div>
                   <div className="space-y-4">
                     <label className="text-sm font-bold text-slate-700 flex items-center gap-2">
-                      <Globe size={16} className="text-brand-green-dark" /> Website URL
-                    </label>
-                    <input
-                      type="url"
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-green/15 outline-none transition-all font-medium"
-                      placeholder="https://example.com"
-                      value={basicInfo.website}
-                      onChange={(e) => setBasicInfo({...basicInfo, website: e.target.value})}
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div className="space-y-4">
-                    <label className="text-sm font-bold text-slate-700 flex items-center gap-2">
                       <Layers size={16} className="text-brand-green-dark" /> Category
                     </label>
                     <input
@@ -227,6 +209,9 @@ export default function AddSoftwarePage() {
                       onChange={(e) => setBasicInfo({...basicInfo, category: e.target.value})}
                     />
                   </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="space-y-4">
                     <label className="text-sm font-bold text-slate-700 flex items-center gap-2">
                       <Star size={16} className="text-yellow-500" /> Rating (0-5)

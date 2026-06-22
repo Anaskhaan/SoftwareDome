@@ -23,7 +23,6 @@ async function main() {
       name: String(row.name),
       slug: String(row.slug),
       logo: row.logo ? String(row.logo) : null,
-      website: row.website ? String(row.website) : null,
       category: row.category ? String(row.category) : null,
       rating: row.rating ? Number(row.rating) : 0,
       reportUrl: row.reportUrl ? String(row.reportUrl) : null,

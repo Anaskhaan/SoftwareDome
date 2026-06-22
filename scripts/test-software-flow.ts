@@ -15,7 +15,6 @@ async function main() {
   console.log("=== STEP 1: createSoftware ===");
   const createFd = new FormData();
   createFd.set("name", "Test Software QA Probe");
-  createFd.set("website", "https://example.com");
   createFd.set("category", "EHR/EMR");
   createFd.set("introduction", "Test introduction");
   createFd.set("ourVerdict", "Test verdict");
@@ -60,7 +59,6 @@ async function main() {
   console.log("\n=== STEP 5: updateSoftware (new logo, keep+add pictures) ===");
   const updateFd = new FormData();
   updateFd.set("name", "Test Software QA Probe Updated");
-  updateFd.set("website", "https://example.com/updated");
   updateFd.set("category", "EHR/EMR");
   updateFd.set("introduction", "Updated introduction");
   updateFd.set("ourVerdict", "Updated verdict");
