@@ -2,9 +2,9 @@
 
 import React from "react";
 import Link from "next/link";
-import { Search, Edit2, Trash2, Box, AlertCircle } from "@/lib/fa-icons";
+import { Search, Edit2, Trash2, Box, AlertCircle, Upload } from "@/lib/fa-icons";
 import AdminOutletBtnHeading from "@/components/dashboard/AdminOutletBtnHeading";
-import { getSoftwares, deleteSoftware } from "./actions";
+import { getSoftwares, deleteSoftware, importSoftwaresFromCsv } from "./actions";
 import { Card } from "@/components/dashboard/ui/Card";
 import Button from "@/components/dashboard/ui/Button";
 import Modal from "@/components/dashboard/ui/Modal";
@@ -19,6 +19,10 @@ export default function SoftwaresPage() {
   const [search, setSearch] = React.useState("");
   const [deleteTarget, setDeleteTarget] = React.useState<any | null>(null);
   const [deleting, setDeleting] = React.useState(false);
+  const [importOpen, setImportOpen] = React.useState(false);
+  const [importFile, setImportFile] = React.useState<File | null>(null);
+  const [importing, setImporting] = React.useState(false);
+  const [importResult, setImportResult] = React.useState<{ created: number; skipped: number; failed: number; errors: string[] } | null>(null);
 
   async function fetchData() {
     setIsLoading(true);
@@ -57,14 +61,46 @@ export default function SoftwaresPage() {
     }
   };
 
+  const handleImport = async () => {
+    if (!importFile) return;
+    setImporting(true);
+    setImportResult(null);
+    try {
+      const formData = new FormData();
+      formData.append("file", importFile);
+      const result = await importSoftwaresFromCsv(formData);
+      if (result.success) {
+        setImportResult(result.data as any);
+        show(`Import finished: ${result.data?.created} created, ${result.data?.skipped} skipped.`, "success");
+        fetchData();
+      } else {
+        show(result.error || "Failed to import CSV.", "danger");
+      }
+    } finally {
+      setImporting(false);
+    }
+  };
+
+  const closeImportModal = () => {
+    setImportOpen(false);
+    setImportFile(null);
+    setImportResult(null);
+  };
+
   return (
     <div className="space-y-6">
-      <AdminOutletBtnHeading
-        heading="Softwares"
-        subtitle="Manage your software listings and reviews."
-        btnText="Add New Software"
-        btnUrl="/dashboard/softwares/add"
-      />
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <AdminOutletBtnHeading
+          heading="Softwares"
+          subtitle="Manage your software listings and reviews."
+          btnText="Add New Software"
+          btnUrl="/dashboard/softwares/add"
+        />
+        <Button variant="secondary" onClick={() => setImportOpen(true)} className="shrink-0">
+          <Upload size={15} className="mr-1.5" />
+          Import CSV
+        </Button>
+      </div>
 
       <Card noPadding>
         <div className="flex flex-col gap-3 border-b border-border-subtle p-4 sm:flex-row sm:items-center">
@@ -136,7 +172,7 @@ export default function SoftwaresPage() {
                         </div>
                         <div className="flex flex-col">
                           <span className="font-bold text-primary-navy">{software.name}</span>
-                          <span className="text-xs text-text-muted">{software.website || "No website"}</span>
+                          <span className="text-xs text-text-muted">{software.category || "Uncategorized"}</span>
                         </div>
                       </div>
                     </td>
@@ -200,6 +236,53 @@ export default function SoftwaresPage() {
             <span className="font-bold text-primary-navy">{deleteTarget?.name}</span>? This will also
             remove its logo and gallery images, and the public listing page will go offline immediately.
           </p>
+        </div>
+      </Modal>
+
+      <Modal
+        open={importOpen}
+        onClose={closeImportModal}
+        title="Import softwares from CSV"
+        footer={
+          <>
+            <Button variant="secondary" onClick={closeImportModal} disabled={importing}>
+              Close
+            </Button>
+            <Button onClick={handleImport} loading={importing} disabled={!importFile}>
+              Import
+            </Button>
+          </>
+        }
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-text-muted">
+            Upload a CSV file with software listings. Rows with a slug that already exists will be
+            skipped. Logos and gallery images will be re-hosted automatically — large files may take
+            a while to import.
+          </p>
+          <input
+            type="file"
+            accept=".csv"
+            onChange={(e) => {
+              setImportFile(e.target.files?.[0] || null);
+              setImportResult(null);
+            }}
+            disabled={importing}
+            className="block w-full rounded-xl border border-border-subtle bg-surface-muted p-2 text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-brand-green file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-white"
+          />
+          {importResult && (
+            <div className="rounded-xl border border-border-subtle bg-surface-muted p-3 text-sm">
+              <p className="font-semibold text-primary-navy">
+                Created {importResult.created} · Skipped {importResult.skipped} · Failed{" "}
+                {importResult.failed}
+              </p>
+              {importResult.errors.length > 0 && (
+                <p className="mt-1 text-xs text-text-muted">
+                  Failed slugs: {importResult.errors.join(", ")}
+                </p>
+              )}
+            </div>
+          )}
         </div>
       </Modal>
     </div>
