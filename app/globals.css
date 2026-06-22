@@ -112,6 +112,10 @@
   --font-brand: var(--font-sora);
 }
 
+html {
+  font-size: 100%; /* 16px base — respects user/browser zoom settings */
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
@@ -120,6 +124,83 @@ body {
   padding: 0;
   max-width: 100%;
   overflow-x: hidden;
+  font-size: 1rem;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* ---- Standard typography scale ----
+   Applies sane, readable defaults to bare HTML elements so every page
+   (including content rendered from markdown/CMS) is consistent without
+   needing explicit utility classes. Wrapped in @layer base so
+   component-level Tailwind classes (e.g. clamp() hero headings) take
+   precedence via the cascade layer order, not just specificity. */
+@layer base {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-brand), var(--font-sans), sans-serif;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    color: var(--foreground);
+  }
+
+  h1 {
+    font-size: clamp(2rem, 1.6rem + 1.6vw, 3rem);
+    line-height: 1.12;
+    letter-spacing: -0.02em;
+  }
+
+  h2 {
+    font-size: clamp(1.5rem, 1.3rem + 0.9vw, 2.25rem);
+    line-height: 1.18;
+    letter-spacing: -0.015em;
+  }
+
+  h3 {
+    font-size: clamp(1.25rem, 1.15rem + 0.5vw, 1.75rem);
+    line-height: 1.25;
+  }
+
+  h4 {
+    font-size: 1.25rem;
+    line-height: 1.35;
+  }
+
+  h5 {
+    font-size: 1.125rem;
+    line-height: 1.4;
+  }
+
+  h6 {
+    font-size: 1rem;
+    line-height: 1.4;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+}
+
+@layer base {
+  p {
+    font-size: 1rem;
+    line-height: 1.65;
+    color: var(--text-muted);
+  }
+
+  a {
+    color: inherit;
+  }
+}
+
+small,
+.text-caption {
+  font-size: 0.875rem;
+  line-height: 1.5;
 }
 
 .custom_input {

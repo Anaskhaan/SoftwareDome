@@ -41,19 +41,17 @@ export default function Logo({
   iconOnly?: boolean;
 }) {
   const dims = { sm: 24, md: 32, lg: 40 }[size];
-  const textSize = { sm: "text-lg", md: "text-2xl", lg: "text-3xl" }[size];
-  const softwareColor = variant === "light" ? "text-[var(--secondary-black)]" : "text-white";
+  const svgDims = { sm: 36, md: 48, lg: 60 }[size];
 
-  const content = (
-    <span className="inline-flex items-center gap-2 select-none">
-      <Mark size={dims} />
-      {!iconOnly && (
-        <span className={`font-brand font-bold tracking-tight ${textSize} leading-none`}>
-          <span className={softwareColor}>Software</span>{" "}
-          <span className="text-brand-green">Dome</span>
-        </span>
-      )}
-    </span>
+  const content = iconOnly ? (
+    <Mark size={dims} />
+  ) : (
+    <img
+      src={variant === "dark" ? "/logo.svg" : "/logo2.svg"}
+      alt="SoftwareDome"
+      height={svgDims}
+      style={{ height: svgDims, width: "auto" }}
+    />
   );
 
   if (href === null) return content;

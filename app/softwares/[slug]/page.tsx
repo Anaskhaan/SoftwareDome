@@ -18,6 +18,7 @@ import SoftwareReviews from "@/components/SoftwareReviews";
 import { getSoftwareBySlug } from "@/app/dashboard/softwares/actions";
 
 type FaqItem = { question?: string; answer?: string };
+type SentimentRow = { theme?: string; sentiment?: string; summary?: string };
 type SoftwareRecord = {
   id: string;
   name: string;
@@ -35,7 +36,7 @@ type SoftwareRecord = {
   howItWorks: string | null;
   whoIsItFor: string | null;
   howItIsDifferent: string | null;
-  sentiments: string | null;
+  sentiments: SentimentRow[] | null;
   specifications: Record<string, string> | null;
   faqs: FaqItem[] | null;
   createdAt: Date | string;
@@ -49,6 +50,7 @@ const sections = [
   { id: "pros-cons", label: "Pros & cons" },
   { id: "gallery", label: "Gallery" },
   { id: "deep-dive", label: "Deep dive" },
+  { id: "sentiments", label: "Market sentiment" },
   { id: "specifications", label: "Specifications" },
   { id: "faqs", label: "FAQs" },
   { id: "reviews", label: "Reviews" },
@@ -86,6 +88,23 @@ function EmptyBlock({ message }: { message: string }) {
 function ProseBlock({ text }: { text: string }) {
   return (
     <p className="text-sm leading-relaxed text-zinc-600 whitespace-pre-line">{text}</p>
+  );
+}
+
+function SentimentPill({ value }: { value: string }) {
+  const v = value.toLowerCase();
+  const styles =
+    v === "positive"
+      ? "bg-emerald-50 text-emerald-700 ring-emerald-200"
+      : v === "negative"
+      ? "bg-red-50 text-red-700 ring-red-200"
+      : v === "mixed"
+      ? "bg-amber-50 text-amber-700 ring-amber-200"
+      : "bg-zinc-100 text-zinc-600 ring-zinc-200";
+  return (
+    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold ring-1 ring-inset ${styles}`}>
+      {value}
+    </span>
   );
 }
 
@@ -169,6 +188,8 @@ export default function SoftwareDetailPage() {
     .filter(([, v]) => v.trim());
   const faqs = Array.isArray(software.faqs) ? software.faqs : [];
   const validFaqs = faqs.filter((f) => typeof f?.question === "string" && f.question.trim());
+  const sentiments = Array.isArray(software.sentiments) ? software.sentiments : [];
+  const validSentiments = sentiments.filter((s) => typeof s?.theme === "string" && s.theme.trim());
   const takeaways = filterStrings(software.keyTakeaways);
   const pros = filterStrings(software.pros);
   const cons = filterStrings(software.cons);
@@ -179,7 +200,6 @@ export default function SoftwareDetailPage() {
     { id: "how-it-works", title: "How it works", body: software.howItWorks },
     { id: "who-is-it-for", title: "Who it is for", body: software.whoIsItFor },
     { id: "how-it-is-different", title: "How it is different", body: software.howItIsDifferent },
-    { id: "sentiments", title: "Market sentiment", body: software.sentiments },
   ].filter((s) => s.body?.trim());
 
   return (
@@ -476,6 +496,47 @@ export default function SoftwareDetailPage() {
                 ) : (
                   <div className="bg-white p-4 sm:p-5">
                     <EmptyBlock message="Deep dive sections not filled in yet." />
+                  </div>
+                )}
+              </div>
+            </section>
+
+            {/* Market sentiment */}
+            <section id="sentiments" className="scroll-mt-24">
+              <div className="overflow-hidden rounded-sm border border-zinc-200 bg-white">
+                <div className="border-b border-zinc-100 bg-zinc-50/80 px-4 py-2">
+                  <SectionLabel>Market sentiment</SectionLabel>
+                </div>
+                {validSentiments.length > 0 ? (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-sm">
+                      <thead>
+                        <tr className="border-b border-zinc-100 bg-zinc-50/40 text-xs font-bold uppercase tracking-wider text-zinc-400">
+                          <th className="px-4 py-2.5 sm:px-5">Theme</th>
+                          <th className="px-4 py-2.5 sm:px-5">Sentiment</th>
+                          <th className="px-4 py-2.5 sm:px-5">What users say</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-zinc-100">
+                        {validSentiments.map((row, idx) => (
+                          <tr key={idx}>
+                            <td className="px-4 py-3 align-top font-bold text-primary-navy sm:px-5">
+                              {row.theme}
+                            </td>
+                            <td className="px-4 py-3 align-top sm:px-5">
+                              <SentimentPill value={row.sentiment || "Neutral"} />
+                            </td>
+                            <td className="px-4 py-3 align-top text-zinc-600 sm:px-5">
+                              {row.summary?.trim() || "—"}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <div className="p-4 sm:p-5">
+                    <EmptyBlock message="No sentiment breakdown published for this product." />
                   </div>
                 )}
               </div>

@@ -22,9 +22,6 @@ export const metadata: Metadata = {
   title: "SoftwareDome — Global Software Index",
   description:
     "Find, compare, and discover software from around the world. Admin-curated catalog under one dome.",
-  icons: {
-    icon: "/favicon.svg",
-  },
 };
 
 export default function RootLayout({

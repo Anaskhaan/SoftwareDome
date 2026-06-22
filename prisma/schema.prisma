@@ -96,7 +96,7 @@ model Software {
   howItWorks        String?  @db.Text
   whoIsItFor        String?  @db.Text
   howItIsDifferent  String?  @db.Text
-  sentiments        String?  @db.Text
+  sentiments        Json?    // Array of { "theme": "...", "sentiment": "Positive|Negative|Neutral|Mixed", "summary": "..." }
   
   // Section: Flexible Data (Different for all softwares)
   specifications    Json?    // Key-value pairs like { "Platform": "Windows", "License": "SaaS" }

@@ -63,7 +63,14 @@ import {
   faXmark,
   faCircleXmark,
   faBolt,
+  faPhone,
 } from "@fortawesome/free-solid-svg-icons";
+import {
+  faFacebookF,
+  faLinkedinIn,
+  faXTwitter,
+  faYoutube,
+} from "@fortawesome/free-brands-svg-icons";
 
 type IconProps = {
   size?: number | string;
@@ -151,3 +158,8 @@ export const Users = makeIcon(faUsers);
 export const X = makeIcon(faXmark);
 export const XCircle = makeIcon(faCircleXmark);
 export const Zap = makeIcon(faBolt);
+export const Phone = makeIcon(faPhone);
+export const Facebook = makeIcon(faFacebookF);
+export const LinkedinIcon = makeIcon(faLinkedinIn);
+export const XTwitter = makeIcon(faXTwitter);
+export const Youtube = makeIcon(faYoutube);

@@ -23,6 +23,51 @@ function slugify(name: string): string {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 }
 
+function nameMatchScore(name: string, query: string): number {
+  const n = name.toLowerCase();
+  const q = query.toLowerCase();
+  if (n === q) return 0;
+  if (n.startsWith(q)) return 1;
+  if (n.includes(q)) return 2;
+  return 3;
+}
+
+// Resolves a free-text search term (typed into the hero/sidebar search bars) to the
+// category page it should land on: a direct category-name match wins, otherwise we
+// fall back to the category of the software whose name best matches the query.
+export async function findBestCategoryForQuery(query: string) {
+  try {
+    const q = query.trim();
+    if (!q) return { success: true, data: null };
+
+    const categoriesRes = await getCategories();
+    const categories = categoriesRes.success ? categoriesRes.data || [] : [];
+
+    const qLower = q.toLowerCase();
+    const directCategory = categories.find(
+      (c) => c.name.toLowerCase().includes(qLower) || qLower.includes(c.name.toLowerCase())
+    );
+    if (directCategory) {
+      return { success: true, data: { categorySlug: directCategory.slug, categoryName: directCategory.name } };
+    }
+
+    const matches = await prisma.software.findMany({
+      where: { name: { contains: q, mode: "insensitive" }, category: { not: null } },
+      select: { name: true, category: true },
+    });
+    if (matches.length === 0) return { success: true, data: null };
+
+    const best = matches.reduce((a, b) => (nameMatchScore(a.name, q) <= nameMatchScore(b.name, q) ? a : b));
+    const matchedCategory = categories.find((c) => c.name === best.category);
+    if (!matchedCategory) return { success: true, data: null };
+
+    return { success: true, data: { categorySlug: matchedCategory.slug, categoryName: matchedCategory.name } };
+  } catch (error) {
+    console.error("Error resolving search category:", error);
+    return { success: false, error: "Failed to resolve search category" };
+  }
+}
+
 export async function getCategories() {
   try {
     const grouped = await prisma.software.groupBy({
@@ -49,11 +94,12 @@ export async function getCategories() {
 
 export async function getSoftwaresByCategory(
   categorySlug: string,
-  options: { page?: number; pageSize?: number } = {}
+  options: { page?: number; pageSize?: number; q?: string } = {}
 ) {
   try {
     const page = Math.max(options.page || 1, 1);
     const pageSize = options.pageSize || 12;
+    const q = options.q?.trim();
 
     const allCategories = await prisma.software.findMany({
       where: { category: { not: null } },
@@ -69,15 +115,30 @@ export async function getSoftwaresByCategory(
     }
 
     const where = { category: { in: matchingCategories } };
-    const [softwares, total] = await Promise.all([
-      prisma.software.findMany({
-        where,
-        orderBy: { createdAt: "desc" },
-        skip: (page - 1) * pageSize,
-        take: pageSize,
-      }),
-      prisma.software.count({ where }),
-    ]);
+
+    // With a search term, every listing in the category still shows — it's just
+    // ranked by how closely its name matches the query (best match first).
+    let softwares;
+    let total;
+    if (q) {
+      const all = await prisma.software.findMany({ where, orderBy: { createdAt: "desc" } });
+      const ranked = all
+        .map((s) => ({ s, score: nameMatchScore(s.name, q) }))
+        .sort((a, b) => a.score - b.score || (b.s.rating || 0) - (a.s.rating || 0))
+        .map((r) => r.s);
+      total = ranked.length;
+      softwares = ranked.slice((page - 1) * pageSize, (page - 1) * pageSize + pageSize);
+    } else {
+      [softwares, total] = await Promise.all([
+        prisma.software.findMany({
+          where,
+          orderBy: { createdAt: "desc" },
+          skip: (page - 1) * pageSize,
+          take: pageSize,
+        }),
+        prisma.software.count({ where }),
+      ]);
+    }
 
     return {
       success: true,
@@ -127,7 +188,6 @@ export async function createSoftware(formData: FormData) {
     const howItWorks = formData.get("howItWorks") as string;
     const whoIsItFor = formData.get("whoIsItFor") as string;
     const howItIsDifferent = formData.get("howItIsDifferent") as string;
-    const sentiments = formData.get("sentiments") as string;
 
     // Arrays
     const keyTakeaways = JSON.parse(formData.get("keyTakeaways") as string || "[]");
@@ -137,6 +197,7 @@ export async function createSoftware(formData: FormData) {
     // JSON fields
     const specifications = JSON.parse(formData.get("specifications") as string || "{}");
     const faqs = JSON.parse(formData.get("faqs") as string || "[]");
+    const sentiments = JSON.parse(formData.get("sentiments") as string || "[]");
 
     if (!name) {
       return { success: false, error: "Software name is required" };
@@ -225,7 +286,6 @@ export async function updateSoftware(id: string, formData: FormData) {
     const howItWorks = formData.get("howItWorks") as string;
     const whoIsItFor = formData.get("whoIsItFor") as string;
     const howItIsDifferent = formData.get("howItIsDifferent") as string;
-    const sentiments = formData.get("sentiments") as string;
 
     const keyTakeaways = JSON.parse(formData.get("keyTakeaways") as string || "[]");
     const pros = JSON.parse(formData.get("pros") as string || "[]");
@@ -233,6 +293,7 @@ export async function updateSoftware(id: string, formData: FormData) {
 
     const specifications = JSON.parse(formData.get("specifications") as string || "{}");
     const faqs = JSON.parse(formData.get("faqs") as string || "[]");
+    const sentiments = JSON.parse(formData.get("sentiments") as string || "[]");
 
     if (!name) {
       return { success: false, error: "Software name is required" };
@@ -484,7 +545,7 @@ export async function importSoftwaresFromCsv(formData: FormData) {
             howItWorks: row.howItWorks || null,
             whoIsItFor: row.whoIsItFor || null,
             howItIsDifferent: row.howItIsDifferent || null,
-            sentiments: row.sentiments || null,
+            sentiments: parseJsonAny(row.sentiments) as any,
             specifications: parseJsonObject(row.specifications),
             faqs: parseJsonAny(row.faqs) as any,
           },

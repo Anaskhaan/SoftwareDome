@@ -53,6 +53,7 @@ export default function Navbar({
 
   const isBlended = transparent && !scrolled;
   const isDarkBlend = isBlended && heroTheme === 'dark';
+  const darkUI = isDarkBlend || !isBlended;
 
   const handleMouseEnter = () => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -78,14 +79,14 @@ export default function Navbar({
 
   return (
     <header
-      className={`py-4 transition-all duration-300 ${
+      className={`py-2 transition-all duration-300 ${
         transparent
           ? `fixed top-0 inset-x-0 z-50 ${
               isBlended
                 ? 'bg-transparent border-b border-transparent'
-                : 'bg-white/85 backdrop-blur-xl border-b border-gray-100 shadow-[0_4px_24px_-8px_rgba(10,25,47,0.08)]'
+                : 'bg-[#0c221a] border-b border-[#0c221a] shadow-[0_8px_30px_-8px_rgba(10,25,47,0.25)]'
             }`
-          : 'sticky top-0 z-40 bg-white/95 backdrop-blur-xl border-b border-gray-100 shadow-[0_1px_0_rgba(10,25,47,0.04)]'
+          : 'sticky top-0 z-40 bg-[#0c221a] backdrop-blur-xl border-b border-[#0c221a] shadow-[0_1px_0_rgba(10,25,47,0.1)]'
       }`}
     >
     <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 md:px-10 lg:px-20">
@@ -93,19 +94,19 @@ export default function Navbar({
         <button
           onClick={onMenuClick}
           className={`md:hidden flex items-center justify-start rounded-lg p-1.5 transition-colors ${
-            isDarkBlend ? 'text-white hover:bg-white/10' : 'text-primary-navy hover:bg-primary-navy/5'
+            darkUI ? 'text-white hover:bg-white/10' : 'text-primary-navy hover:bg-primary-navy/5'
           }`}
           aria-label="Open menu"
         >
           <Icons.Menu size={24} />
         </button>
 
-        <Logo size="md" variant={isDarkBlend ? 'dark' : 'light'} />
+        <Logo size="md" variant={darkUI ? 'dark' : 'light'} />
       </div>
 
       <nav
         className={`hidden md:flex items-center gap-1 font-semibold text-sm transition-colors ${
-          isDarkBlend ? 'text-white/80' : 'text-gray-600'
+          darkUI ? 'text-white/80' : 'text-gray-600'
         }`}
       >
         {navLinks.map((link) => (
@@ -113,7 +114,7 @@ export default function Navbar({
             key={link.name}
             href={link.href}
             className={`rounded-full px-3.5 py-2 whitespace-nowrap transition-colors ${
-              isDarkBlend
+              darkUI
                 ? 'hover:bg-white/10 hover:text-white'
                 : 'hover:bg-brand-green/8 hover:text-brand-green-dark'
             }`}
@@ -128,7 +129,7 @@ export default function Navbar({
           href="/categories"
           aria-label="Search"
           className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border transition-colors duration-300 ${
-            isDarkBlend
+            darkUI
               ? 'border-white/15 text-white/80 hover:bg-white/10 hover:text-white'
               : 'border-transparent text-gray-500 hover:bg-brand-green/8 hover:text-brand-green-dark'
           }`}
@@ -144,7 +145,7 @@ export default function Navbar({
           >
             <button
               className={`w-10 h-10 cursor-pointer rounded-full flex items-center justify-center transition-all border hover:ring-2 hover:ring-brand-green/30 ${
-                isDarkBlend
+                darkUI
                   ? 'bg-white/10 text-white border-white/15 hover:bg-white/15'
                   : 'bg-primary-navy/10 text-primary-navy border-primary-navy/10 hover:bg-primary-navy/20'
               }`}
@@ -188,7 +189,7 @@ export default function Navbar({
               </div>
             )}
           </div>
-        ) : isDarkBlend ? (
+        ) : darkUI ? (
           <Link
             href="/signup"
             className="group inline-flex items-center gap-2 rounded-full border border-brand-green/50 px-5 py-2 text-sm font-bold text-brand-green-light transition-all hover:border-brand-green hover:bg-brand-green/10"
@@ -221,7 +222,7 @@ export default function Navbar({
           href="/categories"
           aria-label="Search"
           className={`flex h-9 w-9 items-center justify-center rounded-full transition-colors ${
-            isDarkBlend ? 'text-white/80 hover:bg-white/10' : 'text-gray-500 hover:bg-gray-100'
+            darkUI ? 'text-white/80 hover:bg-white/10' : 'text-gray-500 hover:bg-gray-100'
           }`}
         >
           <Icons.Search size={18} />
@@ -230,12 +231,12 @@ export default function Navbar({
           <Link
             href="/signup"
             className={`rounded-full px-3.5 py-2 text-xs font-bold whitespace-nowrap ${
-              isDarkBlend
+              darkUI
                 ? 'border border-brand-green/50 text-brand-green-light'
                 : 'bg-brand-green text-white shadow-sm'
             }`}
           >
-            {isDarkBlend ? 'Join' : 'Get Started'}
+            {darkUI ? 'Join' : 'Get Started'}
           </Link>
         )}
       </div>
