@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Menu, Search, Bell, ChevronRight, LogOut, UserPen } from "@/lib/fa-icons";
+import { Menu, Search, Bell, ChevronRight, LogOut, UserPen, Info } from "@/lib/fa-icons";
 
 interface NavbarProps {
   userRole: "ADMIN" | "VENDOR";
@@ -92,9 +92,20 @@ export default function Navbar({ userRole, onMenuClick }: NavbarProps) {
         </button>
 
         <nav className="hidden min-w-0 items-center gap-1.5 text-sm sm:flex" aria-label="Breadcrumb">
-          <Link href="/dashboard" className="font-bold text-primary-navy hover:text-brand-green-dark">
-            {userRole === "ADMIN" ? "Admin" : "Vendor"}
-          </Link>
+          <span className="group relative inline-flex items-center gap-1.5">
+            <Link href="/dashboard" className="font-bold text-primary-navy hover:text-brand-green-dark">
+              {userRole === "ADMIN" ? "Admin" : "Vendor"}
+            </Link>
+            {userRole === "VENDOR" && (
+              <span
+                className="inline-flex cursor-help items-center text-text-muted"
+                title="Vendor panel — you can manage your own profile, software listings, and vendor details only."
+                aria-label="Vendor panel — you can manage your own profile, software listings, and vendor details only."
+              >
+                <Info size={14} />
+              </span>
+            )}
+          </span>
           {crumbs.map((c, i) => (
             <React.Fragment key={c.href}>
               <ChevronRight size={12} className="text-text-muted" />

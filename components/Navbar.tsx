@@ -170,14 +170,19 @@ export default function Navbar({
                   >
                     View Profile
                   </Link>
-                  {user.role === 'ADMIN' && (
+                  {user.role === 'ADMIN' || user.role === 'VENDOR' ? (
                     <Link
                       href="/dashboard"
+                      title={
+                        user.role === 'VENDOR'
+                          ? 'Vendor panel — manage your software listings and profile'
+                          : 'Admin dashboard'
+                      }
                       className="flex items-center gap-3 px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors font-medium"
                     >
-                      Dashboard
+                      {user.role === 'VENDOR' ? 'Vendor Panel' : 'Dashboard'}
                     </Link>
-                  )}
+                  ) : null}
                   <div className="h-px bg-gray-100 my-1 mx-2" />
                   <button
                     onClick={handleLogout}

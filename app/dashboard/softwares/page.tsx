@@ -4,7 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { Search, Edit2, Trash2, Box, AlertCircle, Upload } from "@/lib/fa-icons";
 import AdminOutletBtnHeading from "@/components/dashboard/AdminOutletBtnHeading";
-import { getSoftwares, deleteSoftware, deleteSoftwares, importSoftwaresFromCsv } from "./actions";
+import { getDashboardSoftwares, deleteSoftware, deleteSoftwares, importSoftwaresFromCsv } from "./actions";
 import { Card } from "@/components/dashboard/ui/Card";
 import Button from "@/components/dashboard/ui/Button";
 import Modal from "@/components/dashboard/ui/Modal";
@@ -26,10 +26,11 @@ export default function SoftwaresPage() {
   const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set());
   const [bulkDeleteOpen, setBulkDeleteOpen] = React.useState(false);
   const [bulkDeleting, setBulkDeleting] = React.useState(false);
+  const [isAdmin, setIsAdmin] = React.useState(true);
 
   async function fetchData() {
     setIsLoading(true);
-    const result = await getSoftwares();
+    const result = await getDashboardSoftwares();
     if (result.success) {
       setSoftwares(result.data || []);
       setError(null);
@@ -40,6 +41,18 @@ export default function SoftwaresPage() {
   }
 
   React.useEffect(() => {
+    async function loadRole() {
+      try {
+        const res = await fetch("/api/auth/me");
+        if (res.ok) {
+          const data = await res.json();
+          setIsAdmin(data.user?.role === "ADMIN");
+        }
+      } catch {
+        setIsAdmin(false);
+      }
+    }
+    loadRole();
     fetchData();
   }, []);
 
@@ -143,14 +156,16 @@ export default function SoftwaresPage() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <AdminOutletBtnHeading
           heading="Softwares"
-          subtitle="Manage your software listings and reviews."
+          subtitle={isAdmin ? "Manage your software listings and reviews." : "Manage software listings you have added."}
           btnText="Add New Software"
           btnUrl="/dashboard/softwares/add"
         />
-        <Button variant="secondary" onClick={() => setImportOpen(true)} className="shrink-0">
-          <Upload size={15} className="mr-1.5" />
-          Import CSV
-        </Button>
+        {isAdmin && (
+          <Button variant="secondary" onClick={() => setImportOpen(true)} className="shrink-0">
+            <Upload size={15} className="mr-1.5" />
+            Import CSV
+          </Button>
+        )}
       </div>
 
       <Card noPadding>
@@ -165,7 +180,7 @@ export default function SoftwaresPage() {
               className="w-full rounded-xl border border-border-subtle bg-surface-muted py-2 pl-9 pr-3 text-sm outline-none transition-colors focus:border-brand-green focus:bg-white focus:ring-2 focus:ring-brand-green/15"
             />
           </div>
-          {selectedIds.size > 0 ? (
+          {isAdmin && selectedIds.size > 0 ? (
             <div className="flex items-center gap-3 sm:ml-auto">
               <span className="text-xs font-semibold text-text-muted">
                 {selectedIds.size} selected
@@ -218,14 +233,16 @@ export default function SoftwaresPage() {
             <table className="w-full text-left">
               <thead>
                 <tr className="border-b border-border-subtle bg-surface-muted">
-                  <th className="w-10 px-6 py-3.5">
-                    <input
-                      type="checkbox"
-                      checked={allFilteredSelected}
-                      onChange={toggleSelectAll}
-                      className="h-4 w-4 rounded border-border-subtle accent-brand-green"
-                    />
-                  </th>
+                  {isAdmin && (
+                    <th className="w-10 px-6 py-3.5">
+                      <input
+                        type="checkbox"
+                        checked={allFilteredSelected}
+                        onChange={toggleSelectAll}
+                        className="h-4 w-4 rounded border-border-subtle accent-brand-green"
+                      />
+                    </th>
+                  )}
                   <th className="px-6 py-3.5 text-[11px] font-bold uppercase text-text-muted">Software</th>
                   <th className="px-6 py-3.5 text-[11px] font-bold uppercase text-text-muted">Rating</th>
                   <th className="px-6 py-3.5 text-[11px] font-bold uppercase text-text-muted">Created At</th>
@@ -240,14 +257,16 @@ export default function SoftwaresPage() {
                       selectedIds.has(software.id) ? "bg-brand-green/5" : ""
                     }`}
                   >
-                    <td className="px-6 py-4">
-                      <input
-                        type="checkbox"
-                        checked={selectedIds.has(software.id)}
-                        onChange={() => toggleSelectOne(software.id)}
-                        className="h-4 w-4 rounded border-border-subtle accent-brand-green"
-                      />
-                    </td>
+                    {isAdmin && (
+                      <td className="px-6 py-4">
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.has(software.id)}
+                          onChange={() => toggleSelectOne(software.id)}
+                          className="h-4 w-4 rounded border-border-subtle accent-brand-green"
+                        />
+                      </td>
+                    )}
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border-subtle bg-brand-green/10 text-brand-green-dark">
@@ -283,6 +302,7 @@ export default function SoftwaresPage() {
                           <Edit2 size={15} />
                         </Link>
                         <button
+                          type="button"
                           onClick={() => setDeleteTarget(software)}
                           className="rounded-lg p-2 text-status-danger transition-colors hover:bg-status-danger-bg"
                           title="Delete software"

@@ -1,35 +1,41 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
-import { jwtVerify } from 'jose';
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { jwtVerify } from "jose";
 
 const secret = new TextEncoder().encode(
-  process.env.JWT_SECRET || 'fallback-secret-at-least-32-chars-long'
+  process.env.JWT_SECRET || "fallback-secret-at-least-32-chars-long"
 );
+
+const ADMIN_ONLY_PREFIXES = [
+  "/dashboard/users",
+  "/dashboard/blogs",
+  "/dashboard/settings",
+];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Protect dashboard routes
-  if (pathname.startsWith('/dashboard')) {
-    const token = request.cookies.get('auth_token')?.value;
+  if (pathname.startsWith("/dashboard")) {
+    const token = request.cookies.get("auth_token")?.value;
 
     if (!token) {
-      // If not logged in, redirect to home page as requested
-      return NextResponse.redirect(new URL('/', request.url));
+      return NextResponse.redirect(new URL("/", request.url));
     }
 
     try {
       const { payload } = await jwtVerify(token, secret);
-      
-      // Only ADMIN is allowed to access the dashboard
-      if (payload.role !== 'ADMIN') {
-        return NextResponse.redirect(new URL('/', request.url));
+      const role = payload.role as string;
+
+      if (role !== "ADMIN" && role !== "VENDOR") {
+        return NextResponse.redirect(new URL("/", request.url));
       }
-    } catch (error) {
-      // Invalid or expired token
-      const response = NextResponse.redirect(new URL('/', request.url));
-      // Optionally clear the invalid cookie
-      response.cookies.delete('auth_token');
+
+      if (role === "VENDOR" && ADMIN_ONLY_PREFIXES.some((prefix) => pathname.startsWith(prefix))) {
+        return NextResponse.redirect(new URL("/dashboard", request.url));
+      }
+    } catch {
+      const response = NextResponse.redirect(new URL("/", request.url));
+      response.cookies.delete("auth_token");
       return response;
     }
   }
@@ -37,7 +43,6 @@ export async function middleware(request: NextRequest) {
   return NextResponse.next();
 }
 
-// See "Matching Paths" below to learn more
 export const config = {
-  matcher: ['/dashboard/:path*'],
+  matcher: ["/dashboard/:path*"],
 };

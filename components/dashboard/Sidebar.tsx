@@ -62,7 +62,7 @@ const navItems: NavItem[] = [
       { label: "Add Blog", href: "/dashboard/blogs/add" },
     ],
   },
-  { label: "Vendors", href: "/dashboard/vendors", icon: Store, roles: ["ADMIN"] },
+  { label: "Vendors", href: "/dashboard/vendors", icon: Store, roles: ["ADMIN", "VENDOR"] },
   { label: "Settings", href: "/dashboard/settings", icon: Settings, roles: ["ADMIN"] },
   { label: "Edit Profile", href: "/dashboard/edit-profile", icon: UserPen, roles: ["ADMIN", "VENDOR"] },
 ];

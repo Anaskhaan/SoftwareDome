@@ -8,9 +8,10 @@ import StatCard from "@/components/dashboard/ui/StatCard";
 import Badge, { statusToTone } from "@/components/dashboard/ui/Badge";
 import Button from "@/components/dashboard/ui/Button";
 import EmptyState from "@/components/dashboard/ui/EmptyState";
-import { getSoftwares } from "@/app/dashboard/softwares/actions";
+import { getDashboardSoftwares } from "@/app/dashboard/softwares/actions";
 import { getUsers } from "@/app/dashboard/users/actions";
 import { getBlogs } from "@/app/dashboard/blogs/actions";
+import { getDashboardVendors } from "@/app/dashboard/vendors/actions";
 
 interface ActivityRow {
   id: string;
@@ -24,22 +25,41 @@ interface ActivityRow {
 
 export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
+  const [userRole, setUserRole] = useState<"ADMIN" | "VENDOR">("ADMIN");
   const [counts, setCounts] = useState({ softwares: 0, vendors: 0, users: 0, blogs: 0 });
   const [activity, setActivity] = useState<ActivityRow[]>([]);
 
   useEffect(() => {
     async function load() {
       try {
-        const [softwaresRes, usersRes, blogsRes] = await Promise.all([
-          getSoftwares(),
-          getUsers(),
-          getBlogs(),
-        ]);
+        const meRes = await fetch("/api/auth/me");
+        let role: "ADMIN" | "VENDOR" = "ADMIN";
+        if (meRes.ok) {
+          const me = await meRes.json();
+          if (me.user?.role === "VENDOR") role = "VENDOR";
+        }
+        setUserRole(role);
 
+        const softwaresRes = await getDashboardSoftwares();
         const softwares = softwaresRes.success ? softwaresRes.data ?? [] : [];
-        const users = usersRes.success ? usersRes.data ?? [] : [];
-        const blogs = blogsRes.success ? blogsRes.data ?? [] : [];
-        const vendors = users.filter((u: any) => u.role === "VENDOR");
+
+        let users: any[] = [];
+        let blogs: any[] = [];
+        let vendors: any[] = [];
+
+        if (role === "ADMIN") {
+          const [usersRes, blogsRes, vendorsRes] = await Promise.all([
+            getUsers(),
+            getBlogs(),
+            getDashboardVendors(),
+          ]);
+          users = usersRes.success ? usersRes.data ?? [] : [];
+          blogs = blogsRes.success ? blogsRes.data ?? [] : [];
+          vendors = vendorsRes.success ? vendorsRes.data ?? [] : [];
+        } else {
+          const vendorsRes = await getDashboardVendors();
+          vendors = vendorsRes.success ? vendorsRes.data ?? [] : [];
+        }
 
         setCounts({
           softwares: softwares.length,
@@ -58,24 +78,28 @@ export default function DashboardPage() {
             createdAt: s.createdAt,
             href: `/dashboard/softwares/edit/${s.id}`,
           })),
-          ...users.map((u: any) => ({
-            id: u.id,
-            type: "User" as const,
-            title: u.name || u.email,
-            meta: u.role,
-            status: u.status || "Active",
-            createdAt: u.createdAt,
-            href: `/dashboard/users`,
-          })),
-          ...blogs.map((b: any) => ({
-            id: b.id,
-            type: "Blog" as const,
-            title: b.title,
-            meta: b.status,
-            status: b.status,
-            createdAt: b.createdAt,
-            href: `/dashboard/blogs/edit/${b.id}`,
-          })),
+          ...(role === "ADMIN"
+            ? [
+                ...users.map((u: any) => ({
+                  id: u.id,
+                  type: "User" as const,
+                  title: u.name || u.email,
+                  meta: u.role,
+                  status: u.status || "Active",
+                  createdAt: u.createdAt,
+                  href: `/dashboard/users`,
+                })),
+                ...blogs.map((b: any) => ({
+                  id: b.id,
+                  type: "Blog" as const,
+                  title: b.title,
+                  meta: b.status,
+                  status: b.status,
+                  createdAt: b.createdAt,
+                  href: `/dashboard/blogs/edit/${b.id}`,
+                })),
+              ]
+            : []),
         ]
           .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
           .slice(0, 6);
@@ -90,12 +114,19 @@ export default function DashboardPage() {
     load();
   }, []);
 
-  const stats = [
-    { label: "Total Softwares", value: counts.softwares, icon: Box },
-    { label: "Total Vendors", value: counts.vendors, icon: Store },
-    { label: "Total Users", value: counts.users, icon: Users },
-    { label: "Blog Posts", value: counts.blogs, icon: FileText },
-  ];
+  const isVendor = userRole === "VENDOR";
+
+  const stats = isVendor
+    ? [
+        { label: "My Softwares", value: counts.softwares, icon: Box },
+        { label: "My Vendor Profile", value: counts.vendors, icon: Store },
+      ]
+    : [
+        { label: "Total Softwares", value: counts.softwares, icon: Box },
+        { label: "Total Vendors", value: counts.vendors, icon: Store },
+        { label: "Total Users", value: counts.users, icon: Users },
+        { label: "Blog Posts", value: counts.blogs, icon: FileText },
+      ];
 
   return (
     <div className="space-y-6">
@@ -103,25 +134,25 @@ export default function DashboardPage() {
         <div>
           <h1 className="font-brand text-2xl font-bold text-primary-navy sm:text-3xl">Dashboard Overview</h1>
           <p className="mt-1 text-sm font-medium text-text-muted">
-            Live counts across softwares, vendors, users, and content.
+            {isVendor
+              ? "Your software listings and vendor profile at a glance."
+              : "Live counts across softwares, vendors, users, and content."}
           </p>
         </div>
       </div>
 
-      {/* Stats grid */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className={`grid grid-cols-1 gap-4 sm:grid-cols-2 ${isVendor ? "lg:grid-cols-2" : "lg:grid-cols-4"}`}>
         {stats.map((stat) => (
           <StatCard key={stat.label} {...stat} loading={loading} />
         ))}
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        {/* Recent activity */}
         <Card className="lg:col-span-2" noPadding>
           <div className="p-5 sm:p-6">
             <CardHeader
               title="Recent activity"
-              subtitle="Latest softwares, users, and blog posts added"
+              subtitle={isVendor ? "Your latest software updates" : "Latest softwares, users, and blog posts added"}
             />
           </div>
           {loading ? (
@@ -135,7 +166,11 @@ export default function DashboardPage() {
               <EmptyState
                 icon={Box}
                 title="No activity yet"
-                description="Once you add softwares, users, or blog posts, they'll show up here."
+                description={
+                  isVendor
+                    ? "Once you add software, it will show up here."
+                    : "Once you add softwares, users, or blog posts, they'll show up here."
+                }
               />
             </div>
           ) : (
@@ -159,30 +194,43 @@ export default function DashboardPage() {
           )}
         </Card>
 
-        {/* Quick actions */}
         <Card>
-          <CardHeader title="Quick actions" subtitle="Jump straight into common tasks" />
+          <CardHeader
+            title="Quick actions"
+            subtitle={isVendor ? "Manage your listings and profile" : "Jump straight into common tasks"}
+          />
           <div className="space-y-2">
             <Link href="/dashboard/softwares/add">
               <Button variant="secondary" size="md" icon={Plus} className="w-full justify-start">
                 Add software
               </Button>
             </Link>
-            <Link href="/dashboard/users/add">
-              <Button variant="secondary" size="md" icon={Plus} className="w-full justify-start">
-                Add user
-              </Button>
-            </Link>
-            <Link href="/dashboard/blogs/add">
-              <Button variant="secondary" size="md" icon={Plus} className="w-full justify-start">
-                Write a blog post
-              </Button>
-            </Link>
+            {!isVendor && (
+              <>
+                <Link href="/dashboard/users/add">
+                  <Button variant="secondary" size="md" icon={Plus} className="w-full justify-start">
+                    Add user
+                  </Button>
+                </Link>
+                <Link href="/dashboard/blogs/add">
+                  <Button variant="secondary" size="md" icon={Plus} className="w-full justify-start">
+                    Write a blog post
+                  </Button>
+                </Link>
+              </>
+            )}
             <Link href="/dashboard/vendors">
               <Button variant="ghost" size="md" icon={ArrowRight} iconPosition="right" className="w-full justify-between">
-                View vendors
+                {isVendor ? "View my vendor profile" : "View vendors"}
               </Button>
             </Link>
+            {isVendor && (
+              <Link href="/dashboard/edit-profile">
+                <Button variant="ghost" size="md" icon={ArrowRight} iconPosition="right" className="w-full justify-between">
+                  Edit profile
+                </Button>
+              </Link>
+            )}
           </div>
         </Card>
       </div>

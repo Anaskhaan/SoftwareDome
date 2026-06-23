@@ -4,6 +4,12 @@ import { parse } from "csv-parse/sync";
 import prisma from "@/lib/prisma";
 import cloudinary from "@/lib/cloudinary";
 import { requireAdmin } from "@/lib/require-admin";
+import {
+  getDashboardSession,
+  isAdmin,
+  requireDashboardUser,
+  type DashboardSession,
+} from "@/lib/require-dashboard";
 
 export async function getSoftwares() {
   try {
@@ -17,6 +23,35 @@ export async function getSoftwares() {
     console.error("Error fetching softwares:", error);
     return { success: false, error: "Failed to fetch softwares" };
   }
+}
+
+export async function getDashboardSoftwares() {
+  try {
+    const session = await getDashboardSession();
+    if (!session) {
+      return { success: false, error: "Not authenticated." };
+    }
+
+    const softwares = await prisma.software.findMany({
+      where: isAdmin(session) ? undefined : { vendorId: session.userId },
+      orderBy: { createdAt: "desc" },
+    });
+    return { success: true, data: softwares };
+  } catch (error) {
+    console.error("Error fetching dashboard softwares:", error);
+    return { success: false, error: "Failed to fetch softwares" };
+  }
+}
+
+async function getOwnedSoftware(id: string, session: DashboardSession) {
+  const software = await prisma.software.findUnique({ where: { id } });
+  if (!software) {
+    return { error: "Software not found." as const, software: null };
+  }
+  if (!isAdmin(session) && software.vendorId !== session.userId) {
+    return { error: "You do not have permission to access this software." as const, software: null };
+  }
+  return { software, error: null };
 }
 
 function slugify(name: string): string {
@@ -175,8 +210,9 @@ async function uploadToCloudinary(file: File): Promise<string> {
 
 export async function createSoftware(formData: FormData) {
   try {
-    const auth = await requireAdmin();
-    if (auth.error) return { success: false, error: "Admin access required." };
+    const auth = await requireDashboardUser();
+    if (auth.error) return { success: false, error: "Not authenticated." };
+    const { session } = auth;
 
     const name = formData.get("name") as string;
     const category = formData.get("category") as string || "";
@@ -229,7 +265,7 @@ export async function createSoftware(formData: FormData) {
       }
     }
 
-    const software = await (prisma.software as any).create({
+    const software = await prisma.software.create({
       data: {
         name,
         slug,
@@ -249,6 +285,7 @@ export async function createSoftware(formData: FormData) {
         sentiments,
         specifications,
         faqs,
+        vendorId: isAdmin(session) ? null : session.userId,
       },
     });
 
@@ -261,10 +298,17 @@ export async function createSoftware(formData: FormData) {
 
 export async function getSoftwareById(id: string) {
   try {
-    const software = await prisma.software.findUnique({
-      where: { id },
-    });
-    return { success: true, data: software };
+    const session = await getDashboardSession();
+    if (!session) {
+      return { success: false, error: "Not authenticated." };
+    }
+
+    const access = await getOwnedSoftware(id, session);
+    if (access.error) {
+      return { success: false, error: access.error };
+    }
+
+    return { success: true, data: access.software };
   } catch (error) {
     console.error("Error fetching software by ID:", error);
     return { success: false, error: "Failed to fetch software" };
@@ -273,8 +317,12 @@ export async function getSoftwareById(id: string) {
 
 export async function updateSoftware(id: string, formData: FormData) {
   try {
-    const auth = await requireAdmin();
-    if (auth.error) return { success: false, error: "Admin access required." };
+    const auth = await requireDashboardUser();
+    if (auth.error) return { success: false, error: "Not authenticated." };
+    const { session } = auth;
+
+    const access = await getOwnedSoftware(id, session);
+    if (access.error) return { success: false, error: access.error };
 
     const name = formData.get("name") as string;
     const category = formData.get("category") as string || "";
@@ -340,7 +388,7 @@ export async function updateSoftware(id: string, formData: FormData) {
     }
     updateData.pictures = pictureUrls;
 
-    const software = await (prisma.software as any).update({
+    const software = await prisma.software.update({
       where: { id },
       data: updateData,
     });
@@ -358,13 +406,13 @@ function cloudinaryPublicId(url: string): string {
 
 export async function deleteSoftware(id: string) {
   try {
-    const auth = await requireAdmin();
-    if (auth.error) return { success: false, error: "Admin access required." };
+    const auth = await requireDashboardUser();
+    if (auth.error) return { success: false, error: "Not authenticated." };
+    const { session } = auth;
 
-    const software = await prisma.software.findUnique({ where: { id } });
-    if (!software) {
-      return { success: false, error: "Software not found." };
-    }
+    const access = await getOwnedSoftware(id, session);
+    if (access.error) return { success: false, error: access.error };
+    const software = access.software!;
 
     const assetUrls = [software.logo, ...(software.pictures || [])].filter(Boolean) as string[];
     for (const url of assetUrls) {

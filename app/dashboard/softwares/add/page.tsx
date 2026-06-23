@@ -59,6 +59,8 @@ export default function AddSoftwarePage() {
   // Files
   const [logoFile, setLogoFile] = React.useState<File | null>(null);
   const [galleryFiles, setGalleryFiles] = React.useState<File[]>([]);
+  const logoInputRef = React.useRef<HTMLInputElement>(null);
+  const galleryInputRef = React.useRef<HTMLInputElement>(null);
 
   const tabs = [
     { label: "General Info", icon: Info },
@@ -89,8 +91,16 @@ export default function AddSoftwarePage() {
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handlePublish = async () => {
+    if (isSubmitting) return;
+
+    if (!basicInfo.name.trim()) {
+      setError("Software name is required");
+      setActiveTab(0);
+      window.scrollTo(0, 0);
+      return;
+    }
+
     setIsSubmitting(true);
     setError(null);
 
@@ -146,6 +156,34 @@ export default function AddSoftwarePage() {
 
   return (
     <div className="space-y-6 pb-20">
+      {/* File inputs live outside the form so the OS file dialog cannot trigger submit */}
+      <input
+        ref={logoInputRef}
+        type="file"
+        className="hidden"
+        accept="image/*"
+        tabIndex={-1}
+        onChange={(e) => {
+          setLogoFile(e.target.files?.[0] || null);
+          e.target.value = "";
+        }}
+      />
+      <input
+        ref={galleryInputRef}
+        type="file"
+        multiple
+        accept="image/*"
+        className="hidden"
+        tabIndex={-1}
+        onChange={(e) => {
+          const files = Array.from(e.target.files || []);
+          if (files.length > 0) {
+            setGalleryFiles((prev) => [...prev, ...files]);
+          }
+          e.target.value = "";
+        }}
+      />
+
       <AdminOutletHeading heading="Create Software Profile" />
 
       <div className="max-w-5xl mx-auto mt-6">
@@ -156,6 +194,7 @@ export default function AddSoftwarePage() {
             return (
               <button
                 key={tab.label}
+                type="button"
                 onClick={() => setActiveTab(idx)}
                 className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl transition-all font-semibold text-sm ${
                   activeTab === idx 
@@ -178,7 +217,15 @@ export default function AddSoftwarePage() {
         )}
 
         <div className="bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden min-h-[600px]">
-          <form onSubmit={handleSubmit} className="p-8">
+          <form
+            onSubmit={(e) => e.preventDefault()}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && (e.target as HTMLElement).tagName !== "TEXTAREA") {
+                e.preventDefault();
+              }
+            }}
+            className="p-8"
+          >
             
             {/* TAB 0: GENERAL INFO */}
             {activeTab === 0 && (
@@ -253,16 +300,13 @@ export default function AddSoftwarePage() {
                       <p className="text-xs font-semibold text-slate-700 mb-1">Click to upload logo</p>
                       <p className="text-[10px] text-slate-500">PNG, JPG up to 2MB</p>
                     </div>
-                    <input 
-                      type="file" 
-                      className="hidden" 
-                      id="logo-upload" 
-                      accept="image/*"
-                      onChange={(e) => setLogoFile(e.target.files?.[0] || null)}
-                    />
-                    <label htmlFor="logo-upload" className="cursor-pointer px-4 py-2 bg-white border border-slate-200 text-slate-700 text-xs font-bold rounded-lg hover:bg-slate-50">
+                    <button
+                      type="button"
+                      onClick={() => logoInputRef.current?.click()}
+                      className="cursor-pointer px-4 py-2 bg-white border border-slate-200 text-slate-700 text-xs font-bold rounded-lg hover:bg-slate-50"
+                    >
                       Choose File
-                    </label>
+                    </button>
                   </div>
                 </div>
 
@@ -432,20 +476,18 @@ export default function AddSoftwarePage() {
                         </button>
                       </div>
                     ))}
-                    <label className="aspect-video flex flex-col items-center justify-center gap-2 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50/50 cursor-pointer hover:bg-slate-50 transition-colors">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        galleryInputRef.current?.click();
+                      }}
+                      className="aspect-video flex flex-col items-center justify-center gap-2 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50/50 cursor-pointer hover:bg-slate-50 transition-colors"
+                    >
                       <Plus size={24} className="text-slate-400" />
                       <span className="text-[10px] font-bold text-slate-500">Add Picture</span>
-                      <input 
-                        type="file" 
-                        multiple 
-                        accept="image/*" 
-                        className="hidden" 
-                        onChange={(e) => {
-                          const files = Array.from(e.target.files || []);
-                          setGalleryFiles(prev => [...prev, ...files]);
-                        }}
-                      />
-                    </label>
+                    </button>
                   </div>
                 </div>
 
@@ -609,7 +651,8 @@ export default function AddSoftwarePage() {
                   </button>
                 ) : (
                   <button
-                    type="submit"
+                    type="button"
+                    onClick={handlePublish}
                     disabled={isSubmitting}
                     className="flex items-center gap-2 px-10 py-3 bg-[#0a192f] text-white font-bold rounded-2xl hover:bg-slate-800 transition-all shadow-lg shadow-slate-200 disabled:opacity-70"
                   >
