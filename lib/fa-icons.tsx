@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
+import { config, type IconDefinition } from "@fortawesome/fontawesome-svg-core";
 import {
   faBell,
   faWaveSquare,
@@ -71,6 +71,11 @@ import {
   faXTwitter,
   faYoutube,
 } from "@fortawesome/free-brands-svg-icons";
+
+// Sizing CSS is imported statically in app/layout.tsx instead, so it's
+// present on first paint rather than injected by JS after hydration
+// (which caused icons to flash at their unstyled intrinsic size).
+config.autoAddCss = false;
 
 type IconProps = {
   size?: number | string;
