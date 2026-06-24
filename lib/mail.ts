@@ -67,6 +67,31 @@ export const sendContactEmail = async (data: {
   });
 };
 
+export const sendDemoRequestEmail = async (data: {
+  name: string;
+  email: string;
+  phone: string;
+  organization: string;
+  softwareName: string;
+  notifyEmail: string;
+}) => {
+  return transporter.sendMail({
+    from: `"SoftwareDome Demo Requests" <${process.env.GMAIL_USER}>`,
+    to: data.notifyEmail,
+    replyTo: data.email,
+    subject: `[Demo Request] ${data.softwareName}`,
+    html: `
+      <div style="font-family: 'Inter', sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2>New demo request for ${data.softwareName}</h2>
+        <p><strong>Name:</strong> ${data.name}</p>
+        <p><strong>Email:</strong> ${data.email}</p>
+        <p><strong>Phone:</strong> ${data.phone}</p>
+        <p><strong>Organization:</strong> ${data.organization}</p>
+      </div>
+    `,
+  });
+};
+
 export const sendProductSubmissionEmail = async (data: {
   productName: string;
   website: string;

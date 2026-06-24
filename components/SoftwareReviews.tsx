@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { MessageSquare, Loader2 } from "@/lib/fa-icons";
+import CompactSectionHeader from "@/components/CompactSectionHeader";
 
 type ReviewUser = {
   id: string;
@@ -30,14 +31,6 @@ function formatReviewDate(iso: string) {
     month: "short",
     day: "numeric",
   });
-}
-
-function SectionLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="font-mono text-[10px] font-bold uppercase tracking-[0.35em] text-primary-navy/45">
-      {children}
-    </span>
-  );
 }
 
 export default function SoftwareReviews({ slug }: { slug: string }) {
@@ -123,100 +116,94 @@ export default function SoftwareReviews({ slug }: { slug: string }) {
 
   return (
     <section id="reviews" className="scroll-mt-24">
-      <div className="overflow-hidden rounded-sm border border-zinc-200 bg-white">
-        <div className="border-b border-zinc-100 bg-zinc-50/80 px-4 py-2">
-          <SectionLabel>User reviews</SectionLabel>
-        </div>
+      <CompactSectionHeader subtitle="From the community" title="User reviews" />
 
-        <div className="p-4 sm:p-5 space-y-5">
-          {user ? (
-            <form onSubmit={handleSubmit} className="space-y-3">
-              <label htmlFor="review-content" className="block text-sm font-bold text-primary-navy">
-                {ownReview ? "Update your review" : "Share your experience"}
-              </label>
-              <textarea
-                id="review-content"
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                placeholder="What do you think about this software?"
-                rows={4}
-                maxLength={2000}
-                className="w-full resize-y rounded-sm border border-zinc-200 bg-zinc-50/50 px-3 py-2.5 text-sm text-zinc-700 placeholder:text-zinc-400 focus:border-primary-navy/30 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-navy/10"
-              />
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <span className="text-xs text-zinc-400">{content.length}/2000</span>
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="inline-flex items-center gap-2 rounded-sm bg-primary-navy px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-accent-blue disabled:opacity-60"
-                >
-                  {submitting && <Loader2 size={14} className="animate-spin" />}
-                  {ownReview ? "Update review" : "Post review"}
-                </button>
-              </div>
-              {error && <p className="text-xs font-medium text-red-600">{error}</p>}
-              {success && <p className="text-xs font-medium text-emerald-600">{success}</p>}
-            </form>
-          ) : (
-            <div className="rounded-sm border border-dashed border-zinc-200 bg-zinc-50/80 px-4 py-4 text-center">
-              <p className="text-sm text-zinc-600">
-                <Link href="/login" className="font-bold text-primary-navy hover:underline">
-                  Log in
-                </Link>{" "}
-                to leave a review about this software.
-              </p>
+      <div className="space-y-6">
+        {user ? (
+          <form onSubmit={handleSubmit} className="rounded-3xl border border-border-subtle bg-white p-5 sm:p-6">
+            <label htmlFor="review-content" className="block text-sm font-bold text-primary-navy">
+              {ownReview ? "Update your review" : "Share your experience"}
+            </label>
+            <textarea
+              id="review-content"
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              placeholder="What do you think about this software?"
+              rows={4}
+              maxLength={2000}
+              className="mt-3 w-full resize-y rounded-xl border border-border-subtle bg-surface-muted/40 px-3.5 py-2.5 text-sm text-zinc-700 placeholder:text-zinc-400 focus:border-brand-green/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-green/15"
+            />
+            <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+              <span className="text-xs text-text-muted">{content.length}/2000</span>
+              <button
+                type="submit"
+                disabled={submitting}
+                className="inline-flex items-center gap-2 rounded-full bg-brand-green px-4 py-2 text-xs font-bold text-white shadow-[0_4px_16px_-2px_rgba(95,194,74,0.45)] transition-all hover:-translate-y-0.5 hover:bg-brand-green-dark disabled:translate-y-0 disabled:opacity-60"
+              >
+                {submitting && <Loader2 size={14} className="animate-spin" />}
+                {ownReview ? "Update review" : "Post review"}
+              </button>
             </div>
-          )}
-
-          <div className="border-t border-zinc-100 pt-5">
-            {loading ? (
-              <div className="space-y-3">
-                {[1, 2].map((i) => (
-                  <div key={i} className="h-16 animate-pulse rounded-sm bg-zinc-100" />
-                ))}
-              </div>
-            ) : reviews.length > 0 ? (
-              <ul className="divide-y divide-zinc-100">
-                {reviews.map((review) => (
-                  <li key={review.id} className="py-4 first:pt-0 last:pb-0">
-                    <div className="flex items-start gap-3">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary-navy/10 text-xs font-bold text-primary-navy">
-                        {review.user.image ? (
-                          <img
-                            src={review.user.image}
-                            alt=""
-                            className="h-full w-full object-cover"
-                          />
-                        ) : (
-                          (review.user.name || "U").charAt(0).toUpperCase()
-                        )}
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                          <span className="text-sm font-bold text-primary-navy">
-                            {review.user.name || "Anonymous user"}
-                          </span>
-                          <span className="font-mono text-[10px] uppercase tracking-wider text-zinc-400">
-                            {formatReviewDate(review.createdAt)}
-                            {review.updatedAt !== review.createdAt && " · edited"}
-                          </span>
-                        </div>
-                        <p className="mt-1.5 text-sm leading-relaxed text-zinc-600 whitespace-pre-line">
-                          {review.content}
-                        </p>
-                      </div>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <div className="flex items-center gap-3 text-zinc-400">
-                <MessageSquare size={18} />
-                <p className="text-xs leading-relaxed">No reviews yet. Be the first to share your thoughts.</p>
-              </div>
-            )}
+            {error && <p className="mt-2 text-xs font-medium text-red-600">{error}</p>}
+            {success && <p className="mt-2 text-xs font-medium text-emerald-600">{success}</p>}
+          </form>
+        ) : (
+          <div className="rounded-3xl border border-dashed border-border-subtle bg-surface-muted/60 px-5 py-5 text-center">
+            <p className="text-sm text-text-muted">
+              <Link href="/login" className="font-bold text-primary-navy hover:underline">
+                Log in
+              </Link>{" "}
+              to leave a review about this software.
+            </p>
           </div>
-        </div>
+        )}
+
+        {loading ? (
+          <div className="space-y-3">
+            {[1, 2].map((i) => (
+              <div key={i} className="h-16 animate-pulse rounded-2xl bg-surface-sunken" />
+            ))}
+          </div>
+        ) : reviews.length > 0 ? (
+          <ul className="divide-y divide-border-subtle rounded-3xl border border-border-subtle bg-white">
+            {reviews.map((review) => (
+              <li key={review.id} className="p-5">
+                <div className="flex items-start gap-3">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary-navy/10 text-xs font-bold text-primary-navy">
+                    {review.user.image ? (
+                      <img
+                        src={review.user.image}
+                        alt=""
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      (review.user.name || "U").charAt(0).toUpperCase()
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                      <span className="text-sm font-bold text-primary-navy">
+                        {review.user.name || "Anonymous user"}
+                      </span>
+                      <span className="font-mono text-[10px] uppercase tracking-wider text-text-muted/70">
+                        {formatReviewDate(review.createdAt)}
+                        {review.updatedAt !== review.createdAt && " · edited"}
+                      </span>
+                    </div>
+                    <p className="mt-1.5 text-sm leading-relaxed text-text-muted whitespace-pre-line">
+                      {review.content}
+                    </p>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <div className="flex items-center gap-3 rounded-3xl border border-dashed border-border-subtle bg-surface-muted/60 px-5 py-5 text-text-muted">
+            <MessageSquare size={18} />
+            <p className="text-xs leading-relaxed">No reviews yet. Be the first to share your thoughts.</p>
+          </div>
+        )}
       </div>
     </section>
   );

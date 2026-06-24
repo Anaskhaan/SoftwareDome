@@ -192,6 +192,8 @@ export default function Hero() {
                   type="button"
                   onClick={() => setActiveTab(tab.value)}
                   className={`rounded-t-lg px-4 py-2.5 text-sm font-bold whitespace-nowrap transition-colors ${
+                    tab.value !== "" && tab.value !== "EMR" ? "hidden sm:inline-flex" : ""
+                  } ${
                     activeTab === tab.value
                       ? "bg-white text-primary-navy"
                       : "bg-white/10 text-white/70 hover:bg-white/15 hover:text-white"

@@ -6,15 +6,26 @@ import { useParams } from "next/navigation";
 import {
   ArrowLeft,
   Star,
-  FileText,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   ImageIcon,
+  CheckCircle,
+  XCircle,
+  Lightbulb,
+  Users,
+  GitCompare,
+  Box,
+  X,
 } from "@/lib/fa-icons";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 import Footer from "@/components/Footer";
 import Container from "@/components/Container";
+import CompactSectionHeader from "@/components/CompactSectionHeader";
 import SoftwareReviews from "@/components/SoftwareReviews";
+import DemoRequestForm from "@/components/DemoRequestForm";
+import { useInView } from "@/hooks/useInView";
 import { getSoftwareBySlug } from "@/app/dashboard/softwares/actions";
 
 type FaqItem = { question?: string; answer?: string };
@@ -56,6 +67,12 @@ const sections = [
   { id: "reviews", label: "Reviews" },
 ];
 
+const deepDiveIcons: Record<string, React.ElementType> = {
+  "how-it-works": Lightbulb,
+  "who-is-it-for": Users,
+  "how-it-is-different": GitCompare,
+};
+
 function filterStrings(items: string[] | undefined | null) {
   return (items || [])
     .filter((s) => s !== null && s !== undefined)
@@ -71,23 +88,28 @@ function formatDate(iso: string | Date) {
   });
 }
 
-function SectionLabel({ children }: { children: React.ReactNode }) {
+function ProseBlock({ text }: { text: string }) {
   return (
-    <span className="font-mono text-[10px] font-bold uppercase tracking-[0.35em] text-primary-navy/45">
-      {children}
-    </span>
+    <p className="max-w-3xl text-base leading-relaxed text-text-muted whitespace-pre-line">{text}</p>
   );
 }
 
 function EmptyBlock({ message }: { message: string }) {
-  return (
-    <p className="text-xs leading-relaxed text-zinc-400">{message}</p>
-  );
+  return <p className="text-sm leading-relaxed text-text-muted/70">{message}</p>;
 }
 
-function ProseBlock({ text }: { text: string }) {
+function StarRow({ rating, size = 14 }: { rating: number; size?: number }) {
+  const rounded = Math.round(rating);
   return (
-    <p className="text-sm leading-relaxed text-zinc-600 whitespace-pre-line">{text}</p>
+    <div className="flex items-center gap-0.5">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <Star
+          key={i}
+          size={size}
+          className={i < rounded ? "fill-amber-400 text-amber-400" : "fill-zinc-200 text-zinc-200"}
+        />
+      ))}
+    </div>
   );
 }
 
@@ -102,9 +124,18 @@ function SentimentPill({ value }: { value: string }) {
       ? "bg-amber-50 text-amber-700 ring-amber-200"
       : "bg-zinc-100 text-zinc-600 ring-zinc-200";
   return (
-    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold ring-1 ring-inset ${styles}`}>
+    <span className={`inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 text-xs font-bold ring-1 ring-inset ${styles}`}>
       {value}
     </span>
+  );
+}
+
+function Reveal({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  const { ref, visible } = useInView(0.1);
+  return (
+    <div ref={ref} className={`${visible ? "landing-rise" : "opacity-0"} ${className}`}>
+      {children}
+    </div>
   );
 }
 
@@ -117,6 +148,10 @@ export default function SoftwareDetailPage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [expandedFaqs, setExpandedFaqs] = useState<Record<number, boolean>>({});
   const [activeImage, setActiveImage] = useState(0);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState(sections[0].id);
+  const [activeDeepDiveId, setActiveDeepDiveId] = useState("");
+  const [demoModalOpen, setDemoModalOpen] = useState(false);
 
   useEffect(() => {
     async function loadData() {
@@ -137,18 +172,97 @@ export default function SoftwareDetailPage() {
     loadData();
   }, [slug]);
 
+  // Derived view models — computed unconditionally (with optional chaining) so the
+  // hooks below can safely depend on them regardless of the loading/not-found state.
+  const rawSpecs = software?.specifications;
+  const specifications = rawSpecs && typeof rawSpecs === "object" ? (rawSpecs as Record<string, string>) : {};
+  const specEntries = Object.entries(specifications)
+    .map(([k, v]) => [k, v === null || v === undefined ? "" : typeof v === "string" ? v : String(v)] as [string, string])
+    .filter(([, v]) => v.trim());
+
+  const rawFaqs = software?.faqs;
+  const faqs = Array.isArray(rawFaqs) ? (rawFaqs as FaqItem[]) : [];
+  const validFaqs = faqs.filter((f) => typeof f?.question === "string" && f.question.trim());
+
+  const rawSentiments = software?.sentiments;
+  const sentiments = Array.isArray(rawSentiments) ? (rawSentiments as SentimentRow[]) : [];
+  const validSentiments = sentiments.filter((s) => typeof s?.theme === "string" && s.theme.trim());
+
+  const takeaways = filterStrings(software?.keyTakeaways);
+  const pros = filterStrings(software?.pros);
+  const cons = filterStrings(software?.cons);
+  const pictures = filterStrings(software?.pictures);
+  const rating = software?.rating ?? 0;
+
+  const deepDive = [
+    { id: "how-it-works", title: "How it works", body: software?.howItWorks },
+    { id: "who-is-it-for", title: "Who it is for", body: software?.whoIsItFor },
+    { id: "how-it-is-different", title: "How it is different", body: software?.howItIsDifferent },
+  ].filter((s) => s.body?.trim());
+  const activeDeepDiveBlock = deepDive.find((b) => b.id === activeDeepDiveId) ?? deepDive[0];
+
+  // Scroll-spy — highlights whichever section is currently in view in the side nav.
+  useEffect(() => {
+    if (!software) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) setActiveSection(entry.target.id);
+        });
+      },
+      { rootMargin: "-15% 0px -70% 0px", threshold: 0 }
+    );
+    sections.forEach((s) => {
+      const el = document.getElementById(s.id);
+      if (el) observer.observe(el);
+    });
+    return () => observer.disconnect();
+  }, [software]);
+
+  // Lightbox keyboard controls (Escape to close, arrows to navigate).
+  useEffect(() => {
+    if (!lightboxOpen) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setLightboxOpen(false);
+      if (e.key === "ArrowRight") setActiveImage((i) => (i + 1) % pictures.length);
+      if (e.key === "ArrowLeft") setActiveImage((i) => (i - 1 + pictures.length) % pictures.length);
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [lightboxOpen, pictures.length]);
+
+  // Demo modal — Escape to close.
+  useEffect(() => {
+    if (!demoModalOpen) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setDemoModalOpen(false);
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [demoModalOpen]);
+
+  function scrollToDemo() {
+    const isDesktop = window.matchMedia("(min-width: 1024px)").matches;
+    document
+      .getElementById(isDesktop ? "demo-desktop" : "demo-mobile")
+      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
   if (loading) {
     return (
-      <main className="min-h-screen bg-zinc-50">
+      <main className="min-h-screen bg-surface-muted">
         <Navbar onMenuClick={() => setIsMenuOpen(true)} />
         <Sidebar isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
-        <Container className="py-10">
-          <div className="mb-6 h-4 w-28 animate-pulse rounded-sm bg-zinc-200" />
-          <div className="grid gap-px overflow-hidden rounded-sm border border-zinc-200 bg-zinc-200 lg:grid-cols-12">
-            <div className="h-40 animate-pulse bg-white lg:col-span-4" />
-            <div className="h-40 animate-pulse bg-white lg:col-span-8" />
+        <Container className="py-8 lg:py-10">
+          <div className="mb-8 h-4 w-32 animate-pulse rounded-full bg-border-subtle" />
+          <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_18rem] lg:gap-10">
+            <div className="space-y-6">
+              <div className="h-44 animate-pulse rounded-3xl border border-border-subtle bg-white" />
+              <div className="h-28 animate-pulse rounded-3xl border border-border-subtle bg-white" />
+              <div className="h-64 animate-pulse rounded-3xl border border-border-subtle bg-white" />
+            </div>
+            <div className="mt-6 hidden h-96 animate-pulse rounded-3xl border border-border-subtle bg-white lg:mt-0 lg:block" />
           </div>
-          <div className="mt-6 h-64 animate-pulse rounded-sm border border-zinc-200 bg-white" />
         </Container>
         <Footer />
       </main>
@@ -157,18 +271,20 @@ export default function SoftwareDetailPage() {
 
   if (!software) {
     return (
-      <main className="min-h-screen bg-zinc-50">
+      <main className="min-h-screen bg-surface-muted">
         <Navbar onMenuClick={() => setIsMenuOpen(true)} />
         <Sidebar isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
-        <div className="mx-auto max-w-lg px-6 py-28 text-center">
-          <SectionLabel>Not found</SectionLabel>
-          <h1 className="mt-3 text-xl font-black text-primary-navy">Profile not in index</h1>
-          <p className="mt-2 text-sm text-zinc-500">
+        <div className="mx-auto max-w-md px-6 py-28 text-center">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-green/10 text-brand-green-dark">
+            <Box size={22} />
+          </div>
+          <h1 className="mt-5 text-xl font-black text-primary-navy">Profile not in index</h1>
+          <p className="mt-2 text-sm text-text-muted">
             This software slug does not exist or was removed from the catalog.
           </p>
           <Link
             href="/#catalog"
-            className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-primary-navy hover:underline"
+            className="mt-6 inline-flex items-center gap-2 rounded-full bg-brand-green px-5 py-2.5 text-sm font-bold text-white shadow-[0_4px_16px_-2px_rgba(95,194,74,0.45)] transition-all hover:-translate-y-0.5 hover:bg-brand-green-dark"
           >
             <ArrowLeft size={14} />
             Back to catalog
@@ -179,408 +295,375 @@ export default function SoftwareDetailPage() {
     );
   }
 
-  const specifications =
-    software.specifications && typeof software.specifications === "object"
-      ? (software.specifications as Record<string, string>)
-      : {};
-  const specEntries = Object.entries(specifications)
-    .map(([k, v]) => [k, v === null || v === undefined ? "" : typeof v === "string" ? v : String(v)] as [string, string])
-    .filter(([, v]) => v.trim());
-  const faqs = Array.isArray(software.faqs) ? software.faqs : [];
-  const validFaqs = faqs.filter((f) => typeof f?.question === "string" && f.question.trim());
-  const sentiments = Array.isArray(software.sentiments) ? software.sentiments : [];
-  const validSentiments = sentiments.filter((s) => typeof s?.theme === "string" && s.theme.trim());
-  const takeaways = filterStrings(software.keyTakeaways);
-  const pros = filterStrings(software.pros);
-  const cons = filterStrings(software.cons);
-  const pictures = filterStrings(software.pictures);
-  const rating = software.rating ?? 0;
-
-  const deepDive = [
-    { id: "how-it-works", title: "How it works", body: software.howItWorks },
-    { id: "who-is-it-for", title: "Who it is for", body: software.whoIsItFor },
-    { id: "how-it-is-different", title: "How it is different", body: software.howItIsDifferent },
-  ].filter((s) => s.body?.trim());
-
   return (
-    <main className="min-h-screen bg-zinc-50">
+    <main className="min-h-screen bg-surface-muted">
       <Navbar onMenuClick={() => setIsMenuOpen(true)} />
       <Sidebar isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
 
-      <Container className="py-8 lg:py-10">
-        {/* Meta rail */}
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-zinc-200 pb-4">
-          <Link
-            href="/#catalog"
-            className="inline-flex items-center gap-2 text-xs font-bold text-zinc-500 transition-colors hover:text-primary-navy"
-          >
-            <ArrowLeft size={14} />
-            Catalog
-          </Link>
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 font-mono text-[10px] uppercase tracking-wider text-zinc-400">
-            <span>{software.slug}</span>
-            <span className="hidden h-3 w-px bg-zinc-200 sm:inline" aria-hidden />
-            <span>Added {formatDate(software.createdAt)}</span>
-            {software.updatedAt !== software.createdAt && (
-              <>
-                <span className="hidden h-3 w-px bg-zinc-200 sm:inline" aria-hidden />
-                <span>Updated {formatDate(software.updatedAt)}</span>
-              </>
-            )}
-          </div>
-        </div>
-
-        <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_11rem] lg:gap-10">
+      <Container className="py-8 pb-28 lg:py-10 lg:pb-10">
+        <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_18rem] lg:gap-10">
           {/* Main column */}
-          <div className="space-y-6 min-w-0">
-            {/* Header bento */}
-            <div className="grid overflow-hidden rounded-sm border border-zinc-200 bg-zinc-200 gap-px lg:grid-cols-12">
-              <div className="flex items-center justify-center bg-white p-4 lg:col-span-3">
-                <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-sm border border-zinc-100 bg-zinc-50">
-                  {software.logo ? (
-                    <img
-                      src={software.logo}
-                      alt=""
-                      className="h-full w-full object-contain p-2"
-                    />
-                  ) : (
-                    <span className="text-2xl font-black text-primary-navy/25">
-                      {software.name.charAt(0)}
-                    </span>
+          <div className="space-y-8 min-w-0">
+            <Reveal>
+              {/* Meta rail */}
+              <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+                <Link
+                  href="/#catalog"
+                  className="inline-flex items-center gap-2 text-xs font-bold text-text-muted transition-colors hover:text-primary-navy"
+                >
+                  <ArrowLeft size={14} />
+                  Catalog
+                </Link>
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 font-mono text-[10px] uppercase tracking-wider text-text-muted/70">
+                  <span>{software.slug}</span>
+                  <span className="hidden h-3 w-px bg-border-subtle sm:inline" aria-hidden />
+                  <span>Added {formatDate(software.createdAt)}</span>
+                  {software.updatedAt !== software.createdAt && (
+                    <>
+                      <span className="hidden h-3 w-px bg-border-subtle sm:inline" aria-hidden />
+                      <span>Updated {formatDate(software.updatedAt)}</span>
+                    </>
                   )}
                 </div>
               </div>
 
-              <div className="flex flex-col justify-center gap-3 bg-white p-4 sm:p-5 lg:col-span-6">
-                <SectionLabel>{software.category || "Uncategorized"}</SectionLabel>
-                <h1 className="text-2xl font-black tracking-tight text-primary-navy sm:text-3xl">
-                  {software.name}
-                </h1>
-                {rating > 0 && (
-                  <div className="flex items-center gap-2">
-                    <div className="flex gap-0.5">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <Star
-                          key={star}
-                          size={12}
-                          className={
-                            star <= Math.round(rating)
-                              ? "fill-primary-navy text-primary-navy"
-                              : "text-zinc-200"
-                          }
-                        />
-                      ))}
-                    </div>
-                    <span className="text-xs font-bold tabular-nums text-zinc-600">
-                      {rating.toFixed(1)}
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              <div className="grid gap-px bg-zinc-200 sm:grid-cols-2 lg:col-span-3 lg:grid-cols-1">
-                {software.reportUrl && (
-                  <a
-                    href={software.reportUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group flex items-center justify-between gap-2 bg-white px-4 py-3 text-sm font-bold text-primary-navy transition-colors hover:bg-zinc-50"
-                  >
-                    Report
-                    <FileText size={14} className="text-zinc-400" />
-                  </a>
-                )}
-                {!software.reportUrl && (
-                  <div className="flex items-center bg-white px-4 py-3 text-xs text-zinc-400">
-                    No external links
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Introduction */}
-            <section id="introduction" className="scroll-mt-24">
-              <div className="overflow-hidden rounded-sm border border-zinc-200 bg-white">
-                <div className="border-b border-zinc-100 bg-zinc-50/80 px-4 py-2">
-                  <SectionLabel>Introduction</SectionLabel>
-                </div>
-                <div className="p-4 sm:p-5">
-                  {software.introduction?.trim() ? (
-                    <ProseBlock text={software.introduction} />
-                  ) : (
-                    <EmptyBlock message="No introduction added by admin." />
-                  )}
-                </div>
-              </div>
-            </section>
-
-            {/* Verdict */}
-            <section id="verdict" className="scroll-mt-24">
-              <div className="relative overflow-hidden rounded-sm border border-primary-navy/20 bg-primary-navy text-white">
+              {/* Hero */}
+              <div className="relative overflow-hidden rounded-3xl border border-border-subtle bg-white p-6 sm:p-8">
                 <div
-                  className="pointer-events-none absolute inset-0 opacity-[0.1]"
+                  className="pointer-events-none absolute inset-0 opacity-60"
                   style={{
                     backgroundImage:
-                      "radial-gradient(circle at 1px 1px, rgba(255,255,255,0.85) 1px, transparent 0)",
-                    backgroundSize: "24px 24px",
+                      "radial-gradient(circle at 1px 1px, rgba(10,25,47,0.05) 1px, transparent 0)",
+                    backgroundSize: "20px 20px",
                   }}
                   aria-hidden
                 />
-                <div className="relative border-b border-white/10 px-4 py-2">
-                  <SectionLabel>
-                    <span className="text-white/45">Our verdict</span>
-                  </SectionLabel>
-                </div>
-                <div className="relative p-4 sm:p-5">
-                  {software.ourVerdict?.trim() ? (
-                    <p className="text-sm leading-relaxed text-white/85 whitespace-pre-line">
-                      {software.ourVerdict}
-                    </p>
-                  ) : (
-                    <p className="text-sm text-white/50">Verdict not published yet.</p>
-                  )}
-                  {rating > 0 && (
-                    <div className="mt-4 flex items-baseline gap-2 border-t border-white/10 pt-4">
-                      <span className="text-2xl font-black tabular-nums">{rating.toFixed(1)}</span>
-                      <span className="font-mono text-[10px] uppercase tracking-wider text-white/40">
-                        Admin rating
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </section>
-
-            {/* Takeaways */}
-            <section id="takeaways" className="scroll-mt-24">
-              <div className="overflow-hidden rounded-sm border border-zinc-200 bg-white">
-                <div className="border-b border-zinc-100 bg-zinc-50/80 px-4 py-2">
-                  <SectionLabel>Key takeaways</SectionLabel>
-                </div>
-                <div className="p-4 sm:p-5">
-                  {takeaways.length > 0 ? (
-                    <ul className="space-y-2.5">
-                      {takeaways.map((item, idx) => (
-                        <li
-                          key={idx}
-                          className="flex gap-3 text-sm leading-relaxed text-zinc-600"
-                        >
-                          <span className="shrink-0 font-mono text-[10px] font-bold text-primary-navy/35 pt-0.5">
-                            {String(idx + 1).padStart(2, "0")}
-                          </span>
-                          {item}
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <EmptyBlock message="No key takeaways listed." />
-                  )}
-                </div>
-              </div>
-            </section>
-
-            {/* Pros & cons */}
-            <section id="pros-cons" className="scroll-mt-24">
-              <div className="grid gap-px overflow-hidden rounded-sm border border-zinc-200 bg-zinc-200 sm:grid-cols-2">
-                <div className="bg-white">
-                  <div className="border-b border-zinc-100 bg-zinc-50/80 px-4 py-2">
-                    <SectionLabel>Pros</SectionLabel>
-                  </div>
-                  <div className="p-4 sm:p-5">
-                    {pros.length > 0 ? (
-                      <ul className="space-y-2">
-                        {pros.map((item, idx) => (
-                          <li
-                            key={idx}
-                            className="border-l-2 border-primary-navy/20 pl-3 text-sm text-zinc-600"
-                          >
-                            {item}
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <EmptyBlock message="No pros documented." />
-                    )}
-                  </div>
-                </div>
-                <div className="bg-white">
-                  <div className="border-b border-zinc-100 bg-zinc-50/80 px-4 py-2">
-                    <SectionLabel>Cons</SectionLabel>
-                  </div>
-                  <div className="p-4 sm:p-5">
-                    {cons.length > 0 ? (
-                      <ul className="space-y-2">
-                        {cons.map((item, idx) => (
-                          <li
-                            key={idx}
-                            className="border-l-2 border-zinc-300 pl-3 text-sm text-zinc-600"
-                          >
-                            {item}
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <EmptyBlock message="No cons documented." />
-                    )}
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            {/* Gallery — was missing entirely */}
-            <section id="gallery" className="scroll-mt-24">
-              <div className="overflow-hidden rounded-sm border border-zinc-200 bg-white">
-                <div className="border-b border-zinc-100 bg-zinc-50/80 px-4 py-2">
-                  <SectionLabel>Gallery</SectionLabel>
-                </div>
-                <div className="p-4 sm:p-5">
-                  {pictures.length > 0 ? (
-                    <div className="space-y-3">
-                      <div className="relative aspect-video overflow-hidden rounded-sm border border-zinc-100 bg-zinc-50">
+                <div className="relative flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="flex min-w-0 items-start gap-4">
+                    <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-border-subtle bg-surface-muted sm:h-20 sm:w-20">
+                      {software.logo ? (
                         <img
-                          src={pictures[activeImage]}
-                          alt={`${software.name} screenshot ${activeImage + 1}`}
-                          className="h-full w-full object-contain"
+                          src={software.logo}
+                          alt=""
+                          className="h-full w-full object-contain p-2.5"
                         />
-                      </div>
-                      {pictures.length > 1 && (
-                        <div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
-                          {pictures.map((src, idx) => (
-                            <button
-                              key={idx}
-                              type="button"
-                              onClick={() => setActiveImage(idx)}
-                              className={`aspect-video overflow-hidden rounded-sm border transition-colors ${
-                                activeImage === idx
-                                  ? "border-primary-navy"
-                                  : "border-zinc-100 hover:border-zinc-300"
-                              }`}
-                            >
-                              <img
-                                src={src}
-                                alt=""
-                                className="h-full w-full object-cover"
-                              />
-                            </button>
-                          ))}
+                      ) : (
+                        <span className="text-2xl font-black text-primary-navy/25">
+                          {software.name.charAt(0)}
+                        </span>
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      <span className="inline-flex items-center rounded-full bg-brand-green/10 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-brand-green-dark">
+                        {software.category || "Uncategorized"}
+                      </span>
+                      <h1 className="mt-2 text-2xl font-black tracking-tight text-primary-navy sm:text-3xl">
+                        {software.name}
+                      </h1>
+                      {rating > 0 && (
+                        <div className="mt-2 flex items-center gap-2">
+                          <StarRow rating={rating} />
+                          <span className="text-sm font-bold text-primary-navy">{rating.toFixed(1)}</span>
+                          <span className="text-xs text-text-muted">admin rating</span>
                         </div>
                       )}
                     </div>
-                  ) : (
-                    <div className="flex items-center gap-3 text-zinc-400">
-                      <ImageIcon size={18} />
-                      <EmptyBlock message="No gallery images uploaded." />
-                    </div>
-                  )}
-                </div>
-              </div>
-            </section>
+                  </div>
 
-            {/* Deep dive */}
-            <section id="deep-dive" className="scroll-mt-24">
-              <div className="overflow-hidden rounded-sm border border-zinc-200 bg-zinc-200 gap-px">
-                <div className="border-b border-zinc-100 bg-zinc-50/80 px-4 py-2 bg-white">
-                  <SectionLabel>Deep dive</SectionLabel>
+                  <div className="flex shrink-0 flex-wrap items-center gap-2 sm:flex-col sm:items-stretch">
+                    <button
+                      type="button"
+                      onClick={() => setDemoModalOpen(true)}
+                      className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full bg-brand-green px-5 py-2.5 text-sm font-bold text-white shadow-[0_4px_16px_-2px_rgba(95,194,74,0.45)] transition-all hover:-translate-y-0.5 hover:bg-brand-green-dark"
+                    >
+                      Watch demo
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setDemoModalOpen(true)}
+                      className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full border border-border-subtle px-5 py-2.5 text-sm font-bold text-primary-navy transition-all hover:-translate-y-0.5 hover:border-brand-green/40"
+                    >
+                      Get pricing
+                    </button>
+                  </div>
                 </div>
-                {deepDive.length > 0 ? (
-                  <div className="grid gap-px bg-zinc-200">
-                    {deepDive.map((block) => (
-                      <article key={block.id} className="bg-white p-4 sm:p-5">
-                        <h3 className="text-sm font-bold text-primary-navy">{block.title}</h3>
-                        <div className="mt-2">
-                          <ProseBlock text={block.body!} />
-                        </div>
-                      </article>
+
+                {software.introduction?.trim() && (
+                  <p className="relative mt-6 line-clamp-2 max-w-2xl border-t border-border-subtle pt-5 text-sm leading-relaxed text-text-muted">
+                    {software.introduction}
+                  </p>
+                )}
+              </div>
+            </Reveal>
+
+            {/* Demo request — mobile/tablet only, the sticky aside handles it on desktop */}
+            <div className="lg:hidden">
+              <DemoRequestForm id="demo-mobile" softwareId={software.id} softwareName={software.name} />
+            </div>
+
+            {/* Introduction */}
+            <Reveal>
+              <section id="introduction" className="scroll-mt-24">
+                <CompactSectionHeader subtitle="Overview" title="Introduction" />
+                {software.introduction?.trim() ? (
+                  <ProseBlock text={software.introduction} />
+                ) : (
+                  <EmptyBlock message="No introduction added by admin." />
+                )}
+              </section>
+            </Reveal>
+
+            {/* Verdict */}
+            <Reveal>
+              <section id="verdict" className="scroll-mt-24">
+                <div className="relative overflow-hidden rounded-3xl bg-primary-navy p-6 text-white sm:p-8">
+                  <div
+                    className="pointer-events-none absolute inset-0 opacity-10"
+                    style={{
+                      backgroundImage:
+                        "radial-gradient(circle at 1px 1px, rgba(255,255,255,0.85) 1px, transparent 0)",
+                      backgroundSize: "24px 24px",
+                    }}
+                    aria-hidden
+                  />
+                  <div className="relative">
+                    <span className="inline-flex items-center gap-2 font-mono text-[10px] font-bold uppercase tracking-[0.35em] text-white/40">
+                      <span className="h-1.5 w-1.5 rounded-full bg-brand-green-light" aria-hidden />
+                      Editorial
+                    </span>
+                    <h2 className="mt-1.5 font-brand text-xl font-bold tracking-tight text-white sm:text-2xl">
+                      Our verdict
+                    </h2>
+                    {software.ourVerdict?.trim() ? (
+                      <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/85 whitespace-pre-line">
+                        {software.ourVerdict}
+                      </p>
+                    ) : (
+                      <p className="mt-4 text-sm text-white/50">Verdict not published yet.</p>
+                    )}
+                  </div>
+                </div>
+              </section>
+            </Reveal>
+
+            {/* Takeaways */}
+            <Reveal>
+              <section id="takeaways" className="scroll-mt-24">
+                <CompactSectionHeader subtitle="At a glance" title="Key takeaways" />
+                {takeaways.length > 0 ? (
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {takeaways.map((item, idx) => (
+                      <div
+                        key={idx}
+                        className="flex items-start gap-3 rounded-2xl border border-border-subtle bg-white p-4"
+                      >
+                        <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-green/10 text-brand-green-dark">
+                          <CheckCircle size={12} />
+                        </span>
+                        <p className="text-sm leading-relaxed text-text-muted">{item}</p>
+                      </div>
                     ))}
                   </div>
                 ) : (
-                  <div className="bg-white p-4 sm:p-5">
-                    <EmptyBlock message="Deep dive sections not filled in yet." />
-                  </div>
+                  <EmptyBlock message="No key takeaways listed." />
                 )}
-              </div>
-            </section>
+              </section>
+            </Reveal>
 
-            {/* Market sentiment */}
-            <section id="sentiments" className="scroll-mt-24">
-              <div className="overflow-hidden rounded-sm border border-zinc-200 bg-white">
-                <div className="border-b border-zinc-100 bg-zinc-50/80 px-4 py-2">
-                  <SectionLabel>Market sentiment</SectionLabel>
-                </div>
-                {validSentiments.length > 0 ? (
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left text-sm">
-                      <thead>
-                        <tr className="border-b border-zinc-100 bg-zinc-50/40 text-xs font-bold uppercase tracking-wider text-zinc-400">
-                          <th className="px-4 py-2.5 sm:px-5">Theme</th>
-                          <th className="px-4 py-2.5 sm:px-5">Sentiment</th>
-                          <th className="px-4 py-2.5 sm:px-5">What users say</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-zinc-100">
-                        {validSentiments.map((row, idx) => (
-                          <tr key={idx}>
-                            <td className="px-4 py-3 align-top font-bold text-primary-navy sm:px-5">
-                              {row.theme}
-                            </td>
-                            <td className="px-4 py-3 align-top sm:px-5">
-                              <SentimentPill value={row.sentiment || "Neutral"} />
-                            </td>
-                            <td
-                              className="px-4 py-3 align-top whitespace-pre-line text-zinc-600 [&_table]:my-2 [&_table]:w-full [&_td]:p-1.5 sm:px-5"
-                              dangerouslySetInnerHTML={{
-                                __html: row.summary?.trim() || "—",
-                              }}
-                            />
-                          </tr>
+            {/* Pros & cons */}
+            <Reveal>
+              <section id="pros-cons" className="scroll-mt-24">
+                <CompactSectionHeader subtitle="Trade-offs" title="Pros & cons" />
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="rounded-3xl border border-emerald-100 bg-emerald-50/40 p-5 sm:p-6">
+                    <div className="flex items-center gap-2 text-sm font-bold text-emerald-700">
+                      <CheckCircle size={15} />
+                      Pros
+                    </div>
+                    {pros.length > 0 ? (
+                      <ul className="mt-3 space-y-2.5">
+                        {pros.map((item, idx) => (
+                          <li key={idx} className="flex gap-2.5 text-sm leading-relaxed text-zinc-700">
+                            <CheckCircle size={14} className="mt-0.5 shrink-0 text-emerald-500" />
+                            {item}
+                          </li>
                         ))}
-                      </tbody>
-                    </table>
+                      </ul>
+                    ) : (
+                      <p className="mt-3 text-sm leading-relaxed text-emerald-700/50">No pros documented.</p>
+                    )}
+                  </div>
+                  <div className="rounded-3xl border border-rose-100 bg-rose-50/40 p-5 sm:p-6">
+                    <div className="flex items-center gap-2 text-sm font-bold text-rose-700">
+                      <XCircle size={15} />
+                      Cons
+                    </div>
+                    {cons.length > 0 ? (
+                      <ul className="mt-3 space-y-2.5">
+                        {cons.map((item, idx) => (
+                          <li key={idx} className="flex gap-2.5 text-sm leading-relaxed text-zinc-700">
+                            <XCircle size={14} className="mt-0.5 shrink-0 text-rose-500" />
+                            {item}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="mt-3 text-sm leading-relaxed text-rose-700/50">No cons documented.</p>
+                    )}
+                  </div>
+                </div>
+              </section>
+            </Reveal>
+
+            {/* Gallery */}
+            <Reveal>
+              <section id="gallery" className="scroll-mt-24">
+                <CompactSectionHeader subtitle="Screens" title="Gallery" />
+                {pictures.length > 0 ? (
+                  <div className="space-y-3">
+                    <button
+                      type="button"
+                      onClick={() => setLightboxOpen(true)}
+                      className="group relative block aspect-video w-full overflow-hidden rounded-3xl border border-border-subtle bg-surface-muted"
+                    >
+                      <img
+                        src={pictures[activeImage]}
+                        alt={`${software.name} screenshot ${activeImage + 1}`}
+                        className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-[1.02]"
+                      />
+                    </button>
+                    {pictures.length > 1 && (
+                      <div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
+                        {pictures.map((src, idx) => (
+                          <button
+                            key={idx}
+                            type="button"
+                            onClick={() => setActiveImage(idx)}
+                            className={`aspect-video overflow-hidden rounded-xl ring-2 transition-all ${
+                              activeImage === idx ? "ring-brand-green" : "ring-transparent hover:ring-border-subtle"
+                            }`}
+                          >
+                            <img src={src} alt="" className="h-full w-full object-cover" />
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 ) : (
-                  <div className="p-4 sm:p-5">
-                    <EmptyBlock message="No sentiment breakdown published for this product." />
+                  <div className="flex items-center gap-3 text-text-muted/70">
+                    <ImageIcon size={18} />
+                    <EmptyBlock message="No gallery images uploaded." />
                   </div>
                 )}
-              </div>
-            </section>
+              </section>
+            </Reveal>
+
+            {/* Deep dive */}
+            <Reveal>
+              <section id="deep-dive" className="scroll-mt-24">
+                <CompactSectionHeader subtitle="Details" title="Deep dive" />
+                {deepDive.length > 0 ? (
+                  <div>
+                    <div className="flex flex-wrap gap-1.5 rounded-full bg-surface-sunken p-1.5">
+                      {deepDive.map((block) => {
+                        const Icon = deepDiveIcons[block.id] ?? Lightbulb;
+                        const active = (activeDeepDiveBlock?.id ?? deepDive[0].id) === block.id;
+                        return (
+                          <button
+                            key={block.id}
+                            type="button"
+                            onClick={() => setActiveDeepDiveId(block.id)}
+                            className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold transition-all ${
+                              active ? "bg-white text-primary-navy shadow-sm" : "text-text-muted hover:text-primary-navy"
+                            }`}
+                          >
+                            <Icon size={13} />
+                            {block.title}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    {activeDeepDiveBlock && (
+                      <div
+                        key={activeDeepDiveBlock.id}
+                        className="anim-fade-in mt-4 rounded-3xl border border-border-subtle bg-white p-6"
+                      >
+                        <ProseBlock text={activeDeepDiveBlock.body!} />
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <EmptyBlock message="Deep dive sections not filled in yet." />
+                )}
+              </section>
+            </Reveal>
+
+            {/* Market sentiment */}
+            <Reveal>
+              <section id="sentiments" className="scroll-mt-24">
+                <CompactSectionHeader subtitle="Buyer signal" title="Market sentiment" />
+                {validSentiments.length > 0 ? (
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    {validSentiments.map((row, idx) => {
+                      const tone = (row.sentiment || "").toLowerCase();
+                      const barColor =
+                        tone === "positive"
+                          ? "bg-emerald-400"
+                          : tone === "negative"
+                          ? "bg-red-400"
+                          : tone === "mixed"
+                          ? "bg-amber-400"
+                          : "bg-zinc-300";
+                      return (
+                        <div key={idx} className="overflow-hidden rounded-3xl border border-border-subtle bg-white">
+                          <div className={`h-1 ${barColor}`} aria-hidden />
+                          <div className="p-5">
+                            <div className="flex items-center justify-between gap-3">
+                              <h3 className="font-brand text-sm font-bold text-primary-navy">{row.theme}</h3>
+                              <SentimentPill value={row.sentiment || "Neutral"} />
+                            </div>
+                            <div
+                              className="mt-2 text-sm leading-relaxed text-text-muted [&_table]:my-2 [&_table]:w-full [&_td]:p-1.5"
+                              dangerouslySetInnerHTML={{ __html: row.summary?.trim() || "—" }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <EmptyBlock message="No sentiment breakdown published for this product." />
+                )}
+              </section>
+            </Reveal>
 
             {/* Specifications */}
-            <section id="specifications" className="scroll-mt-24">
-              <div className="overflow-hidden rounded-sm border border-zinc-200 bg-white">
-                <div className="border-b border-zinc-100 bg-zinc-50/80 px-4 py-2">
-                  <SectionLabel>Specifications</SectionLabel>
-                </div>
+            <Reveal>
+              <section id="specifications" className="scroll-mt-24">
+                <CompactSectionHeader subtitle="Tech sheet" title="Specifications" />
                 {specEntries.length > 0 ? (
-                  <dl className="divide-y divide-zinc-100">
+                  <dl className="grid gap-3 sm:grid-cols-2">
                     {specEntries.map(([key, value]) => (
-                      <div
-                        key={key}
-                        className="grid grid-cols-1 gap-1 px-4 py-3 sm:grid-cols-[10rem_1fr] sm:gap-4 sm:px-5"
-                      >
-                        <dt className="font-mono text-[10px] font-bold uppercase tracking-wider text-zinc-400">
+                      <div key={key} className="rounded-2xl bg-white border border-border-subtle p-4">
+                        <dt className="font-mono text-[10px] font-bold uppercase tracking-wider text-text-muted/70">
                           {key}
                         </dt>
-                        <dd className="text-sm font-medium text-zinc-700">{value}</dd>
+                        <dd className="mt-1 text-sm font-bold text-primary-navy">{value}</dd>
                       </div>
                     ))}
                   </dl>
                 ) : (
-                  <div className="p-4 sm:p-5">
-                    <EmptyBlock message="No specification fields added." />
-                  </div>
+                  <EmptyBlock message="No specification fields added." />
                 )}
-              </div>
-            </section>
+              </section>
+            </Reveal>
 
             {/* FAQs */}
-            <section id="faqs" className="scroll-mt-24">
-              <div className="overflow-hidden rounded-sm border border-zinc-200 bg-white">
-                <div className="border-b border-zinc-100 bg-zinc-50/80 px-4 py-2">
-                  <SectionLabel>FAQs</SectionLabel>
-                </div>
+            <Reveal>
+              <section id="faqs" className="scroll-mt-24">
+                <CompactSectionHeader subtitle="Questions" title="FAQs" />
                 {validFaqs.length > 0 ? (
-                  <div className="divide-y divide-zinc-100">
+                  <div className="divide-y divide-border-subtle overflow-hidden rounded-3xl border border-border-subtle bg-white">
                     {validFaqs.map((faq, idx) => (
                       <div key={idx}>
                         <button
@@ -588,21 +671,19 @@ export default function SoftwareDetailPage() {
                           onClick={() =>
                             setExpandedFaqs((prev) => ({ ...prev, [idx]: !prev[idx] }))
                           }
-                          className="flex w-full items-start justify-between gap-4 px-4 py-3.5 text-left transition-colors hover:bg-zinc-50/80 sm:px-5"
+                          className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left transition-colors hover:bg-surface-muted/60"
                         >
-                          <span className="text-sm font-bold text-primary-navy">
-                            {faq.question}
-                          </span>
+                          <span className="text-sm font-bold text-primary-navy">{faq.question}</span>
                           <ChevronDown
                             size={16}
-                            className={`shrink-0 text-zinc-400 transition-transform ${
+                            className={`shrink-0 text-text-muted transition-transform ${
                               expandedFaqs[idx] ? "rotate-180" : ""
                             }`}
                           />
                         </button>
                         {expandedFaqs[idx] && faq.answer?.trim() && (
-                          <div className="border-t border-zinc-50 bg-zinc-50/50 px-4 pb-4 pt-0 sm:px-5">
-                            <p className="pt-3 text-sm leading-relaxed text-zinc-600 whitespace-pre-line">
+                          <div className="px-5 pb-4">
+                            <p className="text-sm leading-relaxed text-text-muted whitespace-pre-line">
                               {faq.answer}
                             </p>
                           </div>
@@ -611,41 +692,145 @@ export default function SoftwareDetailPage() {
                     ))}
                   </div>
                 ) : (
-                  <div className="p-4 sm:p-5">
-                    <EmptyBlock message="No FAQs published for this product." />
-                  </div>
+                  <EmptyBlock message="No FAQs published for this product." />
                 )}
-              </div>
-            </section>
+              </section>
+            </Reveal>
 
-            <SoftwareReviews slug={software.slug} />
+            <Reveal>
+              <SoftwareReviews slug={software.slug} />
+            </Reveal>
           </div>
 
-          {/* Sticky section index — desktop only */}
+          {/* Demo form + sticky section index — desktop only */}
           <aside className="hidden lg:block">
-            <nav
-              className="sticky top-24 overflow-hidden rounded-sm border border-zinc-200 bg-white"
-              aria-label="On this page"
-            >
-              <div className="border-b border-zinc-100 bg-zinc-50/80 px-3 py-2">
-                <SectionLabel>On this page</SectionLabel>
-              </div>
-              <ul className="p-2">
-                {sections.map((s) => (
-                  <li key={s.id}>
-                    <a
-                      href={`#${s.id}`}
-                      className="block rounded-sm px-2 py-1.5 text-xs font-semibold text-zinc-500 transition-colors hover:bg-zinc-50 hover:text-primary-navy"
-                    >
-                      {s.label}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </nav>
+            <div className="sticky top-24 space-y-4">
+              <DemoRequestForm id="demo-desktop" softwareId={software.id} softwareName={software.name} />
+
+              <nav className="overflow-hidden rounded-3xl border border-border-subtle bg-white p-2" aria-label="On this page">
+                <p className="px-3 pt-2 pb-1 text-[10px] font-bold uppercase tracking-[0.25em] text-text-muted/70">
+                  On this page
+                </p>
+                <ul className="mt-1 space-y-0.5">
+                  {sections.map((s) => {
+                    const active = activeSection === s.id;
+                    return (
+                      <li key={s.id}>
+                        <a
+                          href={`#${s.id}`}
+                          className={`flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold transition-colors ${
+                            active
+                              ? "bg-brand-green/10 text-brand-green-dark"
+                              : "text-text-muted hover:bg-surface-muted hover:text-primary-navy"
+                          }`}
+                        >
+                          <span
+                            className={`h-1.5 w-1.5 rounded-full ${active ? "bg-brand-green" : "bg-border-subtle"}`}
+                            aria-hidden
+                          />
+                          {s.label}
+                        </a>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </nav>
+            </div>
           </aside>
         </div>
       </Container>
+
+      {/* Sticky demo CTA — mobile/tablet only */}
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border-subtle bg-white/95 px-4 py-3 backdrop-blur-sm lg:hidden">
+        <div className="flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <p className="truncate text-sm font-bold text-primary-navy">{software.name}</p>
+            {rating > 0 && (
+              <p className="text-xs text-text-muted">★ {rating.toFixed(1)} admin rating</p>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={scrollToDemo}
+            className="shrink-0 rounded-full bg-brand-green px-4 py-2.5 text-xs font-bold text-white shadow-[0_4px_16px_-2px_rgba(95,194,74,0.45)] transition-all hover:bg-brand-green-dark"
+          >
+            Request demo
+          </button>
+        </div>
+      </div>
+
+      {/* Demo / pricing request modal — triggered from either hero CTA */}
+      {demoModalOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="anim-fade-in fixed inset-0 z-[60] flex items-center justify-center bg-primary-navy/90 p-4 backdrop-blur-sm"
+          onClick={() => setDemoModalOpen(false)}
+        >
+          <div className="anim-zoom-in relative w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+            <button
+              type="button"
+              onClick={() => setDemoModalOpen(false)}
+              className="absolute -right-3 -top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white text-primary-navy shadow-md transition-colors hover:bg-surface-muted"
+              aria-label="Close"
+            >
+              <X size={16} />
+            </button>
+            <DemoRequestForm softwareId={software.id} softwareName={software.name} />
+          </div>
+        </div>
+      )}
+
+      {/* Gallery lightbox */}
+      {lightboxOpen && pictures.length > 0 && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="anim-fade-in fixed inset-0 z-[60] flex items-center justify-center bg-primary-navy/90 p-4 backdrop-blur-sm"
+          onClick={() => setLightboxOpen(false)}
+        >
+          <button
+            type="button"
+            onClick={() => setLightboxOpen(false)}
+            className="absolute right-5 top-5 text-white/70 transition-colors hover:text-white"
+            aria-label="Close"
+          >
+            <X size={24} />
+          </button>
+          {pictures.length > 1 && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setActiveImage((i) => (i - 1 + pictures.length) % pictures.length);
+              }}
+              className="absolute left-4 text-white/70 transition-colors hover:text-white sm:left-8"
+              aria-label="Previous image"
+            >
+              <ChevronLeft size={28} />
+            </button>
+          )}
+          <img
+            src={pictures[activeImage]}
+            alt=""
+            className="anim-zoom-in max-h-[85vh] max-w-full rounded-2xl object-contain"
+            onClick={(e) => e.stopPropagation()}
+          />
+          {pictures.length > 1 && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setActiveImage((i) => (i + 1) % pictures.length);
+              }}
+              className="absolute right-4 text-white/70 transition-colors hover:text-white sm:right-8"
+              aria-label="Next image"
+            >
+              <ChevronRight size={28} />
+            </button>
+          )}
+        </div>
+      )}
 
       <Footer />
     </main>

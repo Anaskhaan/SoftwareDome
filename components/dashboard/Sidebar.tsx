@@ -12,6 +12,7 @@ import {
   LogOut,
   FileText,
   Settings,
+  Calendar,
 } from "@/lib/fa-icons";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -63,6 +64,7 @@ const navItems: NavItem[] = [
     ],
   },
   { label: "Vendors", href: "/dashboard/vendors", icon: Store, roles: ["ADMIN", "VENDOR"] },
+  { label: "Demo Requests", href: "/dashboard/demo-requests", icon: Calendar, roles: ["ADMIN", "VENDOR"] },
   { label: "Settings", href: "/dashboard/settings", icon: Settings, roles: ["ADMIN"] },
   { label: "Edit Profile", href: "/dashboard/edit-profile", icon: UserPen, roles: ["ADMIN", "VENDOR"] },
 ];
