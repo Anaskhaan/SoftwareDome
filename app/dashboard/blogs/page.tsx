@@ -12,7 +12,12 @@ import {
   Loader2,
 } from "@/lib/fa-icons";
 import AdminOutletBtnHeading from "@/components/dashboard/AdminOutletBtnHeading";
-import { deleteBlog, getBlogs } from "./actions";
+import { deleteBlog, deleteBlogs, getBlogs } from "./actions";
+import { useToast } from "@/components/dashboard/ui/Toast";
+import RefreshButton from "@/components/dashboard/ui/RefreshButton";
+import Pagination from "@/components/dashboard/ui/Pagination";
+import Button from "@/components/dashboard/ui/Button";
+import Modal from "@/components/dashboard/ui/Modal";
 
 type BlogRecord = {
   id: string;
@@ -33,12 +38,18 @@ const statusStyles: Record<string, string> = {
 };
 
 export default function BlogsPage() {
+  const { show } = useToast();
   const [blogs, setBlogs] = React.useState<BlogRecord[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [search, setSearch] = React.useState("");
   const [statusFilter, setStatusFilter] = React.useState("");
   const [deletingId, setDeletingId] = React.useState<string | null>(null);
+  const [page, setPage] = React.useState(1);
+  const [perPage, setPerPage] = React.useState(10);
+  const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set());
+  const [bulkDeleteOpen, setBulkDeleteOpen] = React.useState(false);
+  const [bulkDeleting, setBulkDeleting] = React.useState(false);
 
   const fetchBlogs = React.useCallback(async () => {
     setIsLoading(true);
@@ -59,6 +70,48 @@ export default function BlogsPage() {
     return () => clearTimeout(timer);
   }, [fetchBlogs]);
 
+  const handleRefresh = async () => {
+    const result = await getBlogs(search || undefined, statusFilter || undefined);
+    if (result.success) {
+      const newBlogs = (result.data as unknown as BlogRecord[]) || [];
+      const changed = JSON.stringify(newBlogs) !== JSON.stringify(blogs);
+      if (changed) {
+        setBlogs(newBlogs);
+        show("Table refreshed — new data loaded.", "success");
+      } else {
+        show("You're already up to date.", "info");
+      }
+      setError(null);
+    } else {
+      show(result.error || "Failed to refresh blogs.", "danger");
+    }
+  };
+
+  const totalPages = Math.max(1, Math.ceil(blogs.length / perPage));
+  const currentPage = Math.min(page, totalPages);
+  const paginatedBlogs = blogs.slice((currentPage - 1) * perPage, currentPage * perPage);
+
+  const selectedIdsInView = new Set(blogs.map((b) => b.id).filter((id) => selectedIds.has(id)));
+  const selectedCount = selectedIdsInView.size;
+  const allSelected = blogs.length > 0 && blogs.every((b) => selectedIds.has(b.id));
+
+  const toggleSelectAll = () => {
+    if (allSelected) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(blogs.map((b) => b.id)));
+    }
+  };
+
+  const toggleSelectOne = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
   const handleDelete = async (id: string, title: string) => {
     if (!confirm(`Delete "${title}"? This cannot be undone.`)) return;
 
@@ -72,6 +125,24 @@ export default function BlogsPage() {
     setDeletingId(null);
   };
 
+  const handleBulkDelete = async () => {
+    if (selectedCount === 0) return;
+    setBulkDeleting(true);
+    try {
+      const result = await deleteBlogs(Array.from(selectedIdsInView));
+      if (result.success) {
+        show(`Deleted ${result.data?.count} blog(s).`, "success");
+        setSelectedIds(new Set());
+        setBulkDeleteOpen(false);
+        fetchBlogs();
+      } else {
+        show(result.error || "Failed to delete blogs.", "danger");
+      }
+    } finally {
+      setBulkDeleting(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <AdminOutletBtnHeading heading="Blogs List" btnText="Add New Blog" btnUrl="/dashboard/blogs/add" />
@@ -83,13 +154,19 @@ export default function BlogsPage() {
             type="text"
             placeholder="Search blogs..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
             className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all text-sm"
           />
         </div>
         <select
           value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
+          onChange={(e) => {
+            setStatusFilter(e.target.value);
+            setPage(1);
+          }}
           className="px-4 py-2 bg-slate-50 border border-slate-200 rounded-md text-sm font-medium text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
         >
           <option value="">All statuses</option>
@@ -97,10 +174,25 @@ export default function BlogsPage() {
           <option value="PUBLISHED">Published</option>
           <option value="ARCHIVED">Archived</option>
         </select>
+        {selectedCount > 0 && (
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-slate-500 whitespace-nowrap">
+              {selectedCount} selected
+            </span>
+            <Button variant="secondary" size="sm" onClick={() => setSelectedIds(new Set())}>
+              Clear
+            </Button>
+            <Button variant="destructive" size="sm" onClick={() => setBulkDeleteOpen(true)}>
+              <Trash2 size={14} className="mr-1.5" />
+              Delete selected
+            </Button>
+          </div>
+        )}
+        <RefreshButton onRefresh={handleRefresh} className="shrink-0" />
       </div>
 
       <div className="bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
+        <div className="max-h-[60vh] overflow-auto">
           {isLoading ? (
             <div className="p-12 flex flex-col items-center justify-center gap-3">
               <div className="w-8 h-8 border-4 border-slate-100 border-t-[#0a192f] rounded-full animate-spin" />
@@ -122,19 +214,35 @@ export default function BlogsPage() {
               <p className="text-sm text-slate-500 mt-1">Get started by writing your first blog post.</p>
             </div>
           ) : (
-            <table className="w-full text-left">
+            <table className="w-full border-separate border-spacing-0 text-left">
               <thead>
-                <tr className="bg-slate-50/50 border-b border-slate-200">
-                  <th className="px-6 py-4 text-[11px] font-bold text-slate-500 uppercase">Blog</th>
-                  <th className="px-6 py-4 text-[11px] font-bold text-slate-500 uppercase">Status</th>
-                  <th className="px-6 py-4 text-[11px] font-bold text-slate-500 uppercase">Tags</th>
-                  <th className="px-6 py-4 text-[11px] font-bold text-slate-500 uppercase">Updated</th>
-                  <th className="px-6 py-4 text-[11px] font-bold text-slate-500 uppercase">Actions</th>
+                <tr>
+                  <th className="sticky top-0 z-10 w-10 border-b border-slate-200 bg-slate-50 px-6 py-4">
+                    <input
+                      type="checkbox"
+                      checked={allSelected}
+                      onChange={toggleSelectAll}
+                      className="h-4 w-4 rounded border-slate-300 accent-brand-green"
+                    />
+                  </th>
+                  <th className="sticky top-0 z-10 border-b border-slate-200 bg-slate-50 px-6 py-4 text-[11px] font-bold text-slate-500 uppercase">Blog</th>
+                  <th className="sticky top-0 z-10 border-b border-slate-200 bg-slate-50 px-6 py-4 text-[11px] font-bold text-slate-500 uppercase">Status</th>
+                  <th className="sticky top-0 z-10 border-b border-slate-200 bg-slate-50 px-6 py-4 text-[11px] font-bold text-slate-500 uppercase">Tags</th>
+                  <th className="sticky top-0 z-10 border-b border-slate-200 bg-slate-50 px-6 py-4 text-[11px] font-bold text-slate-500 uppercase">Updated</th>
+                  <th className="sticky top-0 z-10 border-b border-slate-200 bg-slate-50 px-6 py-4 text-[11px] font-bold text-slate-500 uppercase">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {blogs.map((blog) => (
+                {paginatedBlogs.map((blog) => (
                   <tr key={blog.id} className="hover:bg-slate-50/50 transition-colors">
+                    <td className="px-6 py-4">
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.has(blog.id)}
+                        onChange={() => toggleSelectOne(blog.id)}
+                        className="h-4 w-4 rounded border-slate-300 accent-brand-green"
+                      />
+                    </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center overflow-hidden border border-slate-100">
@@ -206,7 +314,46 @@ export default function BlogsPage() {
             </table>
           )}
         </div>
+        <Pagination
+          page={currentPage}
+          totalItems={blogs.length}
+          perPage={perPage}
+          onPageChange={setPage}
+          onPerPageChange={(n) => {
+            setPerPage(n);
+            setPage(1);
+          }}
+        />
       </div>
+
+      <Modal
+        open={bulkDeleteOpen}
+        onClose={() => setBulkDeleteOpen(false)}
+        title="Delete selected blogs"
+        footer={
+          <>
+            <Button variant="secondary" onClick={() => setBulkDeleteOpen(false)} disabled={bulkDeleting}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleBulkDelete} loading={bulkDeleting}>
+              Delete {selectedCount} blog{selectedCount === 1 ? "" : "s"}
+            </Button>
+          </>
+        }
+      >
+        <div className="flex items-start gap-3">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-status-danger-bg text-status-danger">
+            <AlertCircle size={16} />
+          </div>
+          <p className="text-sm text-text-muted">
+            Are you sure you want to delete{" "}
+            <span className="font-bold text-primary-navy">
+              {selectedCount} blog{selectedCount === 1 ? "" : "s"}
+            </span>
+            ? This action cannot be undone.
+          </p>
+        </div>
+      </Modal>
     </div>
   );
 }

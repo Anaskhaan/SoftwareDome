@@ -147,3 +147,21 @@ export async function deleteUser(id: string) {
     return { success: false, error: "Failed to delete user" };
   }
 }
+
+export async function deleteUsers(ids: string[]) {
+  try {
+    const auth = await requireAdmin();
+    if (auth.error) return { success: false, error: "Admin access required." };
+
+    const targetIds = ids.filter((id) => id !== auth.session.userId);
+    if (!targetIds.length) {
+      return { success: false, error: "No users selected." };
+    }
+
+    const result = await prisma.user.deleteMany({ where: { id: { in: targetIds } } });
+    return { success: true, data: { count: result.count } };
+  } catch (error) {
+    console.error("Error deleting users:", error);
+    return { success: false, error: "Failed to delete users" };
+  }
+}

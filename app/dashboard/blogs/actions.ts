@@ -230,3 +230,20 @@ export async function deleteBlog(id: string) {
     return { success: false, error: "Failed to delete blog." };
   }
 }
+
+export async function deleteBlogs(ids: string[]) {
+  try {
+    const auth = await getAdminSession();
+    if (!auth.success) return auth;
+
+    if (!ids.length) {
+      return { success: false, error: "No blogs selected." };
+    }
+
+    const result = await prisma.blog.deleteMany({ where: { id: { in: ids } } });
+    return { success: true, data: { count: result.count } };
+  } catch (error) {
+    console.error("Error deleting blogs:", error);
+    return { success: false, error: "Failed to delete blogs." };
+  }
+}

@@ -21,6 +21,16 @@ interface CustomTableProps {
   selectedRow?: string | number | null;
   setSelectedRow?: (rowId: any) => void;
   onRowDoubleClick?: (item: any) => void;
+  /** Called when the refresh button is clicked. Falls back to a full page reload if omitted. */
+  onRefresh?: () => Promise<void> | void;
+  /** Enables a checkbox column for bulk selection, pinned before the other columns. */
+  selectable?: boolean;
+  selectedIds?: Set<string>;
+  onSelectedIdsChange?: (ids: Set<string>) => void;
+  /** Resolves the unique id for a row. Defaults to `item._id`. */
+  getRowId?: (item: any) => string;
+  /** Rendered in the toolbar (next to search/refresh) when one or more rows are selected. */
+  renderBulkActions?: (selectedCount: number, clearSelection: () => void) => React.ReactNode;
 }
 
 const itemsPerPageOptions: (number | "All")[] = [5, 10, 20, "All"];
@@ -37,12 +47,33 @@ const CustomTable: React.FC<CustomTableProps> = ({
   selectedRow,
   setSelectedRow,
   onRowDoubleClick,
+  onRefresh,
+  selectable = false,
+  selectedIds,
+  onSelectedIdsChange,
+  getRowId = (item: any) => item._id,
+  renderBulkActions,
 }) => {
   const [search, setSearch] = useState("");
   const [perPage, setPerPage] = useState<number | "All">(5);
   const [page, setPage] = useState(1);
   const [sortConfig, setSortConfig] = useState<{ key: string | null; direction: "asc" | "desc" | null }>({ key: null, direction: null });
+  const [refreshing, setRefreshing] = useState(false);
   const tableRef = useRef<HTMLDivElement>(null);
+
+  const handleRefresh = async () => {
+    if (refreshing) return;
+    if (!onRefresh) {
+      window.location.reload();
+      return;
+    }
+    setRefreshing(true);
+    try {
+      await onRefresh();
+    } finally {
+      setRefreshing(false);
+    }
+  };
   const persistKey = "customTableColumnOrder";
   
   const defaultOrder = useMemo(
@@ -139,6 +170,28 @@ const CustomTable: React.FC<CustomTableProps> = ({
     );
   });
 
+  const allFilteredSelected =
+    selectable &&
+    filteredData.length > 0 &&
+    filteredData.every((item) => selectedIds?.has(getRowId(item)));
+
+  const toggleSelectAll = () => {
+    if (!onSelectedIdsChange) return;
+    if (allFilteredSelected) {
+      onSelectedIdsChange(new Set());
+    } else {
+      onSelectedIdsChange(new Set(filteredData.map(getRowId)));
+    }
+  };
+
+  const toggleSelectOne = (id: string) => {
+    if (!onSelectedIdsChange) return;
+    const next = new Set(selectedIds);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    onSelectedIdsChange(next);
+  };
+
   const sortedData = [...filteredData].sort((a, b) => {
     if (showSorting && sortConfig.key) {
       const aVal = a[sortConfig.key] || "";
@@ -181,13 +234,19 @@ const CustomTable: React.FC<CustomTableProps> = ({
         </div>
 
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto">
+          {selectable && (selectedIds?.size ?? 0) > 0 && renderBulkActions && (
+            <div className="flex items-center gap-2">
+              {renderBulkActions(selectedIds!.size, () => onSelectedIdsChange?.(new Set()))}
+            </div>
+          )}
           {showRefresh && (
             <button
-              className="border p-2 rounded-lg cursor-pointer border-slate-200 hover:bg-slate-50 transition-colors"
-              onClick={() => window.location.reload()}
-              title="Reload"
+              className="border p-2 rounded-lg cursor-pointer border-slate-200 hover:bg-slate-50 transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+              onClick={handleRefresh}
+              disabled={refreshing}
+              title="Refresh"
             >
-              <Icons.RefreshCcw size={18} className="text-slate-600" />
+              <Icons.RefreshCcw size={18} className={`text-slate-600 ${refreshing ? "animate-spin" : ""}`} />
             </button>
           )}
         </div>
@@ -196,11 +255,21 @@ const CustomTable: React.FC<CustomTableProps> = ({
       {/* Table */}
       <div
         ref={tableRef}
-        className="w-full overflow-x-auto rounded-lg border border-slate-200 custom-scrollbar"
+        className="w-full max-h-[60vh] overflow-auto rounded-lg border border-slate-200 custom-scrollbar"
       >
-        <table className="w-full min-w-[1000px] text-sm text-left border-collapse">
+        <table className="w-full min-w-[1000px] text-sm text-left border-separate border-spacing-0">
           <thead>
-            <tr className="bg-slate-50 border-b border-slate-200 text-slate-600">
+            <tr className="text-slate-600">
+              {selectable && (
+                <th className="sticky top-0 z-20 w-10 border-b border-slate-200 bg-slate-50 px-4 py-4">
+                  <input
+                    type="checkbox"
+                    checked={!!allFilteredSelected}
+                    onChange={toggleSelectAll}
+                    className="h-4 w-4 rounded border-slate-300 accent-brand-green"
+                  />
+                </th>
+              )}
               {combinedOrder
                 .map(headerByKey)
                 .filter((col): col is TableHeader => !!col)
@@ -224,7 +293,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
                     onClick={() =>
                       showSorting && col.key && requestSort(col.key)
                     }
-                    className={`px-4 py-4 font-semibold whitespace-nowrap ${showSorting && col.key
+                    className={`sticky top-0 z-20 bg-slate-50 px-4 py-4 font-semibold whitespace-nowrap border-b border-slate-200 ${showSorting && col.key
                       ? "cursor-pointer hover:bg-slate-100 transition-colors"
                       : ""
                       }`}
@@ -240,7 +309,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
           <tbody>
             {paginatedData.length === 0 ? (
               <tr>
-                <td colSpan={combinedOrder.length} className="px-4 py-10 text-center text-slate-400 italic">
+                <td colSpan={combinedOrder.length + (selectable ? 1 : 0)} className="px-4 py-10 text-center text-slate-400 italic">
                   No records found
                 </td>
               </tr>
@@ -263,6 +332,16 @@ const CustomTable: React.FC<CustomTableProps> = ({
                       : "bg-white"
                     }`}
                 >
+                  {selectable && (
+                    <td className="px-4 py-4" onClick={(e) => e.stopPropagation()}>
+                      <input
+                        type="checkbox"
+                        checked={!!selectedIds?.has(getRowId(item))}
+                        onChange={() => toggleSelectOne(getRowId(item))}
+                        className="h-4 w-4 rounded border-slate-300 accent-brand-green"
+                      />
+                    </td>
+                  )}
                   {combinedOrder
                     .map(headerByKey)
                     .filter((col): col is TableHeader => !!col)

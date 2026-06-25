@@ -2,7 +2,7 @@
 
 import React from "react";
 import CustomTable from "@/components/constantComponents/CustomTable";
-import { getUsers, updateUser, setUserStatus, deleteUser } from "./actions";
+import { getUsers, updateUser, setUserStatus, deleteUser, deleteUsers } from "./actions";
 import AdminOutletBtnHeading from "@/components/dashboard/AdminOutletBtnHeading";
 import { Edit2, Trash2, ShieldCheck, AlertCircle, Users as UsersIcon } from "@/lib/fa-icons";
 import Tabs from "@/components/dashboard/ui/Tabs";
@@ -39,6 +39,9 @@ export default function UsersPage() {
   const [deleting, setDeleting] = React.useState(false);
   const [statusUpdatingId, setStatusUpdatingId] = React.useState<string | null>(null);
   const [currentUserId, setCurrentUserId] = React.useState<string | null>(null);
+  const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set());
+  const [bulkDeleteOpen, setBulkDeleteOpen] = React.useState(false);
+  const [bulkDeleting, setBulkDeleting] = React.useState(false);
 
   React.useEffect(() => {
     fetch("/api/auth/me")
@@ -47,9 +50,10 @@ export default function UsersPage() {
       .catch(() => setCurrentUserId(null));
   }, []);
 
-  async function fetchUsers() {
+  async function loadUsers(options?: { silent?: boolean }) {
+    const silent = !!options?.silent;
+    if (!silent) setLoading(true);
     try {
-      setLoading(true);
       const result = await getUsers();
       if (result.success && result.data) {
         const mappedUsers: UserRow[] = result.data.map((user: any) => ({
@@ -62,18 +66,32 @@ export default function UsersPage() {
           rawRole: user.role,
           status: user.status || "Active",
         }));
-        setAllUsers(mappedUsers);
+        if (silent) {
+          const changed = JSON.stringify(mappedUsers) !== JSON.stringify(allUsers);
+          if (changed) {
+            setAllUsers(mappedUsers);
+            show("Table refreshed — new data loaded.", "success");
+          } else {
+            show("You're already up to date.", "info");
+          }
+        } else {
+          setAllUsers(mappedUsers);
+        }
         setError(null);
       } else {
         setError(result.error || "Failed to fetch users");
+        if (silent) show(result.error || "Failed to refresh users.", "danger");
       }
     } catch (err) {
-      console.error("Error in fetchUsers:", err);
+      console.error("Error in loadUsers:", err);
       setError("An unexpected error occurred while connecting to the server.");
+      if (silent) show("An unexpected error occurred while refreshing.", "danger");
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }
+
+  const fetchUsers = () => loadUsers();
 
   React.useEffect(() => {
     fetchUsers();
@@ -83,6 +101,11 @@ export default function UsersPage() {
     if (activeTab === "all") return allUsers;
     return allUsers.filter((u) => u.rawRole === activeTab.toUpperCase());
   }, [allUsers, activeTab]);
+
+  const changeTab = (tab: string) => {
+    setActiveTab(tab);
+    setSelectedIds(new Set());
+  };
 
   const openEdit = (user: UserRow) => {
     setEditTarget(user);
@@ -137,6 +160,24 @@ export default function UsersPage() {
       }
     } finally {
       setDeleting(false);
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.size === 0) return;
+    setBulkDeleting(true);
+    try {
+      const result = await deleteUsers(Array.from(selectedIds));
+      if (result.success) {
+        show(`Deleted ${result.data?.count} user(s).`, "success");
+        setSelectedIds(new Set());
+        setBulkDeleteOpen(false);
+        fetchUsers();
+      } else {
+        show(result.error || "Failed to delete users.", "danger");
+      }
+    } finally {
+      setBulkDeleting(false);
     }
   };
 
@@ -202,7 +243,7 @@ export default function UsersPage() {
           { key: "user", label: "Users", count: allUsers.filter((u) => u.rawRole === "USER").length },
         ]}
         active={activeTab}
-        onChange={setActiveTab}
+        onChange={changeTab}
       />
 
       {loading ? (
@@ -230,6 +271,22 @@ export default function UsersPage() {
           tableData={filteredUsers}
           selectedRow={selectedRow}
           setSelectedRow={setSelectedRow}
+          onRefresh={() => loadUsers({ silent: true })}
+          selectable
+          selectedIds={selectedIds}
+          onSelectedIdsChange={setSelectedIds}
+          renderBulkActions={(count, clear) => (
+            <>
+              <span className="text-xs font-semibold text-text-muted">{count} selected</span>
+              <Button variant="secondary" size="sm" onClick={clear}>
+                Clear
+              </Button>
+              <Button variant="destructive" size="sm" onClick={() => setBulkDeleteOpen(true)}>
+                <Trash2 size={14} className="mr-1.5" />
+                Delete selected
+              </Button>
+            </>
+          )}
         />
       )}
 
@@ -293,6 +350,36 @@ export default function UsersPage() {
           <p className="text-sm text-text-muted">
             Are you sure you want to delete <span className="font-bold text-primary-navy">{deleteTarget?.name}</span>?
             This action cannot be undone.
+          </p>
+        </div>
+      </Modal>
+
+      {/* Bulk delete confirmation */}
+      <Modal
+        open={bulkDeleteOpen}
+        onClose={() => setBulkDeleteOpen(false)}
+        title="Delete selected users"
+        footer={
+          <>
+            <Button variant="secondary" onClick={() => setBulkDeleteOpen(false)} disabled={bulkDeleting}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleBulkDelete} loading={bulkDeleting}>
+              Delete {selectedIds.size} user{selectedIds.size === 1 ? "" : "s"}
+            </Button>
+          </>
+        }
+      >
+        <div className="flex items-start gap-3">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-status-danger-bg text-status-danger">
+            <AlertCircle size={16} />
+          </div>
+          <p className="text-sm text-text-muted">
+            Are you sure you want to delete{" "}
+            <span className="font-bold text-primary-navy">
+              {selectedIds.size} user{selectedIds.size === 1 ? "" : "s"}
+            </span>
+            ? This action cannot be undone. Your own account is automatically excluded.
           </p>
         </div>
       </Modal>

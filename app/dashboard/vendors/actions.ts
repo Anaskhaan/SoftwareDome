@@ -50,3 +50,25 @@ export async function getDashboardVendors() {
     return { success: false, error: "Failed to fetch vendors" };
   }
 }
+
+export async function deleteVendors(ids: string[]) {
+  try {
+    const session = await getDashboardSession();
+    if (!session || !isAdmin(session)) {
+      return { success: false, error: "Admin access required." };
+    }
+
+    const targetIds = ids.filter((id) => id !== session.userId);
+    if (!targetIds.length) {
+      return { success: false, error: "No vendors selected." };
+    }
+
+    const result = await prisma.user.deleteMany({
+      where: { id: { in: targetIds }, role: "VENDOR" },
+    });
+    return { success: true, data: { count: result.count } };
+  } catch (error) {
+    console.error("Error deleting vendors:", error);
+    return { success: false, error: "Failed to delete vendors" };
+  }
+}

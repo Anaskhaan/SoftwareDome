@@ -187,7 +187,7 @@ export default function Footer() {
                   className="flex items-center gap-2.5 text-sm font-bold text-white/90 transition-colors hover:text-brand-green-light"
                 >
                   <Phone size={14} className="text-zinc-500" />
-                  (661)-384-7070
+                  (661)-332-1223
                 </a>
                 <a
                   href="mailto:info@softwaredome.com"

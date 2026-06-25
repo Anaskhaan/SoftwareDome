@@ -2,16 +2,18 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { Box, Store, Users, FileText, Plus, ArrowRight } from "@/lib/fa-icons";
+import { Box, Store, Users, FileText, Plus, ArrowRight, TrendingUp, Tag } from "@/lib/fa-icons";
 import { Card, CardHeader } from "@/components/dashboard/ui/Card";
 import StatCard from "@/components/dashboard/ui/StatCard";
 import Badge, { statusToTone } from "@/components/dashboard/ui/Badge";
 import Button from "@/components/dashboard/ui/Button";
 import EmptyState from "@/components/dashboard/ui/EmptyState";
+import { TrendChart, CategoryBarChart, StatusDonutChart } from "@/components/dashboard/ui/Charts";
 import { getDashboardSoftwares } from "@/app/dashboard/softwares/actions";
 import { getUsers } from "@/app/dashboard/users/actions";
 import { getBlogs } from "@/app/dashboard/blogs/actions";
 import { getDashboardVendors } from "@/app/dashboard/vendors/actions";
+import { getDashboardAnalytics } from "@/app/dashboard/actions";
 
 interface ActivityRow {
   id: string;
@@ -23,11 +25,25 @@ interface ActivityRow {
   href: string;
 }
 
+interface AnalyticsData {
+  trend: { label: string; softwares: number; demoRequests: number; users?: number }[];
+  categoryBreakdown: { category: string; count: number }[];
+  blogStatusBreakdown: { status: string; count: number }[] | null;
+  topVendors: { name: string; count: number }[] | null;
+}
+
+const BLOG_STATUS_COLORS: Record<string, string> = {
+  DRAFT: "#b45309",
+  PUBLISHED: "#48a637",
+  ARCHIVED: "#5b6b63",
+};
+
 export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [userRole, setUserRole] = useState<"ADMIN" | "VENDOR">("ADMIN");
   const [counts, setCounts] = useState({ softwares: 0, vendors: 0, users: 0, blogs: 0 });
   const [activity, setActivity] = useState<ActivityRow[]>([]);
+  const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
 
   useEffect(() => {
     async function load() {
@@ -40,8 +56,12 @@ export default function DashboardPage() {
         }
         setUserRole(role);
 
-        const softwaresRes = await getDashboardSoftwares();
+        const [softwaresRes, analyticsRes] = await Promise.all([
+          getDashboardSoftwares(),
+          getDashboardAnalytics(),
+        ]);
         const softwares = softwaresRes.success ? softwaresRes.data ?? [] : [];
+        setAnalytics(analyticsRes.success ? (analyticsRes.data as unknown as AnalyticsData) : null);
 
         let users: any[] = [];
         let blogs: any[] = [];
@@ -116,6 +136,21 @@ export default function DashboardPage() {
 
   const isVendor = userRole === "VENDOR";
 
+  const trendSeries = isVendor
+    ? [
+        { key: "softwares", label: "Softwares", color: "#5fc24a" },
+        { key: "demoRequests", label: "Demo requests", color: "#b45309" },
+      ]
+    : [
+        { key: "softwares", label: "Softwares", color: "#5fc24a" },
+        { key: "users", label: "Users", color: "#0a192f" },
+        { key: "demoRequests", label: "Demo requests", color: "#b45309" },
+      ];
+
+  const hasTrendActivity = !!analytics?.trend.some(
+    (point) => point.softwares > 0 || point.demoRequests > 0 || (point.users ?? 0) > 0
+  );
+
   const stats = isVendor
     ? [
         { label: "My Softwares", value: counts.softwares, icon: Box },
@@ -146,6 +181,72 @@ export default function DashboardPage() {
           <StatCard key={stat.label} {...stat} loading={loading} />
         ))}
       </div>
+
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <Card className="lg:col-span-2">
+          <CardHeader title="Growth trend" subtitle="New records added per month, last 6 months" />
+          {loading ? (
+            <div className="h-[260px] animate-pulse rounded-xl bg-surface-sunken" />
+          ) : hasTrendActivity ? (
+            <TrendChart data={analytics!.trend} series={trendSeries} />
+          ) : (
+            <EmptyState
+              icon={TrendingUp}
+              title="No activity yet"
+              description="Trends will appear here once new records start coming in."
+            />
+          )}
+        </Card>
+
+        <Card>
+          <CardHeader title="Softwares by category" subtitle="Top categories" />
+          {loading ? (
+            <div className="h-[260px] animate-pulse rounded-xl bg-surface-sunken" />
+          ) : analytics && analytics.categoryBreakdown.length > 0 ? (
+            <CategoryBarChart data={analytics.categoryBreakdown} />
+          ) : (
+            <EmptyState
+              icon={Tag}
+              title="No softwares yet"
+              description="Category breakdown will show up here."
+            />
+          )}
+        </Card>
+      </div>
+
+      {!isVendor && (
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <Card>
+            <CardHeader title="Blog content status" subtitle="Draft, published, and archived posts" />
+            {loading ? (
+              <div className="h-[160px] animate-pulse rounded-xl bg-surface-sunken" />
+            ) : analytics?.blogStatusBreakdown && analytics.blogStatusBreakdown.length > 0 ? (
+              <StatusDonutChart data={analytics.blogStatusBreakdown} colors={BLOG_STATUS_COLORS} />
+            ) : (
+              <EmptyState
+                icon={FileText}
+                title="No blog posts yet"
+                description="Publish a post to see its status breakdown here."
+              />
+            )}
+          </Card>
+
+          <Card>
+            <CardHeader title="Top vendors" subtitle="By number of software listings" />
+            {loading ? (
+              <div className="h-[180px] animate-pulse rounded-xl bg-surface-sunken" />
+            ) : analytics?.topVendors && analytics.topVendors.length > 0 ? (
+              <CategoryBarChart data={analytics.topVendors.map((v) => ({ category: v.name, count: v.count }))} />
+            ) : (
+              <EmptyState
+                icon={Store}
+                title="No vendors yet"
+                description="Vendor rankings will show up here."
+              />
+            )}
+          </Card>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2" noPadding>

@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { Search, Edit2, Trash2, Box, AlertCircle, Upload } from "@/lib/fa-icons";
+import { Plus, Search, Edit2, Trash2, Box, AlertCircle, Upload } from "@/lib/fa-icons";
 import AdminOutletBtnHeading from "@/components/dashboard/AdminOutletBtnHeading";
 import { getDashboardSoftwares, deleteSoftware, deleteSoftwares, importSoftwaresFromCsv } from "./actions";
 import { Card } from "@/components/dashboard/ui/Card";
@@ -10,6 +10,8 @@ import Button from "@/components/dashboard/ui/Button";
 import Modal from "@/components/dashboard/ui/Modal";
 import EmptyState from "@/components/dashboard/ui/EmptyState";
 import { useToast } from "@/components/dashboard/ui/Toast";
+import RefreshButton from "@/components/dashboard/ui/RefreshButton";
+import Pagination from "@/components/dashboard/ui/Pagination";
 
 export default function SoftwaresPage() {
   const { show } = useToast();
@@ -27,6 +29,8 @@ export default function SoftwaresPage() {
   const [bulkDeleteOpen, setBulkDeleteOpen] = React.useState(false);
   const [bulkDeleting, setBulkDeleting] = React.useState(false);
   const [isAdmin, setIsAdmin] = React.useState(true);
+  const [page, setPage] = React.useState(1);
+  const [perPage, setPerPage] = React.useState(10);
 
   async function fetchData() {
     setIsLoading(true);
@@ -38,6 +42,23 @@ export default function SoftwaresPage() {
       setError(result.error || "Failed to load softwares");
     }
     setIsLoading(false);
+  }
+
+  async function handleRefresh() {
+    const result = await getDashboardSoftwares();
+    if (result.success) {
+      const newData = result.data || [];
+      const changed = JSON.stringify(newData) !== JSON.stringify(softwares);
+      if (changed) {
+        setSoftwares(newData);
+        show("Table refreshed — new data loaded.", "success");
+      } else {
+        show("You're already up to date.", "info");
+      }
+      setError(null);
+    } else {
+      show(result.error || "Failed to refresh softwares.", "danger");
+    }
   }
 
   React.useEffect(() => {
@@ -59,6 +80,10 @@ export default function SoftwaresPage() {
   const filtered = softwares.filter((s) =>
     s.name?.toLowerCase().includes(search.toLowerCase().trim())
   );
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
+  const currentPage = Math.min(page, totalPages);
+  const paginated = filtered.slice((currentPage - 1) * perPage, currentPage * perPage);
 
   React.useEffect(() => {
     setSelectedIds((prev) => {
@@ -153,20 +178,10 @@ export default function SoftwaresPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <AdminOutletBtnHeading
-          heading="Softwares"
-          subtitle={isAdmin ? "Manage your software listings and reviews." : "Manage software listings you have added."}
-          btnText="Add New Software"
-          btnUrl="/dashboard/softwares/add"
-        />
-        {isAdmin && (
-          <Button variant="secondary" onClick={() => setImportOpen(true)} className="shrink-0">
-            <Upload size={15} className="mr-1.5" />
-            Import CSV
-          </Button>
-        )}
-      </div>
+      <AdminOutletBtnHeading
+        heading="Softwares"
+        subtitle={isAdmin ? "Manage your software listings and reviews." : "Manage software listings you have added."}
+      />
 
       <Card noPadding>
         <div className="flex flex-col gap-3 border-b border-border-subtle p-4 sm:flex-row sm:items-center">
@@ -176,10 +191,29 @@ export default function SoftwaresPage() {
               type="text"
               placeholder="Search softwares…"
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
               className="w-full rounded-xl border border-border-subtle bg-surface-muted py-2 pl-9 pr-3 text-sm outline-none transition-colors focus:border-brand-green focus:bg-white focus:ring-2 focus:ring-brand-green/15"
             />
           </div>
+          <RefreshButton onRefresh={handleRefresh} />
+          {isAdmin && (
+            <>
+              <Link
+                href="/dashboard/softwares/add"
+                className="inline-flex h-9 shrink-0 items-center justify-center gap-2 rounded-xl bg-brand-green px-3 text-xs font-bold text-white shadow-[0_4px_16px_-2px_rgba(95,194,74,0.45)] transition-all hover:bg-brand-green-dark"
+              >
+                <Plus size={14} />
+                Add New Software
+              </Link>
+              <Button variant="secondary" size="sm" onClick={() => setImportOpen(true)} className="h-9 shrink-0">
+                <Upload size={14} className="mr-1.5" />
+                Import CSV
+              </Button>
+            </>
+          )}
           {isAdmin && selectedIds.size > 0 ? (
             <div className="flex items-center gap-3 sm:ml-auto">
               <span className="text-xs font-semibold text-text-muted">
@@ -200,7 +234,7 @@ export default function SoftwaresPage() {
           )}
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="max-h-[60vh] overflow-auto">
           {isLoading ? (
             <div className="space-y-2 p-4">
               {Array.from({ length: 4 }).map((_, i) => (
@@ -230,11 +264,11 @@ export default function SoftwaresPage() {
               />
             </div>
           ) : (
-            <table className="w-full text-left">
+            <table className="w-full border-separate border-spacing-0 text-left">
               <thead>
-                <tr className="border-b border-border-subtle bg-surface-muted">
+                <tr>
                   {isAdmin && (
-                    <th className="w-10 px-6 py-3.5">
+                    <th className="sticky top-0 z-10 w-10 border-b border-border-subtle bg-surface-muted px-6 py-3.5">
                       <input
                         type="checkbox"
                         checked={allFilteredSelected}
@@ -243,14 +277,14 @@ export default function SoftwaresPage() {
                       />
                     </th>
                   )}
-                  <th className="px-6 py-3.5 text-[11px] font-bold uppercase text-text-muted">Software</th>
-                  <th className="px-6 py-3.5 text-[11px] font-bold uppercase text-text-muted">Rating</th>
-                  <th className="px-6 py-3.5 text-[11px] font-bold uppercase text-text-muted">Created At</th>
-                  <th className="px-6 py-3.5 text-[11px] font-bold uppercase text-text-muted">Actions</th>
+                  <th className="sticky top-0 z-10 border-b border-border-subtle bg-surface-muted px-6 py-3.5 text-[11px] font-bold uppercase text-text-muted">Software</th>
+                  <th className="sticky top-0 z-10 border-b border-border-subtle bg-surface-muted px-6 py-3.5 text-[11px] font-bold uppercase text-text-muted">Rating</th>
+                  <th className="sticky top-0 z-10 border-b border-border-subtle bg-surface-muted px-6 py-3.5 text-[11px] font-bold uppercase text-text-muted">Created At</th>
+                  <th className="sticky top-0 z-10 border-b border-border-subtle bg-surface-muted px-6 py-3.5 text-[11px] font-bold uppercase text-text-muted">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border-subtle">
-                {filtered.map((software) => (
+                {paginated.map((software) => (
                   <tr
                     key={software.id}
                     className={`transition-colors hover:bg-surface-muted ${
@@ -317,6 +351,16 @@ export default function SoftwaresPage() {
             </table>
           )}
         </div>
+        <Pagination
+          page={currentPage}
+          totalItems={filtered.length}
+          perPage={perPage}
+          onPageChange={setPage}
+          onPerPageChange={(n) => {
+            setPerPage(n);
+            setPage(1);
+          }}
+        />
       </Card>
 
       <Modal

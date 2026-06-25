@@ -67,3 +67,27 @@ export async function getDashboardDemoRequests() {
     return { success: false, error: "Failed to fetch demo requests" };
   }
 }
+
+export async function deleteDemoRequests(ids: string[]) {
+  try {
+    const session = await getDashboardSession();
+    if (!session) {
+      return { success: false, error: "Not authenticated." };
+    }
+
+    if (!ids.length) {
+      return { success: false, error: "No demo requests selected." };
+    }
+
+    const result = await prisma.demoRequest.deleteMany({
+      where: {
+        id: { in: ids },
+        ...(isAdmin(session) ? {} : { software: { vendorId: session.userId } }),
+      },
+    });
+    return { success: true, data: { count: result.count } };
+  } catch (error) {
+    console.error("Error deleting demo requests:", error);
+    return { success: false, error: "Failed to delete demo requests" };
+  }
+}
