@@ -198,6 +198,15 @@ body {
   a {
     color: inherit;
   }
+
+  button,
+  a,
+  [role="button"],
+  label[for],
+  select,
+  summary {
+    cursor: pointer;
+  }
 }
 
 small,
