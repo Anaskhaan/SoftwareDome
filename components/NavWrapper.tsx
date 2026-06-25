@@ -1,0 +1,19 @@
+"use client";
+
+import { useState } from "react";
+import Navbar from "@/components/Navbar";
+import Sidebar from "@/components/Sidebar";
+
+export default function NavWrapper() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  return (
+    <>
+      <Navbar
+        onMenuClick={() => setIsMenuOpen(true)}
+        transparent
+        heroTheme="dark"
+      />
+      <Sidebar isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+    </>
+  );
+}

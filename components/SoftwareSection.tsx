@@ -35,26 +35,33 @@ function StarRating({ rating }: { rating: number }) {
   );
 }
 
-export default function SoftwareSection() {
-  const [softwares, setSoftwares] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [showAllCategories, setShowAllCategories] = useState(false);
+function defaultIndex(data: any[]) {
+  const idx = staticCategories.findIndex((cat) =>
+    data.some((s: any) => s.category?.toLowerCase().includes(cat.match))
+  );
+  return idx > -1 ? idx : 0;
+}
+
+export default function SoftwareSection({ initialData }: { initialData?: any[] } = {}) {
+  const [softwares, setSoftwares] = useState<any[]>(initialData ?? []);
+  const [loading, setLoading] = useState(!initialData);
+  const [activeIndex, setActiveIndex] = useState(() =>
+    initialData ? defaultIndex(initialData) : 0
+  );
+  const [showAllCategories, setShowAllCategories] = useState(() =>
+    initialData ? defaultIndex(initialData) >= 2 : false
+  );
 
   useEffect(() => {
+    if (initialData) return;
     async function fetchData() {
       try {
         const res = await getSoftwares();
         if (res.success && res.data) {
           setSoftwares(res.data);
-          // Default to whichever static category actually has listings
-          const firstMatchIndex = staticCategories.findIndex((cat) =>
-            res.data!.some((s: any) => s.category?.toLowerCase().includes(cat.match))
-          );
-          if (firstMatchIndex > -1) {
-            setActiveIndex(firstMatchIndex);
-            if (firstMatchIndex >= 2) setShowAllCategories(true);
-          }
+          const firstMatchIndex = defaultIndex(res.data);
+          setActiveIndex(firstMatchIndex);
+          if (firstMatchIndex >= 2) setShowAllCategories(true);
         }
       } catch (err) {
         console.error("Error loading softwares:", err);

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import {
@@ -340,12 +341,14 @@ export default function SoftwareDetailPage() {
                 />
                 <div className="relative flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
                   <div className="flex min-w-0 items-start gap-4">
-                    <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-border-subtle bg-surface-muted sm:h-20 sm:w-20">
+                    <div className="relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-border-subtle bg-surface-muted sm:h-20 sm:w-20">
                       {software.logo ? (
-                        <img
+                        <Image
                           src={software.logo}
                           alt=""
-                          className="h-full w-full object-contain p-2.5"
+                          fill
+                          className="object-contain p-2.5"
+                          sizes="80px"
                         />
                       ) : (
                         <span className="text-2xl font-black text-primary-navy/25">
@@ -364,7 +367,6 @@ export default function SoftwareDetailPage() {
                         <div className="mt-2 flex items-center gap-2">
                           <StarRow rating={rating} />
                           <span className="text-sm font-bold text-primary-navy">{rating.toFixed(1)}</span>
-                          <span className="text-xs text-text-muted">admin rating</span>
                         </div>
                       )}
                     </div>
@@ -526,10 +528,12 @@ export default function SoftwareDetailPage() {
                       onClick={() => setLightboxOpen(true)}
                       className="group relative block aspect-video w-full overflow-hidden rounded-3xl border border-border-subtle bg-surface-muted"
                     >
-                      <img
+                      <Image
                         src={pictures[activeImage]}
                         alt={`${software.name} screenshot ${activeImage + 1}`}
-                        className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-[1.02]"
+                        fill
+                        className="object-contain transition-transform duration-300 group-hover:scale-[1.02]"
+                        sizes="(max-width: 768px) 100vw, 60vw"
                       />
                     </button>
                     {pictures.length > 1 && (
@@ -539,11 +543,11 @@ export default function SoftwareDetailPage() {
                             key={idx}
                             type="button"
                             onClick={() => setActiveImage(idx)}
-                            className={`aspect-video overflow-hidden rounded-xl ring-2 transition-all ${
+                            className={`relative aspect-video overflow-hidden rounded-xl ring-2 transition-all ${
                               activeImage === idx ? "ring-brand-green" : "ring-transparent hover:ring-border-subtle"
                             }`}
                           >
-                            <img src={src} alt="" className="h-full w-full object-cover" />
+                            <Image src={src} alt="" fill className="object-cover" sizes="120px" />
                           </button>
                         ))}
                       </div>
@@ -746,7 +750,7 @@ export default function SoftwareDetailPage() {
           <div className="min-w-0">
             <p className="truncate text-sm font-bold text-primary-navy">{software.name}</p>
             {rating > 0 && (
-              <p className="text-xs text-text-muted">★ {rating.toFixed(1)} admin rating</p>
+              <p className="text-xs text-text-muted">★ {rating.toFixed(1)}</p>
             )}
           </div>
           <button
@@ -810,9 +814,11 @@ export default function SoftwareDetailPage() {
               <ChevronLeft size={28} />
             </button>
           )}
-          <img
+          <Image
             src={pictures[activeImage]}
             alt=""
+            width={1920}
+            height={1080}
             className="anim-zoom-in max-h-[85vh] max-w-full rounded-2xl object-contain"
             onClick={(e) => e.stopPropagation()}
           />

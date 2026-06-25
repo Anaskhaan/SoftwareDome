@@ -9,6 +9,7 @@ import {
   UserPen,
   X,
   ChevronRight,
+  Menu,
   LogOut,
   FileText,
   Settings,
@@ -107,47 +108,40 @@ export default function Sidebar({
 
   const filteredNavItems = navItems.filter((item) => item.roles.includes(userRole));
 
-  const content = (
+  /* Shared nav + logout — showLabels controls icon-only vs full display */
+  const renderNav = (showLabels: boolean) => (
     <>
-      <div className="flex h-16 items-center justify-between border-b border-white/10 px-4">
-        {isSidebarOpen ? (
-          <Logo size="sm" variant="dark" href={null} />
-        ) : (
-          <Logo size="sm" variant="dark" href={null} iconOnly />
-        )}
-        <button
-          onClick={() => setMobileOpen(false)}
-          className="rounded-lg p-2 transition-colors hover:bg-white/10 lg:hidden"
-          aria-label="Close menu"
-        >
-          <X size={20} />
-        </button>
-      </div>
-
       <nav className="flex-1 overflow-y-auto py-4 no-scrollbar">
         {filteredNavItems.map((item) => {
           const Icon = item.icon;
           const hasSubItems = item.subItems && item.subItems.length > 0;
           const isExpanded = expandedItems.includes(item.label);
-          const isActive = pathname === item.href || (hasSubItems && pathname.startsWith(item.href));
+          const isActive =
+            pathname === item.href || (hasSubItems && pathname.startsWith(item.href));
 
           return (
             <div key={item.label} className="mb-1">
               {hasSubItems ? (
                 <button
                   onClick={() => toggleExpand(item.label)}
-                  title={!isSidebarOpen ? item.label : undefined}
+                  title={!showLabels ? item.label : undefined}
                   className={`mx-2 flex w-[calc(100%-1rem)] cursor-pointer items-center rounded-lg px-4 py-3 transition-all ${
-                    isActive ? "bg-white/10 text-white" : "text-white/60 hover:bg-white/5 hover:text-white"
+                    isActive
+                      ? "bg-white/10 text-white"
+                      : "text-white/60 hover:bg-white/5 hover:text-white"
                   }`}
                 >
                   <Icon size={18} className="shrink-0" />
-                  {isSidebarOpen && (
+                  {showLabels && (
                     <>
-                      <span className="ml-3 flex-1 text-left text-sm font-semibold">{item.label}</span>
+                      <span className="ml-3 flex-1 text-left text-sm font-semibold">
+                        {item.label}
+                      </span>
                       <ChevronRight
                         size={14}
-                        className={`opacity-50 transition-transform duration-200 ${isExpanded ? "rotate-90" : ""}`}
+                        className={`opacity-50 transition-transform duration-200 ${
+                          isExpanded ? "rotate-90" : ""
+                        }`}
                       />
                     </>
                   )}
@@ -155,7 +149,7 @@ export default function Sidebar({
               ) : (
                 <Link
                   href={item.href}
-                  title={!isSidebarOpen ? item.label : undefined}
+                  title={!showLabels ? item.label : undefined}
                   className={`mx-2 flex items-center rounded-lg px-4 py-3 transition-all ${
                     isActive
                       ? "bg-brand-green/15 text-white shadow-sm ring-1 ring-brand-green/30"
@@ -163,11 +157,13 @@ export default function Sidebar({
                   }`}
                 >
                   <Icon size={18} className="shrink-0" />
-                  {isSidebarOpen && <span className="ml-3 text-sm font-semibold">{item.label}</span>}
+                  {showLabels && (
+                    <span className="ml-3 text-sm font-semibold">{item.label}</span>
+                  )}
                 </Link>
               )}
 
-              {isSidebarOpen && hasSubItems && isExpanded && (
+              {showLabels && hasSubItems && isExpanded && (
                 <div className="ml-4 mt-1 space-y-1">
                   {item.subItems!.map((subItem) => {
                     const isSubActive = pathname === subItem.href;
@@ -195,10 +191,11 @@ export default function Sidebar({
       <div className="border-t border-white/10 p-4">
         <button
           onClick={handleLogout}
+          title={!showLabels ? "Logout" : undefined}
           className="flex w-full items-center rounded-lg px-4 py-3 text-white/60 transition-all hover:bg-status-danger/20 hover:text-white"
         >
           <LogOut size={18} className="shrink-0" />
-          {isSidebarOpen && <span className="ml-3 text-sm font-semibold">Logout</span>}
+          {showLabels && <span className="ml-3 text-sm font-semibold">Logout</span>}
         </button>
       </div>
     </>
@@ -206,23 +203,42 @@ export default function Sidebar({
 
   return (
     <>
-      {/* Desktop sidebar */}
+      {/* ── Desktop sidebar ───────────────────────────────────────────── */}
       <aside
         className={`fixed inset-y-0 z-50 hidden flex-col bg-navy-800 text-white transition-all duration-300 ease-in-out lg:flex ${
           isSidebarOpen ? "w-64" : "w-20"
         }`}
       >
-        {content}
-        <button
-          onClick={() => setSidebarOpen(!isSidebarOpen)}
-          className="absolute -right-3 top-20 hidden h-6 w-6 items-center justify-center rounded-full border border-white/10 bg-navy-700 text-white/70 shadow-md transition-colors hover:bg-navy-600 hover:text-white lg:flex"
-          aria-label="Toggle sidebar width"
-        >
-          <ChevronRight size={12} className={`transition-transform ${isSidebarOpen ? "rotate-180" : ""}`} />
-        </button>
+        {/* Header — logo + hamburger when open, favicon mark when closed */}
+        <div className="flex h-16 shrink-0 items-center border-b border-white/10 px-3">
+          {isSidebarOpen ? (
+            <>
+              <div className="flex-1 min-w-0">
+                <Logo size="sm" variant="dark" href={null} />
+              </div>
+              <button
+                onClick={() => setSidebarOpen(false)}
+                aria-label="Collapse sidebar"
+                className="ml-2 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-white/50 transition-all hover:bg-white/10 hover:text-white"
+              >
+                <Menu size={17} />
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={() => setSidebarOpen(true)}
+              aria-label="Expand sidebar"
+              className="mx-auto flex h-10 w-10 items-center justify-center rounded-lg text-white/70 transition-all hover:bg-white/10 hover:text-white"
+            >
+              <img src="/logomark.svg" alt="SoftwareDome" className="h-6 w-6" />
+            </button>
+          )}
+        </div>
+
+        {renderNav(isSidebarOpen)}
       </aside>
 
-      {/* Mobile/tablet drawer */}
+      {/* ── Mobile / tablet drawer ────────────────────────────────────── */}
       <div className={`fixed inset-0 z-50 lg:hidden ${isMobileOpen ? "visible" : "invisible"}`}>
         <button
           aria-label="Close menu overlay"
@@ -236,7 +252,19 @@ export default function Sidebar({
             isMobileOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         >
-          {content}
+          {/* Mobile header — full logo + close button */}
+          <div className="flex h-16 shrink-0 items-center justify-between border-b border-white/10 px-4">
+            <Logo size="sm" variant="dark" href={null} />
+            <button
+              onClick={() => setMobileOpen(false)}
+              className="ml-2 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-white/60 transition-colors hover:bg-white/10 hover:text-white"
+              aria-label="Close menu"
+            >
+              <X size={18} />
+            </button>
+          </div>
+
+          {renderNav(true)}
         </aside>
       </div>
     </>

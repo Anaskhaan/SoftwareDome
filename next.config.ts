@@ -6,6 +6,15 @@ const nextConfig: NextConfig = {
       bodySizeLimit: "10mb",
     },
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+        pathname: "/drirmbeo0/**",
+      },
+    ],
+  },
 };
 
 export default nextConfig;
