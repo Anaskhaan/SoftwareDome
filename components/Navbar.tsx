@@ -90,19 +90,7 @@ export default function Navbar({
       }`}
     >
     <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 md:px-10 lg:px-20">
-      <div className="flex items-center gap-3 md:gap-0">
-        <button
-          onClick={onMenuClick}
-          className={`md:hidden flex items-center justify-start rounded-lg p-1.5 transition-colors ${
-            darkUI ? 'text-white hover:bg-white/10' : 'text-primary-navy hover:bg-primary-navy/5'
-          }`}
-          aria-label="Open menu"
-        >
-          <Icons.Menu size={24} />
-        </button>
-
-        <Logo size="md" variant={darkUI ? 'dark' : 'light'} />
-      </div>
+      <Logo size="md" variant={darkUI ? 'dark' : 'light'} />
 
       <nav
         className={`hidden md:flex items-center gap-1 font-semibold text-sm transition-colors ${
@@ -124,7 +112,17 @@ export default function Navbar({
         ))}
       </nav>
 
-      <div className="hidden md:flex items-center gap-2 relative">
+      <div className="flex items-center gap-2 relative">
+        <button
+          onClick={onMenuClick}
+          className={`md:hidden flex items-center justify-center rounded-lg p-1.5 transition-colors ${
+            darkUI ? 'text-white hover:bg-white/10' : 'text-primary-navy hover:bg-primary-navy/5'
+          }`}
+          aria-label="Open menu"
+        >
+          <Icons.Menu size={24} />
+        </button>
+        <div className="hidden md:flex items-center gap-2">
         <Link
           href="/categories"
           aria-label="Search"
@@ -219,32 +217,9 @@ export default function Navbar({
             </Link>
           </>
         )}
+        </div>
       </div>
 
-      {/* Mobile quick actions */}
-      <div className="flex items-center gap-1 md:hidden">
-        <Link
-          href="/categories"
-          aria-label="Search"
-          className={`flex h-9 w-9 items-center justify-center rounded-full transition-colors ${
-            darkUI ? 'text-white/80 hover:bg-white/10' : 'text-gray-500 hover:bg-gray-100'
-          }`}
-        >
-          <Icons.Search size={18} />
-        </Link>
-        {!user && (
-          <Link
-            href="/signup"
-            className={`rounded-full px-3.5 py-2 text-xs font-bold whitespace-nowrap ${
-              darkUI
-                ? 'border border-brand-green/50 text-brand-green-light'
-                : 'bg-brand-green text-white shadow-sm'
-            }`}
-          >
-            {darkUI ? 'Join' : 'Get Started'}
-          </Link>
-        )}
-      </div>
     </div>
     </header>
   );

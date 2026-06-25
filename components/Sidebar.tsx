@@ -1,29 +1,42 @@
+'use client';
+
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Icons } from '@/assets/icons';
+import Logo from '@/components/Logo';
 import { findBestCategoryForQuery } from '@/app/dashboard/softwares/actions';
 
 const navLinks = [
-  { name: 'Software Categories', href: '/categories', icon: 'Categories' },
-  { name: 'For Vendors', href: '/vendors', icon: 'Trending' },
-  { name: 'Resource Center', href: '/blog', icon: 'Blog' },
-  { name: 'Write a Review', href: '/write-review', icon: 'Deals' },
+  { name: 'Software Categories', href: '/categories' },
+  { name: 'For Vendors', href: '/vendors' },
+  { name: 'Resource Center', href: '/blog' },
+  { name: 'Write a Review', href: '/write-review' },
 ] as const;
 
 export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const [query, setQuery] = useState('');
+  const [user, setUser] = useState<any>(null);
   const router = useRouter();
+
+  useEffect(() => {
+    fetch('/api/auth/me')
+      .then((r) => r.ok ? r.json() : null)
+      .then((d) => d?.user && setUser(d.user))
+      .catch(() => {});
+  }, []);
+
+  // Lock body scroll while open
+  useEffect(() => {
+    document.body.style.overflow = isOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [isOpen]);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     const term = query.trim();
     onClose();
-    if (!term) {
-      router.push('/categories');
-      return;
-    }
-
+    if (!term) { router.push('/categories'); return; }
     const res = await findBestCategoryForQuery(term);
     if (res.success && res.data) {
       router.push(`/categories/${res.data.categorySlug}?q=${encodeURIComponent(term)}`);
@@ -32,68 +45,103 @@ export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose:
     }
   };
 
+  const handleLogout = async () => {
+    await fetch('/api/auth/logout', { method: 'POST' });
+    setUser(null);
+    onClose();
+    router.push('/login');
+    router.refresh();
+  };
+
   return (
-    <aside className={`fixed inset-0 z-50 transition-all duration-500 ${isOpen ? 'visible' : 'invisible'}`}>
-      <button
-        className={`absolute inset-0 bg-primary-navy/20 backdrop-blur-sm transition-opacity duration-500 ${isOpen ? 'opacity-100' : 'opacity-0'}`}
-        onClick={onClose}
-        aria-label="Close menu"
-      />
+    <div
+      className={`fixed inset-0 z-50 flex flex-col bg-[#0c221a] transition-all duration-500 ease-in-out ${
+        isOpen ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'
+      }`}
+    >
+      {/* ── Header ── */}
+      <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
+        <Logo size="md" variant="dark" />
+        <button
+          onClick={onClose}
+          aria-label="Close menu"
+          className="flex h-9 w-9 items-center justify-center rounded-full border border-white/15 text-white/70 transition-colors hover:border-white/30 hover:text-white"
+        >
+          <Icons.Close size={18} />
+        </button>
+      </div>
 
-      <nav className={`absolute left-0 top-0 h-full w-[85%] max-w-sm bg-white shadow-2xl p-6 flex flex-col transition-transform duration-500 ease-out ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        <header className="flex items-center justify-between mb-6">
-          <span className="text-xl font-black text-primary-navy">MENU</span>
-          <button onClick={onClose} className="text-primary-navy hover:rotate-90 transition-transform">
-            <Icons.Close size={28} />
-          </button>
-        </header>
-
-        <form onSubmit={handleSearch} className="mb-6">
-          <div className="flex items-center gap-2 rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2.5 focus-within:border-brand-green/50">
-            <Icons.Search size={16} className="shrink-0 text-gray-400" />
+      {/* ── Search ── */}
+      <div className="px-5 pt-5">
+        <form onSubmit={handleSearch}>
+          <div className="flex items-center gap-2.5 rounded-xl border border-white/10 bg-white/5 px-4 py-3 focus-within:border-brand-green/40">
+            <Icons.Search size={15} className="shrink-0 text-white/40" />
             <input
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search software…"
-              className="w-full bg-transparent text-sm text-primary-navy placeholder-gray-400 outline-none"
+              className="w-full bg-transparent text-sm text-white placeholder-white/30 outline-none"
             />
           </div>
         </form>
+      </div>
 
-        <div className="flex flex-col gap-2">
+      {/* ── Nav items ── */}
+      <nav className="flex flex-col mt-4 px-2 flex-1 overflow-y-auto">
+        {navLinks.map((link) => (
           <Link
-            href="/signup"
+            key={link.href}
+            href={link.href}
             onClick={onClose}
-            className="btn btn-green w-full text-center py-3.5 mb-5 shadow-lg shadow-brand-green/25"
+            className="flex items-center justify-between rounded-xl px-4 py-4 text-[17px] font-semibold text-white/80 transition-colors hover:bg-white/5 hover:text-white border-b border-white/5 last:border-0"
           >
+            {link.name}
+            <Icons.Arrow size={14} className="text-white/30" />
+          </Link>
+        ))}
+      </nav>
+
+      {/* ── Bottom CTA ── */}
+      <div className="px-5 pb-8 pt-4 border-t border-white/10">
+        {user ? (
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center gap-3 rounded-xl bg-white/5 px-4 py-3">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-green/20 text-brand-green-light">
+                <Icons.User size={17} />
+              </div>
+              <div className="min-w-0">
+                <p className="truncate text-sm font-bold text-white">{user.name || 'Account'}</p>
+                <p className="truncate text-xs text-white/40">{user.email}</p>
+              </div>
+            </div>
+            {(user.role === 'ADMIN' || user.role === 'VENDOR') && (
+              <Link
+                href="/dashboard"
+                onClick={onClose}
+                className="w-full rounded-xl border border-white/15 py-3 text-center text-sm font-bold text-white transition-colors hover:bg-white/5"
+              >
+                {user.role === 'VENDOR' ? 'Vendor Panel' : 'Dashboard'}
+              </Link>
+            )}
+            <button
+              onClick={handleLogout}
+              className="w-full rounded-xl border border-red-500/30 bg-red-500/10 py-3 text-sm font-bold text-red-400 transition-colors hover:bg-red-500/20"
+            >
+              Log Out
+            </button>
+          </div>
+        ) : (
+          <Link
+            href="/login"
+            onClick={onClose}
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-green py-3.5 text-sm font-bold text-white shadow-[0_4px_20px_-4px_rgba(95,194,74,0.5)] transition-all hover:bg-brand-green-dark"
+          >
+            <Icons.User size={15} />
             Join Free or Log In
           </Link>
-
-          <div className="flex flex-col gap-1">
-            {navLinks.map((link) => {
-              const Icon = Icons[link.icon as keyof typeof Icons] as any;
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={onClose}
-                  className="group flex items-center gap-4 text-base font-bold text-gray-500 hover:text-brand-green-dark border-b border-gray-50 py-4 transition-all"
-                >
-                  <span className="p-2 rounded-lg bg-gray-50 group-hover:bg-brand-green/10 transition-colors">
-                    <Icon size={18} className="group-hover:scale-110 transition-transform" />
-                  </span>
-                  {link.name}
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-
-        <div className="mt-auto pt-10">
-          <p className="text-xs font-bold text-gray-300 uppercase mb-4">SoftwareDome v1.0</p>
-        </div>
-      </nav>
-    </aside>
+        )}
+      </div>
+    </div>
   );
 }
