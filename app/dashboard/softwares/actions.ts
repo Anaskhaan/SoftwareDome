@@ -1,7 +1,8 @@
 "use server";
 
 import { parse } from "csv-parse/sync";
-import { unstable_cache, revalidateTag, revalidatePath } from "next/cache";
+import { unstable_cache, revalidateTag as _revalidateTag, revalidatePath } from "next/cache";
+const revalidateTag = _revalidateTag as unknown as (tag: string) => void;
 import prisma from "@/lib/prisma";
 import cloudinary from "@/lib/cloudinary";
 import { requireAdmin } from "@/lib/require-admin";
