@@ -1,3 +1,5 @@
+export const revalidate = 600; // ISR: re-generate at most every 10 minutes
+
 import NavWrapper from "@/components/NavWrapper";
 import Hero from "@/components/Hero";
 import SoftwareSection from "@/components/SoftwareSection";

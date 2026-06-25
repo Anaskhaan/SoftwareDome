@@ -1,6 +1,7 @@
 "use server";
 
 import { parse } from "csv-parse/sync";
+import { unstable_cache, revalidateTag, revalidatePath } from "next/cache";
 import prisma from "@/lib/prisma";
 import cloudinary from "@/lib/cloudinary";
 import { requireAdmin } from "@/lib/require-admin";
@@ -11,13 +12,15 @@ import {
   type DashboardSession,
 } from "@/lib/require-dashboard";
 
+const fetchSoftwares = unstable_cache(
+  async () => prisma.software.findMany({ orderBy: { createdAt: "desc" } }),
+  ["softwares-list"],
+  { revalidate: 60, tags: ["softwares"] }
+);
+
 export async function getSoftwares() {
   try {
-    const softwares = await prisma.software.findMany({
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
+    const softwares = await fetchSoftwares();
     return { success: true, data: softwares };
   } catch (error) {
     console.error("Error fetching softwares:", error);
@@ -289,6 +292,8 @@ export async function createSoftware(formData: FormData) {
       },
     });
 
+    revalidateTag("softwares");
+    revalidatePath("/");
     return { success: true, data: software };
   } catch (error) {
     console.error("Error creating software:", error);
@@ -393,6 +398,8 @@ export async function updateSoftware(id: string, formData: FormData) {
       data: updateData,
     });
 
+    revalidateTag("softwares");
+    revalidatePath("/");
     return { success: true, data: software };
   } catch (error) {
     console.error("Error updating software:", error);
@@ -424,6 +431,8 @@ export async function deleteSoftware(id: string) {
     }
 
     await prisma.software.delete({ where: { id } });
+    revalidateTag("softwares");
+    revalidatePath("/");
     return { success: true };
   } catch (error) {
     console.error("Error deleting software:", error);
@@ -452,6 +461,8 @@ export async function deleteSoftwares(ids: string[]) {
     }
 
     const result = await prisma.software.deleteMany({ where: { id: { in: ids } } });
+    revalidateTag("softwares");
+    revalidatePath("/");
     return { success: true, data: { count: result.count } };
   } catch (error) {
     console.error("Error deleting softwares:", error);
