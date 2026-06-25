@@ -134,7 +134,7 @@ export default function SoftwareSection({ initialData }: { initialData?: any[] }
         {staticCategories.length > 2 && (
           <button
             onClick={() => setShowAllCategories((v) => !v)}
-            className="mt-3 inline-flex items-center text-xs font-bold text-brand-green-dark hover:text-brand-green sm:hidden"
+            className="mt-3 inline-flex items-center text-xs font-bold text-green-800 hover:text-brand-green sm:hidden"
           >
             {showAllCategories ? "Show fewer categories" : "Show all categories"}
           </button>

@@ -46,7 +46,7 @@ export default function FaqSection() {
     <div className="mx-auto max-w-3xl">
       {/* Header */}
       <div className="mb-10 text-center">
-        <span className="mb-3 inline-block rounded-full border border-brand-green/30 bg-brand-green/8 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-brand-green-dark">
+        <span className="mb-3 inline-block rounded-full border border-brand-green/30 bg-brand-green/8 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-green-800">
           FAQ
         </span>
         <h2 className="mt-2 font-brand text-3xl font-bold text-navy-800 md:text-4xl">

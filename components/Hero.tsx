@@ -150,6 +150,8 @@ export default function Hero() {
                     key={product.id}
                     src={product.logo}
                     alt={product.name}
+                    width={40}
+                    height={40}
                     className="anim-fade-in h-9 w-9 object-contain lg:h-10 lg:w-10"
                   />
                 )}
@@ -215,7 +217,7 @@ export default function Hero() {
                 />
                 <button
                   type="submit"
-                  className="shrink-0 rounded-xl bg-brand-green px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-brand-green-dark"
+                  className="shrink-0 rounded-xl bg-green-800 px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-green-900"
                 >
                   Search
                 </button>
@@ -248,7 +250,7 @@ export default function Hero() {
 
       {/* Trusted-by wall */}
       <div className="relative bg-white pb-16 pt-10">
-        <div className="mb-8 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-[0.25em] text-zinc-400">
+        <div className="mb-8 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-[0.25em] text-zinc-600">
           <ShieldCheck size={14} className="text-brand-green" />
           Trusted by Top Vendors
         </div>
@@ -266,6 +268,8 @@ export default function Hero() {
                     key={`${vendor.name}-${i}`}
                     src={vendor.src}
                     alt={vendor.name}
+                    width={100}
+                    height={28}
                     className="h-7 w-auto max-w-[100px] shrink-0 object-contain opacity-70 grayscale"
                   />
                 ))}
@@ -285,6 +289,8 @@ export default function Hero() {
                 <img
                   src={vendor.src}
                   alt={vendor.name}
+                  width={110}
+                  height={32}
                   className="h-8 w-auto max-w-[110px] object-contain opacity-70 grayscale transition-all hover:opacity-100 hover:grayscale-0"
                 />
               </div>

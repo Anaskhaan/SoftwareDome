@@ -7,7 +7,7 @@ export default function CompactSectionHeader({
 }) {
   return (
     <header className="mb-8">
-      <span className="inline-flex items-center gap-2 font-mono text-[10px] font-bold uppercase tracking-[0.35em] text-brand-green-dark">
+      <span className="inline-flex items-center gap-2 font-mono text-[10px] font-bold uppercase tracking-[0.35em] text-green-800">
         <span className="h-1.5 w-1.5 rounded-full bg-brand-green" aria-hidden />
         {subtitle}
       </span>

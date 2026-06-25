@@ -82,7 +82,7 @@ export default function AboutSection() {
       <div className="grid gap-4 lg:grid-cols-12 xl:gap-5">
         <article className="flex flex-col justify-between gap-6 rounded-3xl border border-border-subtle bg-surface-muted p-6 sm:p-7 lg:col-span-4 xl:p-8">
           <div>
-            <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-brand-green-dark">
+            <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-green-800">
               Why we build
             </span>
             <h3 className="mt-2 font-brand text-xl font-bold leading-tight text-primary-navy sm:text-2xl">
@@ -112,7 +112,7 @@ export default function AboutSection() {
               key={title}
               className="group flex flex-col gap-3 rounded-3xl border border-border-subtle bg-white p-5 transition-all duration-300 hover:-translate-y-1 hover:border-brand-green/40 hover:shadow-[0_16px_36px_-18px_rgba(95,194,74,0.35)] sm:p-6"
             >
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-green/10 text-brand-green-dark transition-colors group-hover:bg-brand-green group-hover:text-white">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-green/10 text-green-800 transition-colors group-hover:bg-brand-green group-hover:text-white">
                 <Icon size={18} />
               </div>
               <h4 className="font-brand text-base font-bold text-primary-navy">{title}</h4>
@@ -125,7 +125,7 @@ export default function AboutSection() {
       {/* Listing pipeline — connected step flow */}
       <div className="rounded-3xl border border-border-subtle bg-white p-6 sm:p-7 xl:p-8">
         <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-          <span className="text-[10px] font-bold uppercase tracking-[0.35em] text-brand-green-dark">
+          <span className="text-[10px] font-bold uppercase tracking-[0.35em] text-green-800">
             Listing pipeline
           </span>
           <span className="hidden text-[10px] font-medium uppercase tracking-wider text-text-muted sm:inline">

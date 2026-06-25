@@ -237,7 +237,7 @@ function AuthContent() {
             />
           </div>
           <div className="relative z-10 mb-14 flex items-center gap-3">
-            <img src="/logomark.svg" alt="SoftwareDome" className="h-8 w-8" />
+            <img src="/logomark.svg" alt="SoftwareDome" width={32} height={32} className="h-8 w-8" />
             <span className="text-[17px] font-bold tracking-tight text-white">SoftwareDome</span>
           </div>
           <div className="relative z-10 flex-1">
@@ -275,7 +275,7 @@ function AuthContent() {
 
             {/* Mobile logo */}
             <div className="mb-8 flex items-center gap-2.5 md:hidden">
-              <img src="/logomark.svg" alt="SoftwareDome" className="h-7 w-7" />
+              <img src="/logomark.svg" alt="SoftwareDome" width={28} height={28} className="h-7 w-7" />
               <span className="text-[16px] font-bold tracking-tight text-navy-800">SoftwareDome</span>
             </div>
 

@@ -84,7 +84,7 @@ export default function BlogsSection() {
                       {blog.tags.slice(0, 2).map((tag) => (
                         <span
                           key={tag}
-                          className="px-2 py-0.5 bg-brand-green/10 border border-brand-green/20 text-brand-green-dark rounded-full text-[10px] font-semibold uppercase tracking-wider"
+                          className="px-2 py-0.5 bg-brand-green/10 border border-brand-green/20 text-green-800 rounded-full text-[10px] font-semibold uppercase tracking-wider"
                         >
                           {tag}
                         </span>
@@ -101,7 +101,7 @@ export default function BlogsSection() {
                   </div>
 
                   <div className="flex items-center justify-between pt-3 border-t border-zinc-100 mt-auto">
-                    <span className="text-[10px] text-zinc-400 font-medium">
+                    <span className="text-[10px] text-zinc-600 font-medium">
                       {blog.publishedAt
                         ? new Date(blog.publishedAt).toLocaleDateString(undefined, {
                             month: "short",
@@ -116,7 +116,7 @@ export default function BlogsSection() {
                     </span>
                     <Link
                       href={`/blog/${blog.slug}`}
-                      className="text-xs font-bold text-brand-green-dark hover:text-brand-green flex items-center gap-1"
+                      className="text-xs font-bold text-green-800 hover:text-brand-green flex items-center gap-1"
                     >
                       Read More <span aria-hidden>→</span>
                     </Link>

@@ -9,13 +9,13 @@ export async function GET() {
     const token = cookieStore.get("auth_token")?.value;
 
     if (!token) {
-      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+      return NextResponse.json({ user: null }, { status: 200 });
     }
 
     const payload = await verifyJWT(token);
 
     if (!payload || !payload.userId) {
-      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+      return NextResponse.json({ user: null }, { status: 200 });
     }
 
     const user = await prisma.user.findUnique({

@@ -39,7 +39,7 @@ export default function ProductCards() {
           The mission section covers how listings enter the dome. Here is how teams move through
           what you have already published.
         </p>
-        <div className="flex shrink-0 items-center gap-2 text-[10px] font-bold uppercase tracking-[0.3em] text-brand-green-dark">
+        <div className="flex shrink-0 items-center gap-2 text-[10px] font-bold uppercase tracking-[0.3em] text-green-800">
           <span className="h-1.5 w-1.5 rounded-full bg-brand-green" aria-hidden />
           <span>Buyer path</span>
         </div>
@@ -48,7 +48,7 @@ export default function ProductCards() {
       {/* Connected step grid */}
       <div className="rounded-3xl border border-border-subtle bg-white p-6 sm:p-7 xl:p-8">
         <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-          <span className="text-[10px] font-bold uppercase tracking-[0.35em] text-brand-green-dark">
+          <span className="text-[10px] font-bold uppercase tracking-[0.35em] text-green-800">
             Discovery flow
           </span>
           <span className="hidden text-[10px] font-medium uppercase tracking-wider text-text-muted sm:inline">

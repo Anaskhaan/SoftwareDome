@@ -154,9 +154,9 @@ export default function Footer() {
             <div className="grid grid-cols-2 gap-x-8 gap-y-10 sm:grid-cols-4">
               {categoryColumns.map((col) => (
                 <div key={col.title}>
-                  <h4 className="mb-4 text-[13px] font-semibold text-zinc-300">
+                  <p className="mb-4 text-[13px] font-semibold text-zinc-300">
                     {col.title}
-                  </h4>
+                  </p>
                   <ul className="flex flex-col gap-3">
                     {col.links.map((link) => (
                       <li key={link}>
@@ -179,9 +179,9 @@ export default function Footer() {
             {/* Comparisons / Resources / Company — 3 cols */}
             <div className="grid grid-cols-1 gap-10 sm:grid-cols-3">
               <div>
-                <h4 className="mb-4 text-[13px] font-semibold text-zinc-300">
+                <p className="mb-4 text-[13px] font-semibold text-zinc-300">
                   Top Comparisons
-                </h4>
+                </p>
                 <ul className="flex flex-col gap-3">
                   {comparisons.map((item) => (
                     <li key={item}>
@@ -197,9 +197,9 @@ export default function Footer() {
               </div>
 
               <div>
-                <h4 className="mb-4 text-[13px] font-semibold text-zinc-300">
+                <p className="mb-4 text-[13px] font-semibold text-zinc-300">
                   Top Resources
-                </h4>
+                </p>
                 <ul className="flex flex-col gap-3">
                   {resources.map((item) => (
                     <li key={item}>
@@ -215,9 +215,9 @@ export default function Footer() {
               </div>
 
               <div>
-                <h4 className="mb-4 text-[13px] font-semibold text-zinc-300">
+                <p className="mb-4 text-[13px] font-semibold text-zinc-300">
                   Company
-                </h4>
+                </p>
                 <ul className="flex flex-col gap-3">
                   {companyLinks.map((link) => (
                     <li key={link.name}>
