@@ -87,7 +87,7 @@ export default function ProductCards() {
 
         {/* ── Card tray ── */}
         <div
-          className="flex flex-col xl:flex-row"
+          className="grid grid-cols-1 sm:grid-cols-2 xl:flex xl:flex-row"
           style={{
             background: "#F8FFF2",
             borderRadius: "24px",
@@ -98,12 +98,11 @@ export default function ProductCards() {
           {STEPS.map((step) => (
             <div
               key={step.num}
-              className="relative flex-1 overflow-hidden"
+              className="relative flex-1 overflow-hidden h-[220px] sm:h-[270px] xl:h-[328px]"
               style={{
                 background: "#FFFFFF",
                 borderRadius: "12px",
                 padding: "20px",
-                height: "328px",
               }}
             >
               {/* Ghost number */}

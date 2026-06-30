@@ -35,7 +35,7 @@ function CardCaption({ title, body }: { title: string; body: string }) {
   return (
     <div
       className="absolute bottom-0 left-0 right-0 flex flex-col items-center"
-      style={{ padding: "0 40px 36px", gap: "8px" }}
+      style={{ padding: "0 20px 24px", gap: "8px" }}
     >
       <h3
         style={{
@@ -54,8 +54,8 @@ function CardCaption({ title, body }: { title: string; body: string }) {
         style={{
           fontFamily: "var(--font-sora), Sora, sans-serif",
           fontWeight: 400,
-          fontSize: "18px",
-          lineHeight: "28px",
+          fontSize: "clamp(14px, 1.4vw, 18px)",
+          lineHeight: "1.6",
           color: "#54565B",
           textAlign: "center",
           margin: 0,
@@ -68,7 +68,6 @@ function CardCaption({ title, body }: { title: string; body: string }) {
 }
 
 const CARD_STYLE: React.CSSProperties = {
-  height: "440px",
   background: "linear-gradient(180deg, #E1FFC1 0%, #FFFFFF 100%)",
   borderRadius: "20px",
   position: "relative",
@@ -142,10 +141,10 @@ export default function AboutSection() {
           style={{ gap: "20px", paddingTop: "48px" }}
         >
           {/* Row 1 */}
-          <div className="flex flex-col xl:flex-row" style={{ gap: "20px" }}>
+          <div className="flex flex-col md:flex-row" style={{ gap: "20px" }}>
             {/* Cards 1 & 2 */}
             {CARDS.slice(0, 2).map((card) => (
-              <div key={card.key} style={CARD_STYLE}>
+              <div key={card.key} className="h-[260px] md:h-[340px] xl:h-[440px]" style={CARD_STYLE}>
                 {/* Illustration */}
                 <img
                   src={card.imgSrc}
@@ -168,9 +167,9 @@ export default function AboutSection() {
           </div>
 
           {/* Row 2 */}
-          <div className="flex flex-col xl:flex-row" style={{ gap: "20px" }}>
+          <div className="flex flex-col md:flex-row" style={{ gap: "20px" }}>
             {/* Card 3: Trusted surface */}
-            <div style={CARD_STYLE}>
+            <div className="h-[260px] md:h-[340px] xl:h-[440px]" style={CARD_STYLE}>
               <img
                 src={CARDS[2].imgSrc}
                 alt=""
@@ -188,7 +187,7 @@ export default function AboutSection() {
             </div>
 
             {/* Card 4: One index — CSS concentric circles + logomark */}
-            <div style={CARD_STYLE}>
+            <div className="h-[260px] md:h-[340px] xl:h-[440px]" style={CARD_STYLE}>
               {/* Concentric ring group, centered horizontally, top: -4px */}
               <div
                 className="absolute flex items-center justify-center"
