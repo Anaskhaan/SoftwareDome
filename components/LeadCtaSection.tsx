@@ -68,22 +68,11 @@ export default function LeadCtaSection() {
         className="relative overflow-hidden w-full lg:min-h-[450px]"
         style={{
           borderRadius: "24px",
-          backgroundImage: `linear-gradient(90deg, rgba(7, 41, 41, 0.85) 0%, rgba(7, 41, 41, 0.4) 100%), url("https://images.unsplash.com/photo-1472214222541-d510753a4707?auto=format&fit=crop&w=1600&q=80")`,
+          backgroundImage: "url('/leadcta.png')",
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
       >
-        {/* Subtle Green Tint Overlay */}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background:
-              "linear-gradient(90deg, rgba(177, 250, 99, 0.2) 0%, rgba(177, 250, 99, 0.05) 100%)",
-            borderRadius: "24px",
-            zIndex: 1,
-          }}
-        />
-
         {/* Content Container - 1280px Max Width */}
         <div
           className="relative mx-auto w-full px-4 md:px-10 py-8 md:py-16"

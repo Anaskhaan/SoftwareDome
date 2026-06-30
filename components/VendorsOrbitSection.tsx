@@ -1,19 +1,20 @@
 import Link from "next/link";
 
-/* Arc positions — left/top as % of section (1900×700).
-   z: 0 = behind the hills (bottom icons sink into grass for depth).
-   z: 2 = above hills, below center content. */
-const ICON_POSITIONS = [
-  { left: "23%", top: "77%", z: 0 }, // bottom-left  — behind hills
-  { left: "27%", top: "55%", z: 2 }, // mid-left
-  { left: "33%", top: "29%", z: 2 }, // upper-left
-  { left: "38%", top: "17%", z: 2 }, // upper-center-left
-  { left: "48%", top: "11%", z: 2 }, // top-center
-  { left: "56%", top: "18%", z: 2 }, // upper-center-right
-  { left: "61%", top: "33%", z: 2 }, // upper-right
-  { left: "63%", top: "54%", z: 2 }, // mid-right
-  { left: "63%", top: "72%", z: 0 }, // bottom-right — behind hills
-] as const;
+// Orbit centered on the logo (Y=342px). Radius 316px chosen so endpoint icons
+// (at ±110° from top) land at Y=450px — their top edges sit exactly at the
+// hills horizon (Y=410px), giving the half-submerged depth effect.
+// 220° symmetric arc (250° → 0°/top → 110°), 27.5° step, 9 icons.
+const ORBIT_RADIUS = 316;
+const ORBIT_CENTER_Y = 342;
+const HILLS_Y = 410;
+
+const ICON_POSITIONS = Array.from({ length: 9 }, (_, i) => {
+  const deg = 250 + i * 27.5;
+  const rad = (deg * Math.PI) / 180;
+  const x = ORBIT_RADIUS * Math.sin(rad);
+  const y = ORBIT_RADIUS * -Math.cos(rad);
+  return { x, y, z: ORBIT_CENTER_Y + y > HILLS_Y ? 0 : 2 };
+});
 
 export default function VendorsOrbitSection({
   initialData,
@@ -41,8 +42,8 @@ export default function VendorsOrbitSection({
               key={i}
               className="absolute flex items-center justify-center overflow-hidden"
               style={{
-                left: pos.left,
-                top: pos.top,
+                left: `calc(50% + ${pos.x}px)`,
+                top: `${ORBIT_CENTER_Y + pos.y}px`,
                 width: "80px",
                 height: "80px",
                 background: "#FFFFFF",
