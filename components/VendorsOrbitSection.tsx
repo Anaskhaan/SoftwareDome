@@ -1,51 +1,109 @@
+"use client";
+
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 
-// Orbit centered on the logo (Y=342px). Radius 316px chosen so endpoint icons
-// (at ±110° from top) land at Y=450px — their top edges sit exactly at the
-// hills horizon (Y=410px), giving the half-submerged depth effect.
-// 220° symmetric arc (250° → 0°/top → 110°), 27.5° step, 9 icons.
-const ORBIT_RADIUS = 316;
-const ORBIT_CENTER_Y = 342;
-const HILLS_Y = 410;
+interface Dims {
+  sectionHeight: number;
+  hillsHeight: number;
+  radius: number;
+  centerY: number;
+  contentTop: number;
+  iconSize: number;
+  showIcons: boolean;
+}
 
-const ICON_POSITIONS = Array.from({ length: 9 }, (_, i) => {
-  const deg = 250 + i * 27.5;
-  const rad = (deg * Math.PI) / 180;
-  const x = ORBIT_RADIUS * Math.sin(rad);
-  const y = ORBIT_RADIUS * -Math.cos(rad);
-  return { x, y, z: ORBIT_CENTER_Y + y > HILLS_Y ? 0 : 2 };
-});
+function getDims(w: number): Dims {
+  if (w < 640) {
+    return {
+      sectionHeight: 460,
+      hillsHeight: 170,
+      radius: 0,
+      centerY: 0,
+      contentTop: 28,
+      iconSize: 0,
+      showIcons: false,
+    };
+  }
+  const sectionHeight = w < 768 ? 520 : w < 1024 ? 600 : 700;
+  const hillsHeight = w < 768 ? 200 : w < 1024 ? 240 : 290;
+  // radius proportional to section width, capped at the Figma desktop value (316)
+  const radius = Math.round(Math.min(w * 0.245, 316));
+  // orbit center Y = radius + 26px top clearance (matches desktop: 316+26=342)
+  const centerY = radius + 26;
+  return {
+    sectionHeight,
+    hillsHeight,
+    radius,
+    centerY,
+    contentTop: centerY - 65, // 65 = half of desktop logo height (130px)
+    iconSize: w < 768 ? 64 : w < 1024 ? 70 : 80,
+    showIcons: true,
+  };
+}
+
+function computePositions(r: number, cY: number, hY: number) {
+  return Array.from({ length: 9 }, (_, i) => {
+    const deg = 250 + i * 27.5;
+    const rad = (deg * Math.PI) / 180;
+    const x = r * Math.sin(rad);
+    const y = r * -Math.cos(rad);
+    return { x, y, z: cY + y > hY ? 0 : 2 };
+  });
+}
 
 export default function VendorsOrbitSection({
   initialData,
 }: {
   initialData?: any[];
 }) {
-  const softwares = (initialData ?? []).slice(0, ICON_POSITIONS.length);
+  const wrapRef = useRef<HTMLDivElement>(null);
+  // Default to desktop so SSR HTML matches the most common viewport
+  const [dims, setDims] = useState<Dims>(() => getDims(1280));
+
+  useEffect(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([entry]) => {
+      setDims(getDims(entry.contentRect.width));
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  const { sectionHeight, hillsHeight, radius, centerY, contentTop, iconSize, showIcons } = dims;
+  const hillsY = sectionHeight - hillsHeight;
+  const positions = showIcons ? computePositions(radius, centerY, hillsY) : [];
+  const softwares = (initialData ?? []).slice(0, positions.length);
+
+  const logoSize = showIcons ? 130 : 90;
+  const contentGap = showIcons ? 30 : 16;
+  const headingSize = showIcons ? 28 : 22;
+  const headingLineH = showIcons ? 34 : 28;
 
   return (
-    /* 10 px side margin so section floats inside white page bg */
-    <div style={{ padding: "0 10px", background: "#FFFFFF" }}>
+    <div ref={wrapRef} style={{ padding: "0 10px", background: "#FFFFFF" }}>
       <section
         className="relative w-full overflow-hidden"
         style={{
           background: "#F7FFEF",
           borderRadius: "30px",
-          height: "700px",
+          height: `${sectionHeight}px`,
         }}
       >
         {/* ── Floating software icon circles ── */}
-        {ICON_POSITIONS.map((pos, i) => {
+        {positions.map((pos, i) => {
           const sw = softwares[i];
+          const imgSize = Math.round(iconSize * 0.6);
           return (
             <div
               key={i}
               className="absolute flex items-center justify-center overflow-hidden"
               style={{
                 left: `calc(50% + ${pos.x}px)`,
-                top: `${ORBIT_CENTER_Y + pos.y}px`,
-                width: "80px",
-                height: "80px",
+                top: `${centerY + pos.y}px`,
+                width: `${iconSize}px`,
+                height: `${iconSize}px`,
                 background: "#FFFFFF",
                 borderRadius: "50%",
                 transform: "translate(-50%, -50%)",
@@ -59,8 +117,8 @@ export default function VendorsOrbitSection({
                   src={sw.logo}
                   alt={sw.name ?? ""}
                   style={{
-                    width: "48px",
-                    height: "48px",
+                    width: `${imgSize}px`,
+                    height: `${imgSize}px`,
                     objectFit: "contain",
                     borderRadius: "50%",
                   }}
@@ -70,7 +128,7 @@ export default function VendorsOrbitSection({
                   style={{
                     fontFamily: "var(--font-sora), Sora, sans-serif",
                     fontWeight: 700,
-                    fontSize: "24px",
+                    fontSize: `${Math.round(iconSize * 0.3)}px`,
                     color: "#0A192F",
                   }}
                 >
@@ -86,19 +144,19 @@ export default function VendorsOrbitSection({
           className="absolute flex flex-col items-center"
           style={{
             left: "50%",
-            top: "277px",
+            top: `${contentTop}px`,
             transform: "translateX(-50%)",
-            gap: "30px",
+            gap: `${contentGap}px`,
             zIndex: 3,
-            width: "493px",
+            width: "min(493px, calc(100% - 32px))",
           }}
         >
           {/* SoftwareDome logo circle */}
           <div
             className="flex items-center justify-center flex-shrink-0"
             style={{
-              width: "130px",
-              height: "130px",
+              width: `${logoSize}px`,
+              height: `${logoSize}px`,
               background: "#072929",
               borderRadius: "50%",
               boxShadow:
@@ -109,8 +167,8 @@ export default function VendorsOrbitSection({
               src="/logomark.svg"
               alt="SoftwareDome"
               style={{
-                width: "70px",
-                height: "70px",
+                width: `${Math.round(logoSize * 0.538)}px`,
+                height: `${Math.round(logoSize * 0.538)}px`,
                 objectFit: "contain",
                 transform: "translateY(1.5px)",
               }}
@@ -123,8 +181,8 @@ export default function VendorsOrbitSection({
               fontFamily:
                 'var(--font-jakarta), "Plus Jakarta Sans", sans-serif',
               fontWeight: 600,
-              fontSize: "28px",
-              lineHeight: "34px",
+              fontSize: `${headingSize}px`,
+              lineHeight: `${headingLineH}px`,
               letterSpacing: "-1px",
               color: "#1D1D1D",
               textAlign: "center",
@@ -135,7 +193,7 @@ export default function VendorsOrbitSection({
             Explore all of our vendors
           </h2>
 
-          {/* CTA pill — same design as SoftwareSection */}
+          {/* CTA pill */}
           <div
             style={{
               width: "229px",
@@ -155,7 +213,8 @@ export default function VendorsOrbitSection({
               style={{
                 width: "217px",
                 height: "49px",
-                background: "linear-gradient(180deg, #B0FE5E 0%, #5BA40D 100%)",
+                background:
+                  "linear-gradient(180deg, #B0FE5E 0%, #5BA40D 100%)",
                 boxShadow:
                   "0px 5px 23px rgba(214,253,112,0.3), inset -4px -4px 8px rgba(255,255,255,0.3), inset 4px 4px 8px rgba(255,255,255,0.3)",
                 borderRadius: "100px",
@@ -245,14 +304,14 @@ export default function VendorsOrbitSection({
           </div>
         </div>
 
-        {/* ── Hills / grass image — anchored to bottom, z between icons and center ── */}
+        {/* ── Hills / grass image — anchored to bottom ── */}
         <img
           src="/hills-bg.png"
           alt=""
           aria-hidden
           className="absolute bottom-0 left-0 w-full pointer-events-none"
           style={{
-            height: "290px",
+            height: `${hillsHeight}px`,
             objectFit: "cover",
             objectPosition: "top",
             zIndex: 1,

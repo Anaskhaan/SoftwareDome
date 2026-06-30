@@ -75,14 +75,9 @@ export default function LeadCtaSection() {
       >
         {/* Content Container - 1280px Max Width */}
         <div
-          className="relative mx-auto w-full px-4 md:px-10 py-8 md:py-16"
+          className="relative mx-auto w-full px-4 md:px-10 py-8 md:py-16 flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-10"
           style={{
             maxWidth: "1280px",
-            display: "flex",
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: "40px",
             zIndex: 2,
           }}
         >
@@ -194,12 +189,12 @@ export default function LeadCtaSection() {
 
               {/* Need Help Deciding? */}
               <h2
+                className="text-[30px] sm:text-[38px] lg:text-[48px]"
                 style={{
                   fontFamily:
                     'var(--font-jakarta), "Plus Jakarta Sans", sans-serif',
                   fontWeight: 500,
-                  fontSize: "48px",
-                  lineHeight: "58px",
+                  lineHeight: "1.2",
                   letterSpacing: "-2.88px",
                   color: "#FFFFFF",
                   margin: 0,
@@ -229,14 +224,13 @@ export default function LeadCtaSection() {
 
           {/* ── Right Column: Form Container Card ── */}
           <div
-            className="relative bg-[#FBFFF7] p-8 max-w-[416px] flex flex-col justify-between"
+            className="relative bg-[#FBFFF7] p-6 sm:p-8 w-full lg:max-w-[416px] flex flex-col justify-between shrink-0"
             style={{
               borderRadius: "16px",
-              height: "450px",
+              minHeight: "420px",
               boxSizing: "border-box",
               zIndex: 2,
               boxShadow: "0px 10px 40px rgba(0, 0, 0, 0.05)",
-              flexShrink: 0,
             }}
           >
             <form
