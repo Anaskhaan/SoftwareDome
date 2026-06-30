@@ -78,7 +78,7 @@ const CARD_STYLE: React.CSSProperties = {
 
 export default function AboutSection() {
   return (
-    <section className="w-full" style={{ background: "#FBFFF6", padding: "80px 0" }}>
+    <section className="w-full py-6 md:py-12 lg:py-20" style={{ background: "#FBFFF6" }}>
       <div
         className="mx-auto flex flex-col px-5 xl:px-[80px]"
         style={{ maxWidth: "1281px", gap: "0" }}
@@ -108,7 +108,7 @@ export default function AboutSection() {
                 fontFamily: 'var(--font-jakarta), "Plus Jakarta Sans", sans-serif',
                 fontWeight: 700,
                 fontSize: "clamp(32px, 3.2vw, 46px)",
-                lineHeight: "60px",
+                lineHeight: "clamp(40px, 5.5vw, 60px)",
                 letterSpacing: "-1.04px",
                 color: "#23252C",
                 margin: "8px 0 0",

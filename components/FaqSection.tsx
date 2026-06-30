@@ -65,8 +65,8 @@ export default function FaqSection() {
                 fontFamily:
                   'var(--font-jakarta), "Plus Jakarta Sans", sans-serif',
                 fontWeight: 700,
-                fontSize: "46px",
-                lineHeight: "60px",
+                fontSize: "clamp(28px, 4vw, 46px)",
+                lineHeight: "clamp(36px, 5.5vw, 60px)",
                 letterSpacing: "-1.04px",
                 color: "#23252C",
                 margin: 0,
@@ -80,7 +80,7 @@ export default function FaqSection() {
             style={{
               fontFamily: "var(--font-sora), Sora, sans-serif",
               fontWeight: 400,
-              fontSize: "20px",
+              fontSize: "clamp(15px, 1.8vw, 20px)",
               lineHeight: "32px",
               color: "#54565B",
               margin: 0,
@@ -125,8 +125,8 @@ export default function FaqSection() {
                     fontFamily:
                       'var(--font-jakarta), "Plus Jakarta Sans", sans-serif',
                     fontWeight: 600,
-                    fontSize: "20px",
-                    lineHeight: "26px",
+                    fontSize: "clamp(15px, 1.8vw, 20px)",
+                    lineHeight: "1.4",
                     color: "#1D1D1D",
                     margin: 0,
                     flexGrow: 1,

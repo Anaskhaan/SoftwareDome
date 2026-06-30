@@ -138,8 +138,7 @@ export default function SoftwareSection({
   return (
     <section
       id="catalog"
-      className="bg-white w-full scroll-mt-20"
-      style={{ padding: "80px 0" }}
+      className="bg-white w-full scroll-mt-20 py-6 md:py-12 lg:py-20"
     >
       <div
         className="flex flex-col items-center mx-auto px-5 xl:px-[80px]"
@@ -182,7 +181,7 @@ export default function SoftwareSection({
         >
           {/* Tab bar */}
           <div
-            className="flex flex-row items-center justify-center w-full overflow-hidden"
+            className="flex flex-row items-center w-full overflow-x-auto no-scrollbar md:justify-center"
             style={{
               gap: "10px",
               borderBottom: "1px solid #F2F2F2",
@@ -229,11 +228,8 @@ export default function SoftwareSection({
           <div className="flex flex-col w-full" style={{ gap: "25px" }}>
             {row1.length > 0 && (
               <div
-                className="grid w-full"
-                style={{
-                  gridTemplateColumns: "repeat(5, 1fr)",
-                  gap: "23px",
-                }}
+                className="grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-5"
+                style={{ gap: "23px" }}
               >
                 {row1.map((sw) => (
                   <SoftwareCard key={sw.id} software={sw} />
@@ -242,11 +238,8 @@ export default function SoftwareSection({
             )}
             {row2.length > 0 && (
               <div
-                className="grid w-full"
-                style={{
-                  gridTemplateColumns: "repeat(5, 1fr)",
-                  gap: "23px",
-                }}
+                className="grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-5"
+                style={{ gap: "23px" }}
               >
                 {row2.map((sw) => (
                   <SoftwareCard key={sw.id} software={sw} />

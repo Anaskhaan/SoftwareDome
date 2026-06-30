@@ -72,8 +72,8 @@ export default async function BlogsSection() {
               style={{
                 fontFamily: 'var(--font-jakarta), "Plus Jakarta Sans", sans-serif',
                 fontWeight: 700,
-                fontSize: "46px",
-                lineHeight: "60px",
+                fontSize: "clamp(28px, 4vw, 46px)",
+                lineHeight: "clamp(36px, 5.5vw, 60px)",
                 letterSpacing: "-1.04px",
                 color: "#23252C",
                 margin: 0,
@@ -87,7 +87,7 @@ export default async function BlogsSection() {
             style={{
               fontFamily: "var(--font-sora), Sora, sans-serif",
               fontWeight: 400,
-              fontSize: "20px",
+              fontSize: "clamp(15px, 1.8vw, 20px)",
               lineHeight: "32px",
               color: "#54565B",
               margin: 0,

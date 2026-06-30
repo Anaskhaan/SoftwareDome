@@ -54,10 +54,10 @@ export default async function Home() {
       <PageSection id="vendors" className="bg-zinc-50 scroll-mt-20">
         <ForVendorsSection />
       </PageSection>
-      <PageSection className="bg-[#FBFFF6] !py-20">
+      <PageSection className="bg-[#FBFFF6] md:!py-20">
         <BlogsSection />
       </PageSection>
-      <PageSection className="bg-white !py-20">
+      <PageSection className="bg-white md:!py-20">
         <FaqSection />
       </PageSection>
 

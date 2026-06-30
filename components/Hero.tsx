@@ -69,7 +69,7 @@ export default function Hero() {
             Mobile : relative flow, pt clears the 105 px fixed navbar
             Desktop: absolute at top 268.81 px, centered               */}
         <div className="relative flex flex-col items-center text-center px-6 pt-[140px] xl:absolute xl:pt-0 xl:top-[268px] xl:left-1/2 xl:-translate-x-1/2">
-          <div className="flex flex-col items-center" style={{ padding: "0 80px", gap: "8px" }}>
+          <div className="flex flex-col items-center w-full px-4 sm:px-10 xl:px-[80px]" style={{ gap: "8px" }}>
             <h1
               style={{
                 fontFamily: 'var(--font-jakarta), "Plus Jakarta Sans", sans-serif',
