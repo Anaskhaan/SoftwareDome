@@ -91,3 +91,58 @@ export async function deleteDemoRequests(ids: string[]) {
     return { success: false, error: "Failed to delete demo requests" };
   }
 }
+
+export async function submitGeneralLead(formData: FormData) {
+  try {
+    const name = (formData.get("name") as string || "").trim();
+    const email = (formData.get("email") as string || "").trim();
+    const phone = (formData.get("phone") as string || "").trim();
+    const organization = (formData.get("organization") as string || "").trim();
+
+    if (!name || !email || !phone || !organization) {
+      return { success: false, error: "Please fill in all fields." };
+    }
+
+    // Find the first software in the database or SoftwareDome software to link the lead
+    let software = await prisma.software.findFirst({
+      where: { slug: "softwaredome" }
+    });
+    
+    if (!software) {
+      software = await prisma.software.findFirst();
+    }
+
+    if (!software) {
+      return { success: false, error: "No software records found in the database to link the lead." };
+    }
+
+    await prisma.demoRequest.create({
+      data: {
+        name,
+        email,
+        phone,
+        organization,
+        softwareId: software.id,
+        status: "New"
+      },
+    });
+
+    // Notify admin
+    const notifyEmail = process.env.GMAIL_USER || "";
+    if (notifyEmail) {
+      await sendDemoRequestEmail({
+        name,
+        email,
+        phone,
+        organization,
+        softwareName: "General Consultation (SoftwareDome)",
+        notifyEmail,
+      });
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error submitting general lead:", error);
+    return { success: false, error: "Failed to submit your request. Please try again." };
+  }
+}

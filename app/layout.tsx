@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Sora } from "next/font/google";
+import { Geist, Geist_Mono, Sora, Plus_Jakarta_Sans } from "next/font/google";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import "./globals.css";
 
@@ -18,7 +18,14 @@ const geistMono = Geist_Mono({
 const sora = Sora({
   variable: "--font-sora",
   subsets: ["latin"],
-  weight: ["600", "700", "800"],
+  weight: ["400", "600", "700", "800"],
+  display: "swap",
+});
+
+const plusJakartaSans = Plus_Jakarta_Sans({
+  variable: "--font-jakarta",
+  subsets: ["latin"],
+  weight: ["400", "600", "700"],
   display: "swap",
 });
 
@@ -36,7 +43,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${sora.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${sora.variable} ${plusJakartaSans.variable} h-full antialiased`}
     >
       <head>
         <link rel="preconnect" href="https://res.cloudinary.com" />

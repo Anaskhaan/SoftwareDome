@@ -1,35 +1,43 @@
+/* Badge image positions:
+   imgLeft = Figma badge left + card padding (20px)
+   imgTop  = Figma badge top  + card padding (20px) − circle overhead (~12px)
+   So the badge visual lands at content-area origin and the circle stays visible within the card. */
 const STEPS = [
   {
     num: "1",
-    numLeft: "5px",
-    numTop: "40px",
-    title: "Intake",
-    body: "Vendors submit products from any region via our dashboard.",
+    imgSrc: "/1.png",
+    imgLeft: "20px",
+    imgTop: "8px",
+    title: "Explore",
+    body: "Browse the live catalog by category, region, or keyword every listing admin-approved.",
   },
   {
     num: "2",
-    numLeft: "25px",
-    numTop: "61px",
-    title: "Curate",
-    body: "Admins verify listings, metadata, and positioning before publish.",
+    imgSrc: "/2.png",
+    imgLeft: "20px",
+    imgTop: "9px",
+    title: "Compare",
+    body: "Stack tools side by side on fit, pricing signals, and category without leaving SoftwareDome.",
   },
   {
     num: "3",
-    numLeft: "5px",
-    numTop: "41px",
-    title: "Publish",
-    body: "Approved software enters the global SoftwareDome index.",
+    imgSrc: "/3.png",
+    imgLeft: "25px",
+    imgTop: "9px",
+    title: "Verify",
+    body: "Read curated metadata and positioning written for clarity, not sponsored rankings.",
   },
   {
     num: "4",
-    numLeft: "5px",
-    numTop: "40px",
-    title: "Discover",
-    body: "Teams search, compare & choose tools without sponsored noise.",
+    imgSrc: "/4.png",
+    imgLeft: "25px",
+    imgTop: "8px",
+    title: "Decide",
+    body: "Shortlist with confidence and share choices with your team no pay-to-play noise.",
   },
 ] as const;
 
-export default function ProductCards() {
+export default function HowItWorksSection() {
   return (
     <section className="bg-white w-full" style={{ padding: "80px 0" }}>
       <div
@@ -50,7 +58,7 @@ export default function ProductCards() {
                 color: "#2F6C25",
               }}
             >
-              For Vendor
+              For Buyers
             </span>
             <h2
               style={{
@@ -64,7 +72,7 @@ export default function ProductCards() {
                 margin: 0,
               }}
             >
-              Listing pipeline
+              How it works
             </h2>
           </div>
 
@@ -80,8 +88,8 @@ export default function ProductCards() {
               margin: 0,
             }}
           >
-            SoftwareDome keeps discovery and listing operations in one visual language
-            — catalog above, path below, footer to close.
+            From first search to final shortlist. The mission section covers how listings
+            enter the dome. Here is how teams move through what you have already published.
           </p>
         </div>
 
@@ -106,33 +114,25 @@ export default function ProductCards() {
                 height: "328px",
               }}
             >
-              {/* Ghost number */}
-              <span
+              {/* Badge image — includes rounded square, icon, and numbered circle */}
+              <img
+                src={step.imgSrc}
+                alt=""
                 aria-hidden
                 style={{
                   position: "absolute",
-                  left: step.numLeft,
-                  top: step.numTop,
-                  fontFamily: 'var(--font-jakarta), "Plus Jakarta Sans", sans-serif',
-                  fontWeight: 700,
-                  fontSize: "150px",
-                  lineHeight: "1",
-                  letterSpacing: "-0.96px",
-                  color: "#EBFFD7",
-                  userSelect: "none",
-                  zIndex: 0,
+                  left: step.imgLeft,
+                  top: step.imgTop,
+                  height: "105px",
+                  width: "auto",
+                  pointerEvents: "none",
                 }}
-              >
-                {step.num}
-              </span>
+              />
 
               {/* Text — pinned to bottom-left */}
               <div
                 className="absolute flex flex-col justify-end"
-                style={{
-                  inset: "20px",
-                  zIndex: 1,
-                }}
+                style={{ inset: "20px", zIndex: 1 }}
               >
                 <h3
                   style={{

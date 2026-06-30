@@ -10,16 +10,7 @@ const FAQS = [
   },
   {
     q: "Can I trust SoftwareDome reviews?",
-    a: (
-      <>
-        Yes. SoftwareDome reviews are sourced from real, verified users, not paid placements. We
-        provide transparent pricing breakdowns, product demos, and honest industry insights so you
-        can make decisions based on facts, not sales pitches.{" "}
-        <Link href="/blog" className="font-semibold text-brand-green-dark hover:underline">
-          Learn more about our review and testing methodology here.
-        </Link>
-      </>
-    ),
+    a: "Yes. SoftwareDome reviews are sourced from real, verified users, not paid placements. We provide transparent pricing breakdowns, product demos, and honest industry insights so you can make decisions based on facts, not sales pitches.",
   },
   {
     q: "Is there a cost to use SoftwareDome?",
@@ -30,81 +21,187 @@ const FAQS = [
     a: "Vendors can join the SoftwareDome Vendor Program to generate qualified, ready-to-buy leads at a lower cost per acquisition, strengthen brand visibility, and connect directly with buyers who are actively searching for solutions like theirs.",
   },
   {
-    q: "How do I get help choosing the right software for my business?",
-    a: "Simply fill out the short form on our homepage with your name, phone number, email, and organization details. One of SoftwareDome's solution experts will reach out with free, personalized recommendations based on your budget, industry, and business requirements.",
-  },
-  {
     q: "Which software categories does SoftwareDome cover?",
     a: "SoftwareDome covers a wide range of software categories, including Healthcare/Medical, HR, Accounting, CRM, Project Management, CMMS, Field Service Management, and Legal Practice Management — with more added regularly. Whether you're a solo practice or a large enterprise, we help you compare options across every budget and deployment model (cloud, on-premise, or hybrid).",
   },
 ];
 
 export default function FaqSection() {
-  const [open, setOpen] = useState<number | null>(null);
+  const [open, setOpen] = useState<number | null>(0); // First item expanded by default to match screenshot
 
   return (
-    <div className="mx-auto max-w-3xl">
-      {/* Header */}
-      <div className="mb-10 text-center">
-        <span className="mb-3 inline-block rounded-full border border-brand-green/30 bg-brand-green/8 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-green-800">
-          FAQ
-        </span>
-        <h2 className="mt-2 font-brand text-3xl font-bold text-navy-800 md:text-4xl">
-          Frequently Asked Questions
-        </h2>
-        <p className="mt-3 text-[15px] text-text-muted">
-          Everything you need to know about SoftwareDome.
-        </p>
+    <div
+      className="flex flex-col lg:flex-row items-stretch justify-center w-full"
+      style={{ gap: "50px" }}
+    >
+      {/* ── Left Column: Heading + Subtitle + Helper Card ── */}
+      <div
+        className="flex flex-col items-start justify-between flex-shrink-0 w-full lg:w-[423.75px]"
+        style={{ gap: "40px" }}
+      >
+        {/* Header Text Block */}
+        <div
+          className="flex flex-col items-start w-full"
+          style={{ gap: "16px" }}
+        >
+          <div className="flex flex-col items-start" style={{ gap: "8px" }}>
+            {/* FAQ'S */}
+            <span
+              style={{
+                fontFamily:
+                  'var(--font-jakarta), "Plus Jakarta Sans", sans-serif',
+                fontWeight: 700,
+                fontSize: "16px",
+                lineHeight: "28px",
+                textTransform: "uppercase",
+                color: "#2F6C25",
+              }}
+            >
+              FAQ's
+            </span>
+            {/* Frequently asked questions */}
+            <h2
+              style={{
+                fontFamily:
+                  'var(--font-jakarta), "Plus Jakarta Sans", sans-serif',
+                fontWeight: 700,
+                fontSize: "46px",
+                lineHeight: "60px",
+                letterSpacing: "-1.04px",
+                color: "#23252C",
+                margin: 0,
+              }}
+            >
+              Frequently asked questions
+            </h2>
+          </div>
+          {/* Paragraph */}
+          <p
+            style={{
+              fontFamily: "var(--font-sora), Sora, sans-serif",
+              fontWeight: 400,
+              fontSize: "20px",
+              lineHeight: "32px",
+              color: "#54565B",
+              margin: 0,
+            }}
+          >
+            Find quick answers to common questions about the platform, pricing,
+            and security.
+          </p>
+        </div>
       </div>
 
-      {/* Accordion */}
-      <div className="divide-y divide-border-subtle rounded-2xl border border-border-subtle bg-white shadow-sm">
+      {/* ── Right Column: FAQ Accordion List ── */}
+      <div
+        className="flex flex-col items-stretch flex-grow w-full lg:w-[806.25px]"
+        style={{ gap: "20px" }}
+      >
         {FAQS.map((faq, i) => {
           const isOpen = open === i;
           return (
-            <div key={i}>
-              <button
-                type="button"
+            <div
+              key={i}
+              className="flex flex-col bg-white border border-[#F2F2F2]"
+              style={{
+                borderRadius: "20px",
+                boxSizing: "border-box",
+                overflow: "hidden",
+                transition: "all 0.3s ease",
+              }}
+            >
+              {/* Accordion Item Header */}
+              <div
                 onClick={() => setOpen(isOpen ? null : i)}
-                className="flex w-full items-start justify-between gap-4 px-6 py-5 text-left transition-colors hover:bg-surface-muted"
+                className="flex flex-row justify-between items-center cursor-pointer p-5"
+                style={{
+                  gap: "24px",
+                  boxSizing: "border-box",
+                  userSelect: "none",
+                }}
               >
-                <span
-                  className={`font-brand text-[15px] font-bold leading-snug transition-colors ${
-                    isOpen ? "text-brand-green-dark" : "text-navy-800"
-                  }`}
+                <h3
+                  style={{
+                    fontFamily:
+                      'var(--font-jakarta), "Plus Jakarta Sans", sans-serif',
+                    fontWeight: 600,
+                    fontSize: "20px",
+                    lineHeight: "26px",
+                    color: "#1D1D1D",
+                    margin: 0,
+                    flexGrow: 1,
+                  }}
                 >
                   {faq.q}
-                </span>
-                <span
-                  className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border transition-all ${
-                    isOpen
-                      ? "border-brand-green/30 bg-brand-green/10 text-brand-green-dark"
-                      : "border-border-subtle bg-surface-muted text-text-muted"
-                  }`}
-                >
-                  <svg
-                    width="10"
-                    height="10"
-                    viewBox="0 0 10 10"
-                    fill="none"
-                    className={`transition-transform duration-200 ${isOpen ? "rotate-45" : ""}`}
-                  >
-                    <path
-                      d="M5 1v8M1 5h8"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                </span>
-              </button>
+                </h3>
 
+                {/* Circular Toggle Icon */}
+                <div
+                  className="flex items-center justify-center shrink-0 relative"
+                  style={{
+                    width: "30px",
+                    height: "30px",
+                    background: "#EDF1F4",
+                    borderRadius: "100px",
+                  }}
+                >
+                  {/* Horizontal line (always present) */}
+                  <div
+                    style={{
+                      position: "absolute",
+                      width: "16px",
+                      height: "2px",
+                      background: "#1D1D1D",
+                      borderRadius: "100px",
+                      left: "7px",
+                      top: "14px",
+                    }}
+                  />
+                  {/* Vertical line (only present when collapsed, rotates on expand) */}
+                  <div
+                    style={{
+                      position: "absolute",
+                      width: "2px",
+                      height: "16px",
+                      background: "#1D1D1D",
+                      borderRadius: "100px",
+                      left: "14px",
+                      top: "7px",
+                      transition: "transform 0.2s ease, opacity 0.2s ease",
+                      transform: isOpen ? "rotate(90deg)" : "rotate(0deg)",
+                      opacity: isOpen ? 0 : 1,
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Accordion Item Answer Area */}
               <div
-                className={`overflow-hidden transition-all duration-300 ${
-                  isOpen ? "max-h-96" : "max-h-0"
-                }`}
+                style={{
+                  maxHeight: isOpen ? "200px" : "0px",
+                  overflow: "hidden",
+                  transition: "max-height 0.3s ease-in-out",
+                }}
               >
-                <p className="px-6 pb-5 text-[14px] leading-relaxed text-text-muted">{faq.a}</p>
+                <div
+                  style={{
+                    padding: "0 20px 20px 20px",
+                    boxSizing: "border-box",
+                  }}
+                >
+                  <p
+                    style={{
+                      fontFamily: "var(--font-sora), Sora, sans-serif",
+                      fontWeight: 400,
+                      fontSize: "16px",
+                      lineHeight: "21px",
+                      color: "#4D585F",
+                      margin: 0,
+                    }}
+                  >
+                    {faq.a}
+                  </p>
+                </div>
               </div>
             </div>
           );

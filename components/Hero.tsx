@@ -1,122 +1,165 @@
-import Container from '@/components/Container';
-import HeroSearch from '@/components/HeroSearch';
-import HeroChipsLoader from '@/components/HeroChipsLoader';
+import HeroSearch from "@/components/HeroSearch";
 
-const vendorLogos = [
-  { name: 'Paychex', src: '/vendors/paychex.avif' },
-  { name: 'athenahealth', src: '/vendors/athenahealth.avif' },
-  { name: 'HubSpot', src: '/vendors/hubspot.avif' },
-  { name: 'Absorb LMS', src: '/vendors/absorb.avif' },
-  { name: 'monday.com', src: '/vendors/monday.avif' },
-  { name: 'ModMed', src: '/vendors/modmed.avif' },
-  { name: 'ADP Workforce Now', src: '/vendors/adp.avif' },
-  { name: 'RXNT', src: '/vendors/rxnt.avif' },
-  { name: 'UKG', src: '/vendors/ukg.avif' },
-  { name: 'isolved', src: '/vendors/isolved.avif' },
-  { name: 'Houzz Pro', src: '/vendors/houzz.avif' },
-  { name: 'Epicor', src: '/vendors/epicor.avif' },
+/* Figma order: Paychex · ADP · athenahealth · RXNT · HubSpot · UKG ·
+   Absorb · isolved · monday · Houzz · ModMed · Epicor               */
+const trustedLogos = [
+  { name: "Paychex",      src: "/vendors/paychex.avif",      w: 96 },
+  { name: "ADP",          src: "/vendors/adp.avif",          w: 96 },
+  { name: "athenahealth", src: "/vendors/athenahealth.avif", w: 96 },
+  { name: "RXNT",         src: "/vendors/rxnt.avif",         w: 96 },
+  { name: "HubSpot",      src: "/vendors/hubspot.avif",      w: 96 },
+  { name: "UKG",          src: "/vendors/ukg.avif",          w: 96 },
+  { name: "Absorb LMS",   src: "/vendors/absorb.avif",       w: 96 },
+  { name: "isolved",      src: "/vendors/isolved.avif",      w: 96 },
+  { name: "monday.com",   src: "/vendors/monday.avif",       w: 96 },
+  { name: "Houzz Pro",    src: "/vendors/houzz.avif",        w: 80 },
+  { name: "ModMed",       src: "/vendors/modmed.avif",       w: 96 },
+  { name: "Epicor",       src: "/vendors/epicor.avif",       w: 96 },
 ];
 
-const vendorRow1 = vendorLogos.slice(0, 6);
-const vendorRow2 = vendorLogos.slice(6);
+/* Floating vendor icon cards (xl only) — % positions within 1900×900 card */
+const floatingCards = [
+  { src: "/vendors/modmed.avif",       name: "ModMed",       left: "4.05%", top: "37.5%", rotate: "-8deg"  },
+  { src: "/vendors/athenahealth.avif", name: "athenahealth", left: "91.2%", top: "31.9%", rotate: "10deg"  },
+  { src: "/vendors/rxnt.avif",         name: "RXNT",         left: "6.11%", top: "55.5%", rotate: "6deg"   },
+  { src: "/vendors/ukg.avif",          name: "UKG",          left: "89.2%", top: "51.2%", rotate: "-10deg" },
+];
 
 export default function Hero() {
   return (
     <section className="relative bg-white" aria-label="SoftwareDome home">
-      {/* Dark credibility band */}
+      {/* ── Hero card ── */}
       <div
-        className="relative flex min-h-[560px] flex-col justify-center overflow-hidden pb-20 pt-32 lg:min-h-[620px] lg:pb-24 lg:pt-36"
+        className="relative my-1 mx-1 overflow-hidden xl:h-[900px]"
         style={{
           background:
-            'radial-gradient(120% 100% at 50% 0%, #0f2b22 0%, #081813 55%, #050f0c 100%)',
+            "linear-gradient(0deg, rgba(247, 255, 239, 0.6) 5.94%, rgba(167, 255, 74, 0.64) 100%)",
+          borderRadius: "16px",
         }}
       >
-        {/* Grid texture */}
-        <div
-          className="pointer-events-none absolute inset-0 opacity-[0.35]"
-          style={{
-            backgroundImage:
-              'linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px)',
-            backgroundSize: '42px 42px',
-          }}
-          aria-hidden
-        />
-        {/* Green glow */}
-        <div
-          className="pointer-events-none absolute left-1/2 top-0 h-[36rem] w-[36rem] -translate-x-1/2 rounded-full bg-brand-green/15 blur-[100px]"
-          aria-hidden
-        />
+        {/* Floating software icon cards — hidden below xl */}
+        {floatingCards.map((card) => (
+          <div
+            key={card.name}
+            aria-hidden
+            className="pointer-events-none absolute hidden xl:flex items-center justify-center bg-white"
+            style={{
+              width: "64px",
+              height: "64px",
+              left: card.left,
+              top: card.top,
+              borderRadius: "16px",
+              boxShadow:
+                "0px 0px 0px 1px rgba(255,255,255,0.2), 0px 25px 50px -10px rgba(0,0,0,0.15)",
+              transform: `rotate(${card.rotate})`,
+            }}
+          >
+            <img
+              src={card.src}
+              alt=""
+              width={40}
+              height={40}
+              className="h-10 w-10 object-contain"
+              style={{ transform: `rotate(${card.rotate})` }}
+            />
+          </div>
+        ))}
 
-        {/* Floating product chips — desktop only, dynamically loaded after hydration */}
-        <div className="pointer-events-none absolute inset-0 hidden sm:block" aria-hidden>
-          <HeroChipsLoader />
+        {/* ── Heading + paragraph ──
+            Mobile : relative flow, pt clears the 105 px fixed navbar
+            Desktop: absolute at top 268.81 px, centered               */}
+        <div className="relative flex flex-col items-center text-center px-6 pt-[140px] xl:absolute xl:pt-0 xl:top-[268px] xl:left-1/2 xl:-translate-x-1/2">
+          <div className="flex flex-col items-center" style={{ padding: "0 80px", gap: "8px" }}>
+            <h1
+              style={{
+                fontFamily: 'var(--font-jakarta), "Plus Jakarta Sans", sans-serif',
+                fontWeight: 700,
+                fontSize: "clamp(32px, 4.5vw, 65px)",
+                lineHeight: "clamp(38px, 5vw, 70px)",
+                letterSpacing: "-1.2px",
+                color: "#111111",
+                textAlign: "center",
+                maxWidth: "747px",
+              }}
+            >
+              Find the right software from 100s of vendors
+            </h1>
+
+            <p
+              style={{
+                fontFamily: "var(--font-sora), Sora, sans-serif",
+                fontWeight: 400,
+                fontSize: "clamp(15px, 1.4vw, 20px)",
+                lineHeight: "26px",
+                color: "#2F6C25",
+                textAlign: "center",
+                maxWidth: "531px",
+                paddingTop: "12px",
+              }}
+            >
+              Compare unbiased reviews, pricing, and expert advice — all under one dome.
+            </p>
+          </div>
         </div>
 
-        <Container className="relative text-center">
-          {/* Server-rendered: no hydration cost, paints immediately as LCP */}
-          <h1 className="mx-auto max-w-xl font-bold leading-[1.15] tracking-tight text-white">
-            Find the right{' '}
-            <span className="text-brand-green-light">software</span> from 100s of vendors
-          </h1>
-          <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-white/55 sm:text-base">
-            Compare unbiased reviews, pricing, and expert advice — all under one dome.
-          </p>
-
-          {/* Interactive search — small client component, hydrates fast */}
+        {/* ── Search + chips (Frame 8) ──
+            Mobile : relative, mt-10
+            Desktop: absolute at top 522 px, centered                  */}
+        <div className="relative flex flex-col items-center mt-10 xl:absolute xl:mt-0 xl:top-[522px] xl:left-1/2 xl:-translate-x-1/2">
           <HeroSearch />
-        </Container>
-      </div>
-
-      {/* Trusted-by wall — pure server HTML */}
-      <div className="relative bg-white pb-16 pt-10">
-        <div className="mb-8 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-[0.25em] text-zinc-600">
-          <svg width={14} height={14} viewBox="0 0 24 24" fill="currentColor" className="text-brand-green" aria-hidden>
-            <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/>
-          </svg>
-          Trusted by Top Vendors
         </div>
 
-        {/* Mobile: two-row infinite marquee */}
-        <div className="space-y-4 overflow-hidden sm:hidden">
-          {[vendorRow1, vendorRow2].map((row, rowIdx) => (
-            <div key={rowIdx} className="relative overflow-hidden">
+        {/* ── "Trusted by Top Vendors" label ──
+            Mobile : relative flow, mt-8
+            Desktop: absolute at top 784 px, full-width center          */}
+        <div
+          className="relative flex justify-center items-center mt-8 xl:absolute xl:mt-0 xl:inset-x-0 xl:top-[784px]"
+          style={{ gap: "8px" }}
+        >
+          <span
+            style={{
+              fontFamily: "var(--font-sora), Sora, sans-serif",
+              fontWeight: 600,
+              fontSize: "20px",
+              lineHeight: "16px",
+              textTransform: "uppercase",
+              color: "#878787",
+            }}
+          >
+            Trusted by Top Vendors
+          </span>
+        </div>
+
+        {/* ── Logo marquee ──
+            Mobile : relative flow, mt-4, pb-8 (bottom breathing room)
+            Desktop: absolute at top 860 px, full-width of the card     */}
+        <div
+          className="overflow-hidden mt-4 pb-8 xl:absolute xl:mt-0 xl:pb-0 xl:top-[860px] xl:inset-x-0"
+          style={{ height: "32px" }}
+        >
+          <div
+            className="marquee-track items-center"
+            style={{ animationDuration: "30s" }}
+          >
+            {[...trustedLogos, ...trustedLogos].map((logo, i) => (
               <div
-                className={`marquee-track items-center gap-10 ${rowIdx === 1 ? 'marquee-track-reverse' : ''}`}
-                style={{ animationDuration: rowIdx === 1 ? '24s' : '28s' }}
+                key={`${logo.name}-${i}`}
+                className="flex items-center justify-center flex-shrink-0"
+                style={{ width: "144px", height: "32px" }}
               >
-                {[...row, ...row].map((vendor, i) => (
-                  <img
-                    key={`${vendor.name}-${i}`}
-                    src={vendor.src}
-                    alt={vendor.name}
-                    width={100}
-                    height={28}
-                    loading="lazy"
-                    className="h-7 w-auto max-w-[100px] shrink-0 object-contain opacity-70 grayscale"
-                  />
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* sm and up: static grid */}
-        <Container className="hidden text-center sm:block">
-          <div className="mx-auto grid max-w-5xl grid-cols-4 items-center gap-x-8 gap-y-8 lg:grid-cols-6">
-            {vendorLogos.map((vendor) => (
-              <div key={vendor.name} className="flex items-center justify-center">
                 <img
-                  src={vendor.src}
-                  alt={vendor.name}
-                  width={110}
+                  src={logo.src}
+                  alt={logo.name}
+                  width={logo.w}
                   height={32}
                   loading="lazy"
-                  className="h-8 w-auto max-w-[110px] object-contain opacity-70 grayscale transition-all hover:opacity-100 hover:grayscale-0"
+                  className="object-contain"
+                  style={{ width: `${logo.w}px`, height: "32px", opacity: 0.7 }}
                 />
               </div>
             ))}
           </div>
-        </Container>
+        </div>
       </div>
     </section>
   );

@@ -8,11 +8,7 @@ export default function NavWrapper() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   return (
     <>
-      <Navbar
-        onMenuClick={() => setIsMenuOpen(true)}
-        transparent
-        heroTheme="dark"
-      />
+      <Navbar onMenuClick={() => setIsMenuOpen(true)} />
       <Sidebar isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
     </>
   );

@@ -5,10 +5,13 @@ import Hero from "@/components/Hero";
 import SoftwareSection from "@/components/SoftwareSection";
 import AboutSection from "@/components/AboutSection";
 import ProductCards from "@/components/ProductCards";
+import HowItWorksSection from "@/components/HowItWorksSection";
+import VendorsOrbitSection from "@/components/VendorsOrbitSection";
 import BlogsSection from "@/components/BlogsSection";
 import ForVendorsSection from "@/components/ForVendorsSection";
 import FaqSection from "@/components/FaqSection";
 import Footer from "@/components/Footer";
+import LeadCtaSection from "@/components/LeadCtaSection";
 import Container from "@/components/Container";
 import { getSoftwares } from "@/app/dashboard/softwares/actions";
 
@@ -38,29 +41,27 @@ export default async function Home() {
 
       <Hero />
 
-      <PageSection id="catalog" className="bg-white scroll-mt-20">
-        <SoftwareSection initialData={softwares} />
-      </PageSection>
+      <SoftwareSection initialData={softwares} />
 
-      <PageSection className="bg-zinc-50">
-        <AboutSection />
-      </PageSection>
+      <AboutSection />
 
-      <PageSection className="bg-zinc-50">
-        <ProductCards />
-      </PageSection>
+      <ProductCards />
 
-      <PageSection className="bg-white">
-        <BlogsSection />
-      </PageSection>
+      <HowItWorksSection />
+
+      <VendorsOrbitSection initialData={softwares} />
 
       <PageSection id="vendors" className="bg-zinc-50 scroll-mt-20">
         <ForVendorsSection />
       </PageSection>
-
-      <PageSection className="bg-white">
+      <PageSection className="bg-[#FBFFF6] !py-20">
+        <BlogsSection />
+      </PageSection>
+      <PageSection className="bg-white !py-20">
         <FaqSection />
       </PageSection>
+
+      <LeadCtaSection />
 
       <Footer />
     </main>

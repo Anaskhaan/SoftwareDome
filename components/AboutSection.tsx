@@ -1,163 +1,265 @@
-import SectionHeader from './SectionHeader';
-import { Globe2, LayoutDashboard, ShieldCheck, Compass } from '@/lib/fa-icons';
+const CARDS = [
+  {
+    key: "global-intake",
+    title: "Global intake",
+    body: "Listings originate worldwide — startups, enterprises, and indie makers on one surface.",
+    imgSrc: "/Image (Decoration Image).png",
+    imgW: 323,
+    imgH: 261,
+    imgTop: 40,
+    imgBlur: false,
+  },
+  {
+    key: "admin-control",
+    title: "Admin control",
+    body: "Your dashboard is the gate: add, edit, and approve what appears in the public catalog.",
+    imgSrc: "/admin-dashboard.png",
+    imgW: 419,
+    imgH: 243,
+    imgTop: 22,
+    imgBlur: true,
+  },
+  {
+    key: "trusted-surface",
+    title: "Trusted surface",
+    body: "Every product is positioned for clarity so buyers decide on fit, not marketing fluff.",
+    imgSrc: "/3d-shield-illustration-isolated-white-background 1.png",
+    imgW: 142,
+    imgH: 150,
+    imgTop: 95,
+    imgBlur: false,
+  },
+] as const;
 
-const pipeline = [
-  { step: '01', label: 'Intake', detail: 'Vendors submit products from any region via our dashboard.' },
-  { step: '02', label: 'Curate', detail: 'Admins verify listings, metadata, and positioning before publish.' },
-  { step: '03', label: 'Publish', detail: 'Approved software enters the global SoftwareDome index.' },
-  { step: '04', label: 'Discover', detail: 'Teams search, compare, and choose tools without sponsored noise.' },
-];
+function CardCaption({ title, body }: { title: string; body: string }) {
+  return (
+    <div
+      className="absolute bottom-0 left-0 right-0 flex flex-col items-center"
+      style={{ padding: "0 40px 36px", gap: "8px" }}
+    >
+      <h3
+        style={{
+          fontFamily: 'var(--font-jakarta), "Plus Jakarta Sans", sans-serif',
+          fontWeight: 700,
+          fontSize: "24px",
+          lineHeight: "32px",
+          color: "#23252C",
+          textAlign: "center",
+          margin: 0,
+        }}
+      >
+        {title}
+      </h3>
+      <p
+        style={{
+          fontFamily: "var(--font-sora), Sora, sans-serif",
+          fontWeight: 400,
+          fontSize: "18px",
+          lineHeight: "28px",
+          color: "#54565B",
+          textAlign: "center",
+          margin: 0,
+        }}
+      >
+        {body}
+      </p>
+    </div>
+  );
+}
 
-const pillars = [
-  {
-    title: 'Global intake',
-    body: 'Listings originate worldwide — startups, enterprises, and indie makers on one surface.',
-    icon: Globe2,
-  },
-  {
-    title: 'Admin control',
-    body: 'Your dashboard is the gate: add, edit, and approve what appears in the public catalog.',
-    icon: LayoutDashboard,
-  },
-  {
-    title: 'Trusted surface',
-    body: 'Every product is positioned for clarity so buyers decide on fit, not marketing fluff.',
-    icon: ShieldCheck,
-  },
-  {
-    title: 'One index',
-    body: 'SoftwareDome becomes the single dome over fragmented directories and biased roundups.',
-    icon: Compass,
-  },
-];
-
-const metrics = [
-  { value: '190+', label: 'Markets represented' },
-  { value: '1', label: 'Unified catalog' },
-  { value: '24/7', label: 'Living directory' },
-  { value: '0', label: 'Paid rank slots' },
-];
+const CARD_STYLE: React.CSSProperties = {
+  height: "440px",
+  background: "linear-gradient(180deg, #E1FFC1 0%, #FFFFFF 100%)",
+  borderRadius: "20px",
+  position: "relative",
+  overflow: "hidden",
+  flex: "1 1 0",
+};
 
 export default function AboutSection() {
   return (
-    <div className="space-y-8 xl:space-y-10">
-      <SectionHeader title="The world's software, indexed under one dome." subtitle="OUR MISSION" />
-
-      {/* Manifesto — brand gradient banner */}
-      <div className="relative overflow-hidden rounded-3xl text-white shadow-[0_20px_50px_-20px_rgba(72,166,55,0.45)]">
+    <section className="w-full" style={{ background: "#FBFFF6", padding: "80px 0" }}>
+      <div
+        className="mx-auto flex flex-col px-5 xl:px-[80px]"
+        style={{ maxWidth: "1281px", gap: "0" }}
+      >
+        {/* ── Header row ── */}
         <div
-          className="absolute inset-0"
-          style={{
-            background:
-              'linear-gradient(120deg, var(--navy-800) 0%, var(--navy-700) 45%, var(--green-700) 100%)',
-          }}
-          aria-hidden
-        />
-        <div
-          className="pointer-events-none absolute inset-0 opacity-[0.12]"
-          style={{
-            backgroundImage:
-              'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.9) 1px, transparent 0)',
-            backgroundSize: '28px 28px',
-          }}
-          aria-hidden
-        />
-        <div
-          className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-brand-green/30 blur-3xl"
-          aria-hidden
-        />
-        <div className="relative grid gap-5 p-6 sm:p-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end lg:gap-8 lg:p-10 xl:p-12">
-          <p className="max-w-3xl font-brand text-lg font-semibold leading-snug tracking-tight sm:text-2xl xl:text-[1.75rem]">
-            SoftwareDome exists to enlist and organize software from every corner of the planet —
-            curated by admins, discovered by teams who need the right tool, not the loudest ad.
-          </p>
-          <div className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-[0.35em] text-brand-green-light">
-            <span className="h-1.5 w-1.5 rounded-full bg-brand-green-light" aria-hidden />
-            <span>Global index</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Bento: mission block + pillar cards */}
-      <div className="grid gap-4 lg:grid-cols-12 xl:gap-5">
-        <article className="flex flex-col justify-between gap-6 rounded-3xl border border-border-subtle bg-surface-muted p-6 sm:p-7 lg:col-span-4 xl:p-8">
-          <div>
-            <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-green-800">
-              Why we build
+          className="flex flex-col xl:flex-row xl:justify-between xl:items-end"
+          style={{ gap: "40px" }}
+        >
+          {/* Left: label + heading */}
+          <div style={{ maxWidth: "619px" }}>
+            <span
+              style={{
+                fontFamily: 'var(--font-jakarta), "Plus Jakarta Sans", sans-serif',
+                fontWeight: 700,
+                fontSize: "16px",
+                lineHeight: "28px",
+                textTransform: "uppercase",
+                color: "#2F6C25",
+                display: "block",
+              }}
+            >
+              Our Mission
             </span>
-            <h3 className="mt-2 font-brand text-xl font-bold leading-tight text-primary-navy sm:text-2xl">
-              A catalog built for coverage, not clicks.
-            </h3>
+            <h2
+              style={{
+                fontFamily: 'var(--font-jakarta), "Plus Jakarta Sans", sans-serif',
+                fontWeight: 700,
+                fontSize: "clamp(32px, 3.2vw, 46px)",
+                lineHeight: "60px",
+                letterSpacing: "-1.04px",
+                color: "#23252C",
+                margin: "8px 0 0",
+              }}
+            >
+              The world&apos;s software, indexed under one dome.
+            </h2>
           </div>
-          <p className="text-sm leading-relaxed text-text-muted">
-            Fragmented review sites and pay-to-play directories hide great products. We mirror
-            softwarefinder's clarity with our own pipeline: vendors offer listings, you approve them,
-            buyers explore a single trustworthy index.
+
+          {/* Right: body text — aligns to bottom of heading on xl */}
+          <p
+            style={{
+              fontFamily: "var(--font-sora), Sora, sans-serif",
+              fontWeight: 400,
+              fontSize: "clamp(16px, 1.4vw, 20px)",
+              lineHeight: "32px",
+              color: "#54565B",
+              maxWidth: "593px",
+              margin: 0,
+            }}
+          >
+            SoftwareDome exists to enlist and organize software from every corner of the
+            planet curated by admins, discovered by teams who need the right tool, not the
+            loudest ad.
           </p>
-          <div className="grid grid-cols-2 gap-x-4 gap-y-4 border-t border-border-subtle pt-5">
-            {metrics.map((m) => (
-              <div key={m.label}>
-                <div className="font-brand text-2xl font-bold tabular-nums text-primary-navy">{m.value}</div>
-                <div className="mt-0.5 text-[10px] font-semibold uppercase tracking-wider text-text-muted">
-                  {m.label}
-                </div>
+        </div>
+
+        {/* ── Feature cards ── */}
+        <div
+          className="flex flex-col"
+          style={{ gap: "20px", paddingTop: "48px" }}
+        >
+          {/* Row 1 */}
+          <div className="flex flex-col xl:flex-row" style={{ gap: "20px" }}>
+            {/* Cards 1 & 2 */}
+            {CARDS.slice(0, 2).map((card) => (
+              <div key={card.key} style={CARD_STYLE}>
+                {/* Illustration */}
+                <img
+                  src={card.imgSrc}
+                  alt=""
+                  aria-hidden
+                  style={{
+                    position: "absolute",
+                    width: `${card.imgW}px`,
+                    height: `${card.imgH}px`,
+                    left: `calc(50% - ${card.imgW / 2}px)`,
+                    top: `${card.imgTop}px`,
+                    objectFit: "contain",
+                    borderRadius: "12.8px",
+                    filter: card.imgBlur ? "blur(2px)" : "none",
+                  }}
+                />
+                <CardCaption title={card.title} body={card.body} />
               </div>
             ))}
           </div>
-        </article>
 
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:col-span-8 xl:gap-4">
-          {pillars.map(({ title, body, icon: Icon }) => (
-            <article
-              key={title}
-              className="group flex flex-col gap-3 rounded-3xl border border-border-subtle bg-white p-5 transition-all duration-300 hover:-translate-y-1 hover:border-brand-green/40 hover:shadow-[0_16px_36px_-18px_rgba(95,194,74,0.35)] sm:p-6"
-            >
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-green/10 text-green-800 transition-colors group-hover:bg-brand-green group-hover:text-white">
-                <Icon size={18} />
-              </div>
-              <h4 className="font-brand text-base font-bold text-primary-navy">{title}</h4>
-              <p className="text-sm leading-relaxed text-text-muted">{body}</p>
-            </article>
-          ))}
-        </div>
-      </div>
-
-      {/* Listing pipeline — connected step flow */}
-      <div className="rounded-3xl border border-border-subtle bg-white p-6 sm:p-7 xl:p-8">
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-          <span className="text-[10px] font-bold uppercase tracking-[0.35em] text-green-800">
-            Listing pipeline
-          </span>
-          <span className="hidden text-[10px] font-medium uppercase tracking-wider text-text-muted sm:inline">
-            Vendor → Admin → Catalog → Buyer
-          </span>
-        </div>
-
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 xl:gap-8">
-          {pipeline.map((item, i) => (
-            <div key={item.step} className="relative">
-              {i < pipeline.length - 1 && (
-                <div
-                  className="absolute left-5 top-10 hidden h-px w-[calc(100%-1.25rem)] bg-gradient-to-r from-brand-green/50 to-transparent lg:block"
-                  aria-hidden
-                />
-              )}
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-navy font-brand text-sm font-bold text-white ring-4 ring-brand-green/15">
-                {item.step}
-              </div>
-              <h4 className="mt-3 font-brand text-base font-bold text-primary-navy">{item.label}</h4>
-              <p className="mt-1.5 text-sm leading-relaxed text-text-muted">{item.detail}</p>
+          {/* Row 2 */}
+          <div className="flex flex-col xl:flex-row" style={{ gap: "20px" }}>
+            {/* Card 3: Trusted surface */}
+            <div style={CARD_STYLE}>
+              <img
+                src={CARDS[2].imgSrc}
+                alt=""
+                aria-hidden
+                style={{
+                  position: "absolute",
+                  width: `${CARDS[2].imgW}px`,
+                  height: `${CARDS[2].imgH}px`,
+                  left: `calc(50% - ${CARDS[2].imgW / 2}px)`,
+                  top: `${CARDS[2].imgTop}px`,
+                  objectFit: "contain",
+                }}
+              />
+              <CardCaption title={CARDS[2].title} body={CARDS[2].body} />
             </div>
-          ))}
+
+            {/* Card 4: One index — CSS concentric circles + logomark */}
+            <div style={CARD_STYLE}>
+              {/* Concentric ring group, centered horizontally, top: -4px */}
+              <div
+                className="absolute flex items-center justify-center"
+                style={{
+                  width: "406px",
+                  height: "384px",
+                  left: "calc(50% - 203px)",
+                  top: "-4px",
+                }}
+              >
+                {/* Ring 1 — 365.4 px */}
+                <div
+                  className="flex items-center justify-center"
+                  style={{
+                    width: "365.4px",
+                    height: "365.4px",
+                    border: "0.9px solid rgba(255,255,255,0.7)",
+                    borderRadius: "9999px",
+                  }}
+                >
+                  {/* Ring 2 — 291.6 px */}
+                  <div
+                    className="flex items-center justify-center"
+                    style={{
+                      width: "291.6px",
+                      height: "291.6px",
+                      border: "0.9px solid rgba(255,255,255,0.7)",
+                      borderRadius: "9999px",
+                    }}
+                  >
+                    {/* Ring 3 — 217.8 px */}
+                    <div
+                      className="flex items-center justify-center"
+                      style={{
+                        width: "217.8px",
+                        height: "217.8px",
+                        border: "0.9px solid rgba(255,255,255,0.7)",
+                        borderRadius: "9999px",
+                      }}
+                    >
+                      {/* Centre: dark-green tile with logomark */}
+                      <div
+                        className="flex items-center justify-center"
+                        style={{
+                          width: "72px",
+                          height: "72px",
+                          background: "#072929",
+                          borderRadius: "10px",
+                        }}
+                      >
+                        <img
+                          src="/logomark.svg"
+                          alt="SoftwareDome"
+                          width={42}
+                          height={42}
+                          style={{ objectFit: "contain" }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <CardCaption
+                title="One index"
+                body="SoftwareDome becomes the single dome over fragmented directories and biased roundups."
+              />
+            </div>
+          </div>
         </div>
       </div>
-
-      {/* Closing line */}
-      <p className="max-w-4xl text-sm leading-relaxed text-text-muted">
-        <span className="font-semibold text-primary-navy">SoftwareDome</span> is your verification
-        layer and discovery surface: grow the catalog from the dashboard, and let the world find
-        what you have approved.
-      </p>
-    </div>
+    </section>
   );
 }

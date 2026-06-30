@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import {
   Star,
@@ -10,181 +10,385 @@ import {
   Settings,
   CircleUser,
 } from "@/lib/fa-icons";
-import { getSoftwares } from "@/app/dashboard/softwares/actions";
 
-const staticCategories = [
+const TABS = [
   { label: "LMS Software", icon: GraduationCap, match: "lms" },
   { label: "EMR Software", icon: HeartPulse, match: "emr" },
   { label: "Project Management", icon: Lightbulb, match: "project" },
   { label: "CRM Software", icon: Settings, match: "crm" },
   { label: "Human Resources", icon: CircleUser, match: "hr" },
-];
+] as const;
 
 function StarRating({ rating }: { rating: number }) {
-  const rounded = Math.round(rating);
+  const full = Math.round(rating);
   return (
-    <div className="flex items-center justify-center gap-0.5">
-      {Array.from({ length: 5 }).map((_, i) => (
+    <div
+      className="flex items-center"
+      style={{ gap: "2.29px", paddingTop: "9.15px" }}
+    >
+      {[1, 2, 3, 4, 5].map((i) => (
         <Star
           key={i}
-          size={14}
-          className={i < rounded ? "text-orange-400 fill-orange-400" : "text-slate-200 fill-slate-200"}
+          size={16}
+          className={
+            i <= full
+              ? "fill-[#FF8903] text-[#FF8903]"
+              : "fill-[#E2E8F0] text-[#E2E8F0]"
+          }
         />
       ))}
     </div>
   );
 }
 
-function defaultIndex(data: any[]) {
-  const idx = staticCategories.findIndex((cat) =>
-    data.some((s: any) => s.category?.toLowerCase().includes(cat.match))
+function SoftwareCard({ software }: { software: any }) {
+  return (
+    <Link
+      href={`/softwares/${software.slug}`}
+      className="flex flex-col items-center hover:shadow-lg transition-shadow duration-200"
+      style={{
+        padding: "22.875px",
+        background: "#FAFFF5",
+        border: "1.14375px solid #F4F9FF",
+        borderRadius: "18.3px",
+        textDecoration: "none",
+      }}
+    >
+      {/* Logo circle */}
+      <div style={{ paddingBottom: "18.3px" }}>
+        <div
+          className="flex items-center justify-center overflow-hidden"
+          style={{
+            width: "73.2px",
+            height: "73.2px",
+            background: "#F8FAFC",
+            border: "1.14375px solid #F1F5F9",
+            borderRadius: "9999px",
+          }}
+        >
+          {software.logo ? (
+            <img
+              src={software.logo}
+              alt=""
+              style={{ width: "48px", height: "48px", objectFit: "contain" }}
+            />
+          ) : (
+            <span
+              style={{
+                fontFamily: "var(--font-sora), Sora, sans-serif",
+                fontWeight: 700,
+                fontSize: "22px",
+                color: "#0A192F",
+              }}
+            >
+              {software.name?.[0] ?? "?"}
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* Name */}
+      <span
+        style={{
+          fontFamily: "var(--font-sora), Sora, sans-serif",
+          fontWeight: 600,
+          fontSize: "16px",
+          lineHeight: "23px",
+          letterSpacing: "-0.160125px",
+          color: "#0A192F",
+          textAlign: "center",
+        }}
+      >
+        {software.name}
+      </span>
+
+      {/* Stars */}
+      <StarRating rating={software.rating ?? 0} />
+    </Link>
   );
-  return idx > -1 ? idx : 0;
 }
 
-export default function SoftwareSection({ initialData }: { initialData?: any[] } = {}) {
-  const [softwares, setSoftwares] = useState<any[]>(initialData ?? []);
-  const [loading, setLoading] = useState(!initialData);
-  const [activeIndex, setActiveIndex] = useState(() =>
-    initialData ? defaultIndex(initialData) : 0
-  );
-  const [showAllCategories, setShowAllCategories] = useState(() =>
-    initialData ? defaultIndex(initialData) >= 2 : false
-  );
+export default function SoftwareSection({
+  initialData,
+}: {
+  initialData?: any[];
+}) {
+  const softwares = initialData ?? [];
 
-  useEffect(() => {
-    if (initialData) return;
-    async function fetchData() {
-      try {
-        const res = await getSoftwares();
-        if (res.success && res.data) {
-          setSoftwares(res.data);
-          const firstMatchIndex = defaultIndex(res.data);
-          setActiveIndex(firstMatchIndex);
-          if (firstMatchIndex >= 2) setShowAllCategories(true);
-        }
-      } catch (err) {
-        console.error("Error loading softwares:", err);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchData();
-  }, []);
-
-  const activeCategory = staticCategories[activeIndex];
-
-  const filteredSoftwares = useMemo(() => {
-    return softwares
-      .filter((s) => s.category?.toLowerCase().includes(activeCategory.match))
-      .slice(0, 10);
-  }, [softwares, activeCategory]);
-
-  if (loading) {
-    return (
-      <div className="w-full py-6 text-center">
-        <div className="mx-auto mb-3 h-9 w-96 max-w-full animate-pulse rounded-lg bg-slate-100" />
-        <div className="mx-auto mb-10 h-4 w-72 animate-pulse rounded bg-slate-100" />
-        <div className="mx-auto mb-10 h-14 max-w-3xl animate-pulse rounded-2xl bg-slate-100" />
-        <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-5">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="h-44 animate-pulse rounded-2xl border border-slate-100 bg-slate-50/60" />
-          ))}
-        </div>
-      </div>
+  const [activeIndex, setActiveIndex] = useState(() => {
+    const idx = TABS.findIndex((tab) =>
+      softwares.some((s: any) => s.category?.toLowerCase().includes(tab.match)),
     );
-  }
+    return idx > -1 ? idx : 1;
+  });
+
+  const filtered = useMemo(
+    () =>
+      softwares
+        .filter((s: any) =>
+          s.category?.toLowerCase().includes(TABS[activeIndex].match),
+        )
+        .slice(0, 10),
+    [softwares, activeIndex],
+  );
+
+  const row1 = filtered.slice(0, 5);
+  const row2 = filtered.slice(5, 10);
 
   return (
-    <div className="w-full py-4 text-center">
-      <h2 className="font-brand text-3xl font-bold leading-tight text-primary-navy sm:text-4xl">
-        Choose from {Math.max(softwares.length, 100)}+ Software Options
-      </h2>
-      <p className="mx-auto mt-3 max-w-md text-sm text-zinc-500">
-        Here are our top picks from our most popular categories:
-      </p>
-
-      {/* Static category bar — only 2 shown by default on mobile, pill row from sm up */}
-      <div className="mx-auto mt-10 mb-10">
-        <div className="mx-auto grid max-w-full grid-cols-2 gap-2 rounded-2xl border border-slate-200 bg-white p-2 shadow-sm sm:inline-flex sm:flex-wrap sm:items-center sm:justify-center sm:gap-1 sm:p-1.5">
-          {staticCategories.map((cat, i) => {
-            const Icon = cat.icon;
-            const isActive = i === activeIndex;
-            const isLastOdd = i === staticCategories.length - 1 && staticCategories.length % 2 === 1;
-            const hiddenOnMobile = i >= 2 && !showAllCategories;
-            return (
-              <button
-                key={cat.label}
-                onClick={() => setActiveIndex(i)}
-                className={`items-center justify-center gap-2 whitespace-nowrap rounded-xl px-3 py-2.5 text-xs font-semibold transition-all sm:flex sm:px-4 sm:text-sm ${
-                  hiddenOnMobile ? "hidden" : "flex"
-                } ${isLastOdd ? "col-span-2" : ""} ${
-                  isActive
-                    ? "bg-primary-navy text-white shadow-sm"
-                    : "text-slate-600 hover:bg-slate-50 hover:text-primary-navy"
-                }`}
-              >
-                <Icon size={15} />
-                {cat.label}
-              </button>
-            );
-          })}
-        </div>
-
-        {staticCategories.length > 2 && (
-          <button
-            onClick={() => setShowAllCategories((v) => !v)}
-            className="mt-3 inline-flex items-center text-xs font-bold text-green-800 hover:text-brand-green sm:hidden"
+    <section
+      id="catalog"
+      className="bg-white w-full scroll-mt-20"
+      style={{ padding: "80px 0" }}
+    >
+      <div
+        className="flex flex-col items-center mx-auto px-5 xl:px-[80px]"
+        style={{ maxWidth: "1441.5px", gap: "30px" }}
+      >
+        {/* ── Heading ── */}
+        <div className="flex flex-col items-center" style={{ gap: "24px" }}>
+          <h2
+            style={{
+              fontFamily:
+                'var(--font-jakarta), "Plus Jakarta Sans", sans-serif',
+              fontWeight: 700,
+              fontSize: "clamp(28px, 3.2vw, 46px)",
+              lineHeight: "1.0",
+              letterSpacing: "-0.54px",
+              color: "#0A192F",
+              textAlign: "center",
+            }}
           >
-            {showAllCategories ? "Show fewer categories" : "Show all categories"}
-          </button>
-        )}
-      </div>
-
-      {/* Compact product grid — 2 cols x 5 rows on mobile */}
-      {filteredSoftwares.length > 0 ? (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5 lg:grid-cols-5">
-          {filteredSoftwares.map((software) => (
-            <Link
-              key={software.id}
-              href={`/softwares/${software.slug}`}
-              className="group flex flex-col items-center rounded-2xl border border-slate-200 bg-white p-5 transition-all hover:-translate-y-1 hover:border-brand-green/40 hover:shadow-lg"
-            >
-              <div className="mb-4 flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-slate-50 border border-slate-100">
-                {software.logo ? (
-                  <img src={software.logo} alt={software.name} className="h-full w-full object-contain p-2" />
-                ) : (
-                  <span className="text-xl font-black text-primary-navy/25">
-                    {software.name?.charAt(0)}
-                  </span>
-                )}
-              </div>
-              <h3 className="text-sm font-bold text-primary-navy group-hover:text-brand-green-dark transition-colors">
-                {software.name}
-              </h3>
-              <div className="mt-2">
-                <StarRating rating={software.rating || 0} />
-              </div>
-            </Link>
-          ))}
-        </div>
-      ) : (
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-slate-50/50 px-6 py-16 text-center">
-          <h3 className="mb-1 text-base font-bold text-primary-navy">
-            More {activeCategory.label} listings coming soon
-          </h3>
-          <p className="max-w-sm text-xs text-zinc-500">
-            We're actively curating this category — check back soon or explore another tab above.
+            Choose from 100+ software options
+          </h2>
+          <p
+            style={{
+              fontFamily: "var(--font-sora), Sora, sans-serif",
+              fontWeight: 400,
+              fontSize: "clamp(14px, 1.4vw, 20px)",
+              lineHeight: "20px",
+              color: "#71717B",
+              textAlign: "center",
+            }}
+          >
+            Here are our top picks from our most popular categories
           </p>
         </div>
-      )}
 
-      <Link
-        href="/categories"
-        className="mt-10 inline-flex items-center justify-center rounded-full bg-brand-green-light px-8 py-3 text-sm font-bold text-primary-navy shadow-sm transition-all hover:bg-brand-green hover:text-white hover:-translate-y-0.5"
-      >
-        All Products
-      </Link>
-    </div>
+        {/* ── Tab bar + cards ── */}
+        <div
+          className="flex flex-col items-center w-full"
+          style={{ maxWidth: "1281.5px", gap: "26px" }}
+        >
+          {/* Tab bar */}
+          <div
+            className="flex flex-row items-center justify-center w-full overflow-hidden"
+            style={{
+              gap: "10px",
+              borderBottom: "1px solid #F2F2F2",
+              height: "41px",
+            }}
+          >
+            {TABS.map((tab, i) => {
+              const isActive = i === activeIndex;
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.match}
+                  onClick={() => setActiveIndex(i)}
+                  className="flex items-center flex-shrink-0 h-full transition-colors duration-150"
+                  style={{
+                    gap: "8px",
+                    padding: "0 16px",
+                    borderTop: "none",
+                    borderLeft: "none",
+                    borderRight: "none",
+                    borderBottom: isActive
+                      ? "2px solid #2F6C25"
+                      : "2px solid transparent",
+                    marginBottom: "-1px",
+                    borderRadius: 0,
+                    background: "none",
+                    cursor: "pointer",
+                    fontFamily: "var(--font-sora), Sora, sans-serif",
+                    fontWeight: 600,
+                    fontSize: "16px",
+                    lineHeight: "20px",
+                    color: isActive ? "#2F6C25" : "#5B6B63",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  <Icon size={15} />
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Card rows */}
+          <div className="flex flex-col w-full" style={{ gap: "25px" }}>
+            {row1.length > 0 && (
+              <div
+                className="grid w-full"
+                style={{
+                  gridTemplateColumns: "repeat(5, 1fr)",
+                  gap: "23px",
+                }}
+              >
+                {row1.map((sw) => (
+                  <SoftwareCard key={sw.id} software={sw} />
+                ))}
+              </div>
+            )}
+            {row2.length > 0 && (
+              <div
+                className="grid w-full"
+                style={{
+                  gridTemplateColumns: "repeat(5, 1fr)",
+                  gap: "23px",
+                }}
+              >
+                {row2.map((sw) => (
+                  <SoftwareCard key={sw.id} software={sw} />
+                ))}
+              </div>
+            )}
+            {filtered.length === 0 && (
+              <div
+                className="flex flex-col items-center justify-center w-full"
+                style={{
+                  border: "1.5px dashed #E2E8F0",
+                  background: "#FAFFF5",
+                  borderRadius: "18.3px",
+                  padding: "48px 24px",
+                  textAlign: "center",
+                }}
+              >
+                <p
+                  style={{
+                    fontFamily: "var(--font-sora), Sora, sans-serif",
+                    fontWeight: 600,
+                    fontSize: "16px",
+                    color: "#0A192F",
+                  }}
+                >
+                  More {TABS[activeIndex].label} listings coming soon
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ── CTA button (lime pill matching navbar) ── */}
+        <div
+          style={{
+            width: "229px",
+            height: "61px",
+            background: "rgba(176, 255, 159, 0.2)",
+            borderRadius: "100px",
+            padding: "6px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0,
+          }}
+        >
+          <Link
+            href="/categories"
+            className="relative flex flex-row items-center justify-center overflow-hidden"
+            style={{
+              width: "217px",
+              height: "49px",
+              background: "linear-gradient(180deg, #B0FE5E 0%, #5BA40D 100%)",
+              boxShadow:
+                "0px 5px 23px rgba(214, 253, 112, 0.3), inset -4px -4px 8px rgba(255, 255, 255, 0.3), inset 4px 4px 8px rgba(255, 255, 255, 0.3)",
+              borderRadius: "100px",
+              padding: "12px 54px 12px 30px",
+              isolation: "isolate",
+              textDecoration: "none",
+              gap: "10px",
+            }}
+          >
+            {/* Decorative left circle — clipped by overflow:hidden */}
+            <div
+              className="absolute flex items-center justify-center"
+              style={{
+                width: "32px",
+                height: "32px",
+                left: "-47.71px",
+                top: "1.87px",
+                background: "#FFFFFF",
+                borderRadius: "100px",
+                transform: "rotate(-45deg)",
+                zIndex: 0,
+              }}
+            >
+              <svg
+                width="12"
+                height="8"
+                viewBox="0 0 12 8"
+                fill="none"
+                aria-hidden
+                style={{ transform: "rotate(-45deg)" }}
+              >
+                <path
+                  d="M1 4H11M8 1L11 4L8 7"
+                  stroke="#1D1D1D"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </div>
+
+            {/* Label */}
+            <span
+              style={{
+                fontFamily: "var(--font-sora), Sora, sans-serif",
+                fontWeight: 600,
+                fontSize: "16px",
+                lineHeight: "23px",
+                color: "#FFFFFF",
+                whiteSpace: "nowrap",
+                position: "relative",
+                zIndex: 0,
+              }}
+            >
+              All products
+            </span>
+
+            {/* Right arrow circle */}
+            <div
+              className="absolute flex items-center justify-center"
+              style={{
+                width: "32px",
+                height: "32px",
+                left: "176.08px",
+                top: "8.5px",
+                background: "#FFFFFF",
+                borderRadius: "100px",
+                zIndex: 2,
+              }}
+            >
+              <svg
+                width="12"
+                height="8"
+                viewBox="0 0 12 8"
+                fill="none"
+                aria-hidden
+              >
+                <path
+                  d="M1 4H11M8 1L11 4L8 7"
+                  stroke="#1D1D1D"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </div>
+          </Link>
+        </div>
+      </div>
+    </section>
   );
 }
