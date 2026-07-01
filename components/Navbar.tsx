@@ -59,35 +59,18 @@ export default function Navbar({
   };
 
   return (
-    /*
-     * Outer fixed wrapper — 105 px tall (10 px top offset + 85 px pill + 10 px bottom air)
-     * Horizontally centered, px-4 collapses the pill on small screens gracefully.
-     */
     <div
       className="fixed inset-x-0 top-0 z-50 flex justify-center px-4 sm:px-6"
-      style={{ paddingTop: '10px', height: '105px' }}
+      style={{ paddingTop: '10px' }}
     >
-      {/* Pill header — rgba(255,255,255,0.72) glass, border-radius 110px */}
       <header
-        className="flex w-full flex-col justify-center"
-        style={{
-          maxWidth: '1440px',
-          height: '85px',
-          padding: '8px 22px',
-          background: 'rgba(255, 255, 255, 0.72)',
-          boxShadow: '0px 4px 34px rgba(17, 17, 17, 0.05)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
-          borderRadius: '110px',
-        }}
+        className="flex md:px-2 md:py-5 bg-white/60 rounded-4xl px-3 py-1 w-full flex-col justify-center"
       >
-        {/* Inner row: logo | nav | right-frame */}
         <div
-          className="flex w-full flex-row items-center justify-between"
-          style={{ height: '61px', gap: '16px' }}
+          className="flex w-full flex-row md:h-[16px] md:gap-[16px] items-center justify-between"
         >
           {/* ── Logo ── */}
-          <Logo size="md" variant="light" />
+          <Logo size="sm" variant="light" />
 
           {/* ── Navigation — desktop only ── */}
           <nav className="hidden md:flex flex-row items-center" style={{ gap: '4px' }}>
