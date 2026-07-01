@@ -4,7 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { Plus, Search, Edit2, Trash2, Box, AlertCircle, Upload } from "@/lib/fa-icons";
 import AdminOutletBtnHeading from "@/components/dashboard/AdminOutletBtnHeading";
-import { getDashboardSoftwares, deleteSoftware, deleteSoftwares, importSoftwaresFromCsv } from "./actions";
+import { getDashboardSoftwares, deleteSoftware, deleteSoftwares, importSoftwaresFromCsv, getImportJobStatus } from "./actions";
 import { Card } from "@/components/dashboard/ui/Card";
 import Button from "@/components/dashboard/ui/Button";
 import Modal from "@/components/dashboard/ui/Modal";
@@ -25,6 +25,8 @@ export default function SoftwaresPage() {
   const [importFile, setImportFile] = React.useState<File | null>(null);
   const [importing, setImporting] = React.useState(false);
   const [importResult, setImportResult] = React.useState<{ created: number; skipped: number; failed: number; errors: string[] } | null>(null);
+  const [importProgress, setImportProgress] = React.useState<{ total: number; processed: number; created: number; skipped: number; failed: number } | null>(null);
+  const importPollRef = React.useRef<ReturnType<typeof setInterval> | null>(null);
   const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set());
   const [bulkDeleteOpen, setBulkDeleteOpen] = React.useState(false);
   const [bulkDeleting, setBulkDeleting] = React.useState(false);
@@ -136,21 +138,50 @@ export default function SoftwaresPage() {
     if (!importFile) return;
     setImporting(true);
     setImportResult(null);
-    try {
-      const formData = new FormData();
-      formData.append("file", importFile);
-      const result = await importSoftwaresFromCsv(formData);
-      if (result.success) {
-        setImportResult(result.data as any);
-        show(`Import finished: ${result.data?.created} created, ${result.data?.skipped} skipped.`, "success");
-        fetchData();
-      } else {
-        show(result.error || "Failed to import CSV.", "danger");
-      }
-    } finally {
+    setImportProgress(null);
+
+    const formData = new FormData();
+    formData.append("file", importFile);
+    const result = await importSoftwaresFromCsv(formData);
+
+    if (!result.success) {
+      show(result.error || "Failed to import CSV.", "danger");
       setImporting(false);
+      return;
     }
+
+    const { jobId, total } = result.data as { jobId: string; total: number };
+    setImportProgress({ total, processed: 0, created: 0, skipped: 0, failed: 0 });
+
+    importPollRef.current = setInterval(async () => {
+      const statusRes = await getImportJobStatus(jobId);
+      if (!statusRes.success) {
+        if (importPollRef.current) clearInterval(importPollRef.current);
+        importPollRef.current = null;
+        setImporting(false);
+        show(statusRes.error || "Lost track of the import job.", "danger");
+        return;
+      }
+
+      const state = statusRes.data as { total: number; processed: number; created: number; skipped: number; failed: number; errors: string[]; done: boolean };
+      setImportProgress(state);
+
+      if (state.done) {
+        if (importPollRef.current) clearInterval(importPollRef.current);
+        importPollRef.current = null;
+        setImporting(false);
+        setImportResult({ created: state.created, skipped: state.skipped, failed: state.failed, errors: state.errors });
+        show(`Import finished: ${state.created} created, ${state.skipped} skipped.`, "success");
+        fetchData();
+      }
+    }, 2000);
   };
+
+  React.useEffect(() => {
+    return () => {
+      if (importPollRef.current) clearInterval(importPollRef.current);
+    };
+  }, []);
 
   const closeImportModal = () => {
     setImportOpen(false);
@@ -438,8 +469,8 @@ export default function SoftwaresPage() {
         <div className="space-y-4">
           <p className="text-sm text-text-muted">
             Upload a CSV file with software listings. Rows with a slug that already exists will be
-            skipped. Logos and gallery images will be re-hosted automatically — large files may take
-            a while to import.
+            skipped. Logos and gallery images will be re-hosted automatically — large files import in
+            the background, so you can track progress below without the page timing out.
           </p>
           <input
             type="file"
@@ -447,10 +478,30 @@ export default function SoftwaresPage() {
             onChange={(e) => {
               setImportFile(e.target.files?.[0] || null);
               setImportResult(null);
+              setImportProgress(null);
             }}
             disabled={importing}
             className="block w-full rounded-xl border border-border-subtle bg-surface-muted p-2 text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-brand-green file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-white"
           />
+          {importProgress && !importResult && (
+            <div className="rounded-xl border border-border-subtle bg-surface-muted p-3 text-sm space-y-2">
+              <p className="font-semibold text-primary-navy">
+                Importing… {importProgress.processed} / {importProgress.total}
+              </p>
+              <div className="h-2 w-full rounded-full bg-slate-200 overflow-hidden">
+                <div
+                  className="h-full bg-brand-green transition-all"
+                  style={{
+                    width: `${importProgress.total ? Math.round((importProgress.processed / importProgress.total) * 100) : 0}%`,
+                  }}
+                />
+              </div>
+              <p className="text-xs text-text-muted">
+                Created {importProgress.created} · Skipped {importProgress.skipped} · Failed{" "}
+                {importProgress.failed}
+              </p>
+            </div>
+          )}
           {importResult && (
             <div className="rounded-xl border border-border-subtle bg-surface-muted p-3 text-sm">
               <p className="font-semibold text-primary-navy">

@@ -1,5 +1,6 @@
 "use server";
 
+import { randomUUID } from "crypto";
 import { parse } from "csv-parse/sync";
 import { unstable_cache, revalidateTag as _revalidateTag, revalidatePath } from "next/cache";
 const revalidateTag = _revalidateTag as unknown as (tag: string) => void;
@@ -538,6 +539,101 @@ async function uploadFromUrl(url: string): Promise<string> {
   return res.secure_url;
 }
 
+// Pulls work off a shared queue with at most `limit` uploads in flight at once —
+// keeps large imports fast without hammering Cloudinary's rate limits.
+async function runWithConcurrency<T>(items: T[], limit: number, worker: (item: T) => Promise<void>) {
+  let cursor = 0;
+  async function runNext(): Promise<void> {
+    const index = cursor++;
+    if (index >= items.length) return;
+    await worker(items[index]);
+    return runNext();
+  }
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, runNext));
+}
+
+type ImportJobState = {
+  total: number;
+  processed: number;
+  created: number;
+  skipped: number;
+  failed: number;
+  errors: string[];
+  done: boolean;
+};
+
+// In-memory job registry. Fine as long as the app runs as a single persistent
+// Node process (e.g. one PM2 instance) — a CSV import kicked off here keeps
+// running after the request returns, since there's no serverless teardown.
+const importJobs = new Map<string, ImportJobState>();
+
+async function runCsvImportJob(jobId: string, rows: CsvRow[]) {
+  const state = importJobs.get(jobId);
+  if (!state) return;
+
+  const existing = await prisma.software.findMany({ select: { slug: true } });
+  const existingSlugs = new Set(existing.map((r) => r.slug));
+
+  await runWithConcurrency(rows, 6, async (row) => {
+    try {
+      if (!row.name || !row.slug) return;
+      if (existingSlugs.has(row.slug)) {
+        state.skipped++;
+        return;
+      }
+      // Reserve the slug immediately so two rows sharing a slug can't both pass
+      // the check and race each other into a duplicate-key DB error.
+      existingSlugs.add(row.slug);
+
+      const logoUrl = row.logo ? await uploadFromUrl(row.logo) : "";
+
+      const pictureUrls: string[] = [];
+      for (const pic of parseJsonArray(row.pictures)) {
+        try {
+          pictureUrls.push(await uploadFromUrl(pic));
+        } catch (err) {
+          console.error(`Picture upload failed for ${row.slug}:`, pic, err);
+        }
+      }
+
+      await (prisma.software as any).create({
+        data: {
+          name: row.name,
+          slug: row.slug,
+          logo: logoUrl,
+          category: row.category || "",
+          rating: parseFloat(row.rating) || 0,
+          reportUrl: row.reportUrl || null,
+          introduction: row.introduction || null,
+          ourVerdict: row.ourVerdict || null,
+          keyTakeaways: parseJsonArray(row.keyTakeaways),
+          pros: parseJsonArray(row.pros),
+          cons: parseJsonArray(row.cons),
+          pictures: pictureUrls,
+          howItWorks: row.howItWorks || null,
+          whoIsItFor: row.whoIsItFor || null,
+          howItIsDifferent: row.howItIsDifferent || null,
+          sentiments: parseJsonAny(row.sentiments) as any,
+          specifications: parseJsonObject(row.specifications),
+          faqs: parseJsonAny(row.faqs) as any,
+        },
+      });
+
+      state.created++;
+    } catch (err) {
+      console.error(`Failed to import row ${row.slug}:`, err);
+      state.failed++;
+      state.errors.push(row.slug);
+    } finally {
+      state.processed++;
+    }
+  });
+
+  state.done = true;
+  // Let the client pick up the final "done" state, then free the entry.
+  setTimeout(() => importJobs.delete(jobId), 60 * 60 * 1000);
+}
+
 export async function importSoftwaresFromCsv(formData: FormData) {
   try {
     const auth = await requireAdmin();
@@ -561,68 +657,44 @@ export async function importSoftwaresFromCsv(formData: FormData) {
       return { success: false, error: "Failed to parse CSV file." };
     }
 
-    const existing = await prisma.software.findMany({ select: { slug: true } });
-    const existingSlugs = new Set(existing.map((r) => r.slug));
+    const jobId = randomUUID();
+    importJobs.set(jobId, {
+      total: rows.length,
+      processed: 0,
+      created: 0,
+      skipped: 0,
+      failed: 0,
+      errors: [],
+      done: false,
+    });
 
-    let created = 0;
-    let skipped = 0;
-    let failed = 0;
-    const errors: string[] = [];
+    // Not awaited on purpose — the CSV can be thousands of rows, each needing a
+    // Cloudinary round-trip, which would otherwise hold the request open until
+    // a proxy/timeout kills it. The client polls getImportJobStatus for progress.
+    runCsvImportJob(jobId, rows).catch((err) => {
+      console.error("CSV import job crashed:", err);
+      const state = importJobs.get(jobId);
+      if (state) state.done = true;
+    });
 
-    for (const row of rows) {
-      if (!row.name || !row.slug) continue;
-      if (existingSlugs.has(row.slug)) {
-        skipped++;
-        continue;
-      }
-
-      try {
-        const logoUrl = row.logo ? await uploadFromUrl(row.logo) : "";
-
-        const pictureUrls: string[] = [];
-        for (const pic of parseJsonArray(row.pictures)) {
-          try {
-            pictureUrls.push(await uploadFromUrl(pic));
-          } catch (err) {
-            console.error(`Picture upload failed for ${row.slug}:`, pic, err);
-          }
-        }
-
-        await (prisma.software as any).create({
-          data: {
-            name: row.name,
-            slug: row.slug,
-            logo: logoUrl,
-            category: row.category || "",
-            rating: parseFloat(row.rating) || 0,
-            reportUrl: row.reportUrl || null,
-            introduction: row.introduction || null,
-            ourVerdict: row.ourVerdict || null,
-            keyTakeaways: parseJsonArray(row.keyTakeaways),
-            pros: parseJsonArray(row.pros),
-            cons: parseJsonArray(row.cons),
-            pictures: pictureUrls,
-            howItWorks: row.howItWorks || null,
-            whoIsItFor: row.whoIsItFor || null,
-            howItIsDifferent: row.howItIsDifferent || null,
-            sentiments: parseJsonAny(row.sentiments) as any,
-            specifications: parseJsonObject(row.specifications),
-            faqs: parseJsonAny(row.faqs) as any,
-          },
-        });
-
-        existingSlugs.add(row.slug);
-        created++;
-      } catch (err) {
-        console.error(`Failed to import row ${row.slug}:`, err);
-        failed++;
-        errors.push(row.slug);
-      }
-    }
-
-    return { success: true, data: { created, skipped, failed, errors } };
+    return { success: true, data: { jobId, total: rows.length } };
   } catch (error) {
-    console.error("Error importing softwares from CSV:", error);
+    console.error("Error starting CSV import:", error);
     return { success: false, error: "Failed to import CSV" };
+  }
+}
+
+export async function getImportJobStatus(jobId: string) {
+  try {
+    const auth = await requireAdmin();
+    if (auth.error) return { success: false, error: "Admin access required." };
+
+    const state = importJobs.get(jobId);
+    if (!state) return { success: false, error: "Import job not found or already expired." };
+
+    return { success: true, data: state };
+  } catch (error) {
+    console.error("Error fetching import job status:", error);
+    return { success: false, error: "Failed to fetch import status" };
   }
 }
