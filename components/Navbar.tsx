@@ -64,10 +64,10 @@ export default function Navbar({
       style={{ paddingTop: '10px' }}
     >
       <header
-        className="flex md:px-2 md:py-5 bg-white/60 rounded-4xl px-3 py-1 w-full flex-col justify-center"
+        className="flex md:px-2 md:py-8 bg-white/20 backdrop-blur-xl shadow-lg rounded-[400px] px-3 py-1 w-full flex-col justify-center"
       >
         <div
-          className="flex w-full flex-row md:h-[16px] md:gap-[16px] items-center justify-between"
+          className="flex w-full flex-row md:h-4 md:gap-4 items-center justify-between"
         >
           {/* ── Logo ── */}
           <Logo size="sm" variant="light" />
