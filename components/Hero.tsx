@@ -2,30 +2,30 @@ import HeroSearch from "@/components/HeroSearch";
 import NavWrapper from "@/components/NavWrapper";
 
 const trustedLogos = [
-  { name: "Paychex",      src: "/vendors/paychex.avif",      w: 96 },
-  { name: "ADP",          src: "/vendors/adp.avif",          w: 96 },
+  { name: "Paychex", src: "/vendors/paychex.avif", w: 96 },
+  { name: "ADP", src: "/vendors/adp.avif", w: 96 },
   { name: "athenahealth", src: "/vendors/athenahealth.avif", w: 96 },
-  { name: "RXNT",         src: "/vendors/rxnt.avif",         w: 96 },
-  { name: "HubSpot",      src: "/vendors/hubspot.avif",      w: 96 },
-  { name: "UKG",          src: "/vendors/ukg.avif",          w: 96 },
-  { name: "Absorb LMS",   src: "/vendors/absorb.avif",       w: 96 },
-  { name: "isolved",      src: "/vendors/isolved.avif",      w: 96 },
-  { name: "monday.com",   src: "/vendors/monday.avif",       w: 96 },
-  { name: "Houzz Pro",    src: "/vendors/houzz.avif",        w: 80 },
-  { name: "ModMed",       src: "/vendors/modmed.avif",       w: 96 },
-  { name: "Epicor",       src: "/vendors/epicor.avif",       w: 96 },
+  { name: "RXNT", src: "/vendors/rxnt.avif", w: 96 },
+  { name: "HubSpot", src: "/vendors/hubspot.avif", w: 96 },
+  { name: "UKG", src: "/vendors/ukg.avif", w: 96 },
+  { name: "Absorb LMS", src: "/vendors/absorb.avif", w: 96 },
+  { name: "isolved", src: "/vendors/isolved.avif", w: 96 },
+  { name: "monday.com", src: "/vendors/monday.avif", w: 96 },
+  { name: "Houzz Pro", src: "/vendors/houzz.avif", w: 80 },
+  { name: "ModMed", src: "/vendors/modmed.avif", w: 96 },
+  { name: "Epicor", src: "/vendors/epicor.avif", w: 96 },
 ];
 
 const floatingCards = [
-  { src: "/heroIcon1.webp", name: "ModMed",       left: "4.05%",  top: "40%",  rotate: "-8deg"  },
-  { src: "/heroIcon2.webp", name: "athenahealth", left: "91.2%",  top: "35%",  rotate: "10deg"  },
-  { src: "/heroIcon3.webp", name: "RXNT",         left: "6.11%",  top: "58%",  rotate: "6deg"   },
-  { src: "/heroIcon4.webp", name: "UKG",          left: "89.2%",  top: "55%",  rotate: "-10deg" },
+  { src: "/heroIcon1.webp", name: "ModMed", left: "4.05%", top: "40%", rotate: "-8deg" },
+  { src: "/heroIcon2.webp", name: "athenahealth", left: "91.2%", top: "35%", rotate: "10deg" },
+  { src: "/heroIcon3.webp", name: "RXNT", left: "6.11%", top: "58%", rotate: "6deg" },
+  { src: "/heroIcon4.webp", name: "UKG", left: "89.2%", top: "55%", rotate: "-10deg" },
 ];
 
 export default function Hero() {
   return (
-    <div className="px-1">
+    <div className="p-1">
       <section className="relative rounded-t-lg bg-gradient-to-b from-[#A7FF4AA3] to-[#F7FFEF99] flex flex-col overflow-hidden">
 
         {/* Navbar lives inside the hero section */}
@@ -50,15 +50,8 @@ export default function Hero() {
           </div>
         ))}
 
-        {/* ── Hero content ─────────────────────────────────────────────────
-            pt-4 on mobile, pt-8 on md, pt-12 on lg — pushes text away
-            from the navbar (which is 105px tall inside the section).
-            The navbar is fixed so it floats over; we add padding so the
-            content below it doesn't get hidden behind it.
-        ──────────────────────────────────────────────────────────────────── */}
         <div className="flex flex-col items-center justify-center gap-4 px-4 pt-[120px] pb-14 md:pt-[130px] md:pb-16 lg:pt-[140px] lg:pb-20 text-center">
 
-          {/* Headline — scales from mobile → laptop → desktop */}
           <h1
             className="font-bold tracking-tight"
             style={{
