@@ -198,11 +198,12 @@ export default function SoftwareSection({ initialData }: { initialData?: any[] }
     return idx > -1 ? idx : 1;
   });
 
-  // Filter & slice to max 10 items for the active tab
+  // Filter by tab, then show highest-rated first, and slice to max 10 items
   const filtered = useMemo(
     () =>
       softwares
         .filter((s: any) => s.category?.toLowerCase().includes(TABS[activeIndex].match))
+        .sort((a: any, b: any) => (b.rating ?? 0) - (a.rating ?? 0))
         .slice(0, 10),
     [softwares, activeIndex]
   );
