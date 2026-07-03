@@ -71,10 +71,22 @@ export default function VendorsOrbitSection({
     return () => ro.disconnect();
   }, []);
 
-  const { sectionHeight, hillsHeight, radius, centerY, contentTop, iconSize, showIcons } = dims;
+  const {
+    sectionHeight,
+    hillsHeight,
+    radius,
+    centerY,
+    contentTop,
+    iconSize,
+    showIcons,
+  } = dims;
   const hillsY = sectionHeight - hillsHeight;
   const positions = showIcons ? computePositions(radius, centerY, hillsY) : [];
-  const softwares = (initialData ?? []).slice(0, positions.length);
+  const rated = (initialData ?? [])
+    .filter((sw) => (sw?.rating ?? 0) > 0)
+    .sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
+  const unrated = (initialData ?? []).filter((sw) => !((sw?.rating ?? 0) > 0));
+  const softwares = [...rated, ...unrated].slice(0, positions.length);
 
   const logoSize = showIcons ? 130 : 90;
   const contentGap = showIcons ? 30 : 16;
@@ -106,7 +118,7 @@ export default function VendorsOrbitSection({
                 height: `${iconSize}px`,
                 background: "#FFFFFF",
                 borderRadius: "50%",
-                transform: "translate(-50%, -50%)",
+                transform: "translate(-50%, 100%)",
                 boxShadow:
                   "0px 4px 16px rgba(0,0,0,0.08), 0px 0px 0px 1px rgba(0,0,0,0.04)",
                 zIndex: pos.z,
@@ -213,8 +225,7 @@ export default function VendorsOrbitSection({
               style={{
                 width: "217px",
                 height: "49px",
-                background:
-                  "linear-gradient(180deg, #B0FE5E 0%, #5BA40D 100%)",
+                background: "linear-gradient(180deg, #B0FE5E 0%, #5BA40D 100%)",
                 boxShadow:
                   "0px 5px 23px rgba(214,253,112,0.3), inset -4px -4px 8px rgba(255,255,255,0.3), inset 4px 4px 8px rgba(255,255,255,0.3)",
                 borderRadius: "100px",
