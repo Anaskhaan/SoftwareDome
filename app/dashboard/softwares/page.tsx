@@ -140,41 +140,55 @@ export default function SoftwaresPage() {
     setImportResult(null);
     setImportProgress(null);
 
-    const formData = new FormData();
-    formData.append("file", importFile);
-    const result = await importSoftwaresFromCsv(formData);
+    try {
+      const formData = new FormData();
+      formData.append("file", importFile);
+      const result = await importSoftwaresFromCsv(formData);
 
-    if (!result.success) {
-      show(result.error || "Failed to import CSV.", "danger");
-      setImporting(false);
-      return;
-    }
-
-    const { jobId, total } = result.data as { jobId: string; total: number };
-    setImportProgress({ total, processed: 0, created: 0, skipped: 0, failed: 0 });
-
-    importPollRef.current = setInterval(async () => {
-      const statusRes = await getImportJobStatus(jobId);
-      if (!statusRes.success) {
-        if (importPollRef.current) clearInterval(importPollRef.current);
-        importPollRef.current = null;
+      if (!result.success) {
+        show(result.error || "Failed to import CSV.", "danger");
         setImporting(false);
-        show(statusRes.error || "Lost track of the import job.", "danger");
         return;
       }
 
-      const state = statusRes.data as { total: number; processed: number; created: number; skipped: number; failed: number; errors: string[]; done: boolean };
-      setImportProgress(state);
+      const { jobId, total } = result.data as { jobId: string; total: number };
+      setImportProgress({ total, processed: 0, created: 0, skipped: 0, failed: 0 });
 
-      if (state.done) {
-        if (importPollRef.current) clearInterval(importPollRef.current);
-        importPollRef.current = null;
-        setImporting(false);
-        setImportResult({ created: state.created, skipped: state.skipped, failed: state.failed, errors: state.errors });
-        show(`Import finished: ${state.created} created, ${state.skipped} skipped.`, "success");
-        fetchData();
-      }
-    }, 2000);
+      importPollRef.current = setInterval(async () => {
+        try {
+          const statusRes = await getImportJobStatus(jobId);
+          if (!statusRes.success) {
+            if (importPollRef.current) clearInterval(importPollRef.current);
+            importPollRef.current = null;
+            setImporting(false);
+            show(statusRes.error || "Lost track of the import job.", "danger");
+            return;
+          }
+
+          const state = statusRes.data as { total: number; processed: number; created: number; skipped: number; failed: number; errors: string[]; done: boolean };
+          setImportProgress(state);
+
+          if (state.done) {
+            if (importPollRef.current) clearInterval(importPollRef.current);
+            importPollRef.current = null;
+            setImporting(false);
+            setImportResult({ created: state.created, skipped: state.skipped, failed: state.failed, errors: state.errors });
+            show(`Import finished: ${state.created} created, ${state.skipped} skipped.`, "success");
+            fetchData();
+          }
+        } catch (err) {
+          console.error("Import status poll failed:", err);
+          if (importPollRef.current) clearInterval(importPollRef.current);
+          importPollRef.current = null;
+          setImporting(false);
+          show("Lost connection while tracking the import. It may still be running in the background — refresh to check.", "danger");
+        }
+      }, 2000);
+    } catch (err) {
+      console.error("Failed to start CSV import:", err);
+      setImporting(false);
+      show("Failed to start the import. The file may be too large for the server, or the connection was interrupted.", "danger");
+    }
   };
 
   React.useEffect(() => {
@@ -485,9 +499,14 @@ export default function SoftwaresPage() {
           />
           {importProgress && !importResult && (
             <div className="rounded-xl border border-border-subtle bg-surface-muted p-3 text-sm space-y-2">
-              <p className="font-semibold text-primary-navy">
-                Importing… {importProgress.processed} / {importProgress.total}
-              </p>
+              <div className="flex items-center justify-between">
+                <p className="font-semibold text-primary-navy">
+                  Importing… {importProgress.processed} / {importProgress.total} added
+                </p>
+                <span className="font-bold text-brand-green-dark">
+                  {importProgress.total ? Math.round((importProgress.processed / importProgress.total) * 100) : 0}%
+                </span>
+              </div>
               <div className="h-2 w-full rounded-full bg-slate-200 overflow-hidden">
                 <div
                   className="h-full bg-brand-green transition-all"
