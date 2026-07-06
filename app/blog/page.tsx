@@ -56,7 +56,7 @@ export default function BlogAllPage() {
 
       {/* ── Hero ─────────────────────────────────────────────────────── */}
       <section
-        className="relative overflow-hidden pb-20 pt-24 text-center"
+        className="relative overflow-hidden pb-20 pt-[120px] text-center lg:pt-[140px]"
         style={HERO_GRADIENT}
       >
         {/* Decorative blobs */}

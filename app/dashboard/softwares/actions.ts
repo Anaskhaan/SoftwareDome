@@ -108,6 +108,34 @@ export async function findBestCategoryForQuery(query: string) {
   }
 }
 
+// Powers the search-bar typeahead: returns the best 5 name matches for a
+// partial query, ranked by closeness (exact > starts-with > contains) and
+// then by rating.
+export async function searchSoftwareSuggestions(query: string) {
+  try {
+    const q = query.trim();
+    if (!q) return { success: true, data: [] };
+
+    const matches = await prisma.software.findMany({
+      where: { name: { contains: q, mode: "insensitive" } },
+      select: { id: true, name: true, slug: true, logo: true, category: true, rating: true },
+      take: 20,
+    });
+
+    const ranked = matches
+      .sort((a, b) => {
+        const scoreDiff = nameMatchScore(a.name, q) - nameMatchScore(b.name, q);
+        return scoreDiff !== 0 ? scoreDiff : (b.rating ?? 0) - (a.rating ?? 0);
+      })
+      .slice(0, 5);
+
+    return { success: true, data: ranked };
+  } catch (error) {
+    console.error("Error searching software suggestions:", error);
+    return { success: false, error: "Failed to search softwares" };
+  }
+}
+
 export async function getCategories() {
   try {
     const grouped = await prisma.software.groupBy({
@@ -476,6 +504,7 @@ export async function getSoftwareBySlug(slug: string) {
   try {
     const software = await prisma.software.findUnique({
       where: { slug },
+      include: { _count: { select: { reviews: true } } },
     });
     return { success: true, data: software };
   } catch (error) {

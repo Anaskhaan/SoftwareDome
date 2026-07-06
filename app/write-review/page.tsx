@@ -45,7 +45,7 @@ export default function WriteReviewPage() {
 
       {/* ── Hero ─────────────────────────────────────────────────────── */}
       <section
-        className="relative overflow-hidden pb-20 pt-12 text-center"
+        className="relative overflow-hidden pb-20 pt-[120px] text-center lg:pt-[140px]"
         style={HERO_GRADIENT}
       >
         {/* Decorative blobs */}

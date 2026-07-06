@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import {
   ArrowLeft,
+  ArrowDownUp,
   Star,
   ChevronDown,
   ChevronLeft,
@@ -17,12 +18,22 @@ import {
   Users,
   GitCompare,
   Box,
+  BookOpen,
+  Zap,
+  Layers,
+  TrendingUp,
+  Settings,
+  Info,
+  ShieldCheck,
+  MessageSquare,
+  Calendar,
   X,
 } from "@/lib/fa-icons";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 import Footer from "@/components/Footer";
 import Container from "@/components/Container";
+import Button from "@/components/Button";
 import CompactSectionHeader from "@/components/CompactSectionHeader";
 import SoftwareReviews from "@/components/SoftwareReviews";
 import DemoRequestForm from "@/components/DemoRequestForm";
@@ -51,21 +62,23 @@ type SoftwareRecord = {
   sentiments: SentimentRow[] | null;
   specifications: Record<string, string> | null;
   faqs: FaqItem[] | null;
+  vendorId?: string | null;
+  _count?: { reviews: number };
   createdAt: Date | string;
   updatedAt: Date | string;
 };
 
 const sections = [
-  { id: "introduction", label: "Introduction" },
-  { id: "verdict", label: "Verdict" },
-  { id: "takeaways", label: "Takeaways" },
-  { id: "pros-cons", label: "Pros & cons" },
-  { id: "gallery", label: "Gallery" },
-  { id: "deep-dive", label: "Deep dive" },
-  { id: "sentiments", label: "Market sentiment" },
-  { id: "specifications", label: "Specifications" },
-  { id: "faqs", label: "FAQs" },
-  { id: "reviews", label: "Reviews" },
+  { id: "introduction", label: "Introduction", icon: BookOpen },
+  { id: "verdict", label: "Verdict", icon: Zap },
+  { id: "takeaways", label: "Takeaways", icon: CheckCircle },
+  { id: "pros-cons", label: "Pros & cons", icon: ArrowDownUp },
+  { id: "gallery", label: "Gallery", icon: ImageIcon },
+  { id: "deep-dive", label: "Deep dive", icon: Layers },
+  { id: "sentiments", label: "Market sentiment", icon: TrendingUp },
+  { id: "specifications", label: "Specifications", icon: Settings },
+  { id: "faqs", label: "FAQs", icon: Info },
+  { id: "reviews", label: "Reviews", icon: MessageSquare },
 ];
 
 const deepDiveIcons: Record<string, React.ElementType> = {
@@ -73,6 +86,10 @@ const deepDiveIcons: Record<string, React.ElementType> = {
   "who-is-it-for": Users,
   "how-it-is-different": GitCompare,
 };
+
+function slugifyCategory(name: string) {
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+}
 
 function filterStrings(items: string[] | undefined | null) {
   return (items || [])
@@ -95,8 +112,13 @@ function ProseBlock({ text }: { text: string }) {
   );
 }
 
-function EmptyBlock({ message }: { message: string }) {
-  return <p className="text-sm leading-relaxed text-text-muted/70">{message}</p>;
+function EmptyBlock({ message, icon: Icon }: { message: string; icon?: React.ElementType }) {
+  return (
+    <div className="flex items-center gap-3 rounded-2xl border border-dashed border-border-subtle bg-surface-muted/60 px-5 py-5 text-text-muted/70">
+      {Icon && <Icon size={16} className="shrink-0" />}
+      <p className="text-sm leading-relaxed">{message}</p>
+    </div>
+  );
 }
 
 function StarRow({ rating, size = 14 }: { rating: number; size?: number }) {
@@ -153,6 +175,9 @@ export default function SoftwareDetailPage() {
   const [activeSection, setActiveSection] = useState(sections[0].id);
   const [activeDeepDiveId, setActiveDeepDiveId] = useState("");
   const [demoModalOpen, setDemoModalOpen] = useState(false);
+  const [heroVisible, setHeroVisible] = useState(true);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const heroRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     async function loadData() {
@@ -194,6 +219,7 @@ export default function SoftwareDetailPage() {
   const cons = filterStrings(software?.cons);
   const pictures = filterStrings(software?.pictures);
   const rating = software?.rating ?? 0;
+  const reviewCount = software?._count?.reviews ?? 0;
 
   const deepDive = [
     { id: "how-it-works", title: "How it works", body: software?.howItWorks },
@@ -218,6 +244,32 @@ export default function SoftwareDetailPage() {
       if (el) observer.observe(el);
     });
     return () => observer.disconnect();
+  }, [software]);
+
+  // Hero visibility — toggles the compact sticky header once the hero card scrolls out of view.
+  useEffect(() => {
+    if (!software) return;
+    const el = heroRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setHeroVisible(entry.isIntersecting),
+      { rootMargin: "-110px 0px 0px 0px", threshold: 0 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [software]);
+
+  // Reading progress — thin bar under the navbar tracking scroll position.
+  useEffect(() => {
+    if (!software) return;
+    function onScroll() {
+      const doc = document.documentElement;
+      const max = doc.scrollHeight - doc.clientHeight;
+      setScrollProgress(max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0);
+    }
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, [software]);
 
   // Lightbox keyboard controls (Escape to close, arrows to navigate).
@@ -254,7 +306,7 @@ export default function SoftwareDetailPage() {
       <main className="min-h-screen bg-surface-muted">
         <Navbar onMenuClick={() => setIsMenuOpen(true)} />
         <Sidebar isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
-        <Container className="py-8 lg:py-10">
+        <Container className="pt-[120px] pb-8 lg:pt-[140px] lg:pb-10">
           <div className="mb-8 h-4 w-32 animate-pulse rounded-full bg-border-subtle" />
           <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_18rem] lg:gap-10">
             <div className="space-y-6">
@@ -283,13 +335,9 @@ export default function SoftwareDetailPage() {
           <p className="mt-2 text-sm text-text-muted">
             This software slug does not exist or was removed from the catalog.
           </p>
-          <Link
-            href="/#catalog"
-            className="mt-6 inline-flex items-center gap-2 rounded-full bg-brand-green px-5 py-2.5 text-sm font-bold text-white shadow-[0_4px_16px_-2px_rgba(95,194,74,0.45)] transition-all hover:-translate-y-0.5 hover:bg-brand-green-dark"
-          >
-            <ArrowLeft size={14} />
+          <Button href="/#catalog" icon={ArrowLeft} className="mt-6">
             Back to catalog
-          </Link>
+          </Button>
         </div>
         <Footer />
       </main>
@@ -298,26 +346,84 @@ export default function SoftwareDetailPage() {
 
   return (
     <main className="min-h-screen bg-surface-muted">
+      {/* Reading progress */}
+      <div className="fixed inset-x-0 top-0 z-[60] h-[3px]" aria-hidden>
+        <div
+          className="h-full bg-brand-green transition-[width] duration-150 ease-out"
+          style={{ width: `${scrollProgress * 100}%` }}
+        />
+      </div>
+
       <Navbar onMenuClick={() => setIsMenuOpen(true)} />
       <Sidebar isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
 
-      <Container className="py-8 pb-28 lg:py-10 lg:pb-10">
+      {/* Compact sticky header — appears once the hero card scrolls out of view.
+          Mirrors the page grid so it stays confined to the main column and never
+          overlaps the demo form / section index in the right sidebar. */}
+      {!heroVisible && (
+        <div className="pointer-events-none fixed inset-x-0 top-[112px] z-40 hidden lg:block">
+          <div className="mx-auto w-full max-w-7xl px-6 lg:px-20">
+            <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_18rem] lg:gap-10">
+              <div className="anim-pop-in pointer-events-auto flex items-center justify-between gap-4 rounded-2xl border border-border-subtle bg-white/95 px-5 py-3 shadow-[0_12px_32px_-12px_rgba(10,25,47,0.25)] backdrop-blur-md">
+                <div className="flex min-w-0 items-center gap-3">
+                  <div className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border-subtle bg-surface-muted">
+                    {software.logo ? (
+                      <Image src={software.logo} alt="" fill className="object-contain p-1.5" sizes="36px" />
+                    ) : (
+                      <span className="text-xs font-black text-primary-navy/25">{software.name.charAt(0)}</span>
+                    )}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-bold text-primary-navy">{software.name}</p>
+                    {rating > 0 && (
+                      <div className="flex items-center gap-1.5">
+                        <StarRow rating={rating} size={10} />
+                        <span className="text-[11px] font-semibold text-text-muted">{rating.toFixed(1)}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <Button size="sm" className="shrink-0" onClick={() => setDemoModalOpen(true)}>
+                  Request demo
+                </Button>
+              </div>
+              <div aria-hidden />
+            </div>
+          </div>
+        </div>
+      )}
+
+      <Container className="pt-[120px] pb-28 lg:pt-[140px] lg:pb-10">
         <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_18rem] lg:gap-10">
           {/* Main column */}
           <div className="space-y-8 min-w-0">
             <Reveal>
-              {/* Meta rail */}
+              {/* Breadcrumb + meta */}
               <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-                <Link
-                  href="/#catalog"
-                  className="inline-flex items-center gap-2 text-xs font-bold text-text-muted transition-colors hover:text-primary-navy"
-                >
-                  <ArrowLeft size={14} />
-                  Catalog
-                </Link>
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 font-mono text-[10px] uppercase tracking-wider text-text-muted/70">
-                  <span>{software.slug}</span>
-                  <span className="hidden h-3 w-px bg-border-subtle sm:inline" aria-hidden />
+                <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs font-semibold">
+                  <Link
+                    href="/#catalog"
+                    className="inline-flex items-center gap-1.5 text-text-muted transition-colors hover:text-primary-navy"
+                  >
+                    <ArrowLeft size={13} />
+                    Catalog
+                  </Link>
+                  {software.category?.trim() && (
+                    <>
+                      <span className="text-text-muted/30">/</span>
+                      <Link
+                        href={`/categories/${slugifyCategory(software.category)}`}
+                        className="text-text-muted transition-colors hover:text-primary-navy"
+                      >
+                        {software.category}
+                      </Link>
+                    </>
+                  )}
+                  <span className="text-text-muted/30">/</span>
+                  <span className="text-primary-navy">{software.name}</span>
+                </nav>
+                <div className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wider text-text-muted/60">
+                  <Calendar size={11} />
                   <span>Added {formatDate(software.createdAt)}</span>
                   {software.updatedAt !== software.createdAt && (
                     <>
@@ -329,7 +435,10 @@ export default function SoftwareDetailPage() {
               </div>
 
               {/* Hero */}
-              <div className="relative overflow-hidden rounded-3xl border border-border-subtle bg-white p-6 sm:p-8">
+              <div
+                ref={heroRef}
+                className="relative overflow-hidden rounded-3xl border border-border-subtle bg-white p-6 sm:p-8"
+              >
                 <div
                   className="pointer-events-none absolute inset-0 opacity-60"
                   style={{
@@ -341,7 +450,7 @@ export default function SoftwareDetailPage() {
                 />
                 <div className="relative flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
                   <div className="flex min-w-0 items-start gap-4">
-                    <div className="relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-border-subtle bg-surface-muted sm:h-20 sm:w-20">
+                    <div className="relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-border-subtle bg-surface-muted ring-4 ring-surface-muted sm:h-20 sm:w-20">
                       {software.logo ? (
                         <Image
                           src={software.logo}
@@ -357,36 +466,39 @@ export default function SoftwareDetailPage() {
                       )}
                     </div>
                     <div className="min-w-0">
-                      <span className="inline-flex items-center rounded-full bg-brand-green/10 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-brand-green-dark">
-                        {software.category || "Uncategorized"}
-                      </span>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="inline-flex items-center rounded-full bg-brand-green/10 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-brand-green-dark">
+                          {software.category || "Uncategorized"}
+                        </span>
+                        {software.vendorId && (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-navy-50 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-navy-600">
+                            <ShieldCheck size={11} />
+                            Vendor verified
+                          </span>
+                        )}
+                      </div>
                       <h1 className="mt-2 text-2xl font-black tracking-tight text-primary-navy sm:text-3xl">
                         {software.name}
                       </h1>
                       {rating > 0 && (
-                        <div className="mt-2 flex items-center gap-2">
+                        <div className="mt-2 flex flex-wrap items-center gap-2">
                           <StarRow rating={rating} />
                           <span className="text-sm font-bold text-primary-navy">{rating.toFixed(1)}</span>
+                          {reviewCount > 0 && (
+                            <span className="text-xs font-semibold text-text-muted">
+                              ({reviewCount} {reviewCount === 1 ? "review" : "reviews"})
+                            </span>
+                          )}
                         </div>
                       )}
                     </div>
                   </div>
 
                   <div className="flex shrink-0 flex-wrap items-center gap-2 sm:flex-col sm:items-stretch">
-                    <button
-                      type="button"
-                      onClick={() => setDemoModalOpen(true)}
-                      className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full bg-brand-green px-5 py-2.5 text-sm font-bold text-white shadow-[0_4px_16px_-2px_rgba(95,194,74,0.45)] transition-all hover:-translate-y-0.5 hover:bg-brand-green-dark"
-                    >
-                      Watch demo
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setDemoModalOpen(true)}
-                      className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full border border-border-subtle px-5 py-2.5 text-sm font-bold text-primary-navy transition-all hover:-translate-y-0.5 hover:border-brand-green/40"
-                    >
+                    <Button onClick={() => setDemoModalOpen(true)}>Request a demo</Button>
+                    <Button variant="outline" onClick={() => setDemoModalOpen(true)}>
                       Get pricing
-                    </button>
+                    </Button>
                   </div>
                 </div>
 
@@ -406,11 +518,11 @@ export default function SoftwareDetailPage() {
             {/* Introduction */}
             <Reveal>
               <section id="introduction" className="scroll-mt-24">
-                <CompactSectionHeader subtitle="Overview" title="Introduction" />
+                <CompactSectionHeader subtitle="Overview" title="Introduction" icon={BookOpen} />
                 {software.introduction?.trim() ? (
                   <ProseBlock text={software.introduction} />
                 ) : (
-                  <EmptyBlock message="No introduction added by admin." />
+                  <EmptyBlock icon={BookOpen} message="Introduction coming soon." />
                 )}
               </section>
             </Reveal>
@@ -418,7 +530,7 @@ export default function SoftwareDetailPage() {
             {/* Verdict */}
             <Reveal>
               <section id="verdict" className="scroll-mt-24">
-                <div className="relative overflow-hidden rounded-3xl bg-primary-navy p-6 text-white sm:p-8">
+                <div className="relative overflow-hidden rounded-3xl bg-[#0c221a] p-6 text-white sm:p-8">
                   <div
                     className="pointer-events-none absolute inset-0 opacity-10"
                     style={{
@@ -430,7 +542,7 @@ export default function SoftwareDetailPage() {
                   />
                   <div className="relative">
                     <span className="inline-flex items-center gap-2 font-mono text-[10px] font-bold uppercase tracking-[0.35em] text-white/40">
-                      <span className="h-1.5 w-1.5 rounded-full bg-brand-green-light" aria-hidden />
+                      <Zap size={11} className="text-brand-green-light" />
                       Editorial
                     </span>
                     <h2 className="mt-1.5 font-brand text-xl font-bold tracking-tight text-white sm:text-2xl">
@@ -451,7 +563,7 @@ export default function SoftwareDetailPage() {
             {/* Takeaways */}
             <Reveal>
               <section id="takeaways" className="scroll-mt-24">
-                <CompactSectionHeader subtitle="At a glance" title="Key takeaways" />
+                <CompactSectionHeader subtitle="At a glance" title="Key takeaways" icon={CheckCircle} />
                 {takeaways.length > 0 ? (
                   <div className="grid gap-3 sm:grid-cols-2">
                     {takeaways.map((item, idx) => (
@@ -467,7 +579,7 @@ export default function SoftwareDetailPage() {
                     ))}
                   </div>
                 ) : (
-                  <EmptyBlock message="No key takeaways listed." />
+                  <EmptyBlock icon={CheckCircle} message="No key takeaways listed yet." />
                 )}
               </section>
             </Reveal>
@@ -475,12 +587,19 @@ export default function SoftwareDetailPage() {
             {/* Pros & cons */}
             <Reveal>
               <section id="pros-cons" className="scroll-mt-24">
-                <CompactSectionHeader subtitle="Trade-offs" title="Pros & cons" />
+                <CompactSectionHeader subtitle="Trade-offs" title="Pros & cons" icon={ArrowDownUp} />
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="rounded-3xl border border-emerald-100 bg-emerald-50/40 p-5 sm:p-6">
-                    <div className="flex items-center gap-2 text-sm font-bold text-emerald-700">
-                      <CheckCircle size={15} />
-                      Pros
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 text-sm font-bold text-emerald-700">
+                        <CheckCircle size={15} />
+                        Pros
+                      </div>
+                      {pros.length > 0 && (
+                        <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-bold text-emerald-700">
+                          {pros.length}
+                        </span>
+                      )}
                     </div>
                     {pros.length > 0 ? (
                       <ul className="mt-3 space-y-2.5">
@@ -496,9 +615,16 @@ export default function SoftwareDetailPage() {
                     )}
                   </div>
                   <div className="rounded-3xl border border-rose-100 bg-rose-50/40 p-5 sm:p-6">
-                    <div className="flex items-center gap-2 text-sm font-bold text-rose-700">
-                      <XCircle size={15} />
-                      Cons
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 text-sm font-bold text-rose-700">
+                        <XCircle size={15} />
+                        Cons
+                      </div>
+                      {cons.length > 0 && (
+                        <span className="rounded-full bg-rose-100 px-2 py-0.5 text-[11px] font-bold text-rose-700">
+                          {cons.length}
+                        </span>
+                      )}
                     </div>
                     {cons.length > 0 ? (
                       <ul className="mt-3 space-y-2.5">
@@ -520,7 +646,7 @@ export default function SoftwareDetailPage() {
             {/* Gallery */}
             <Reveal>
               <section id="gallery" className="scroll-mt-24">
-                <CompactSectionHeader subtitle="Screens" title="Gallery" />
+                <CompactSectionHeader subtitle="Screens" title="Gallery" icon={ImageIcon} />
                 {pictures.length > 0 ? (
                   <div className="space-y-3">
                     <button
@@ -535,6 +661,11 @@ export default function SoftwareDetailPage() {
                         className="object-contain transition-transform duration-300 group-hover:scale-[1.02]"
                         sizes="(max-width: 768px) 100vw, 60vw"
                       />
+                      {pictures.length > 1 && (
+                        <span className="absolute bottom-3 right-3 rounded-full bg-primary-navy/70 px-2.5 py-1 text-[11px] font-bold text-white backdrop-blur-sm">
+                          {activeImage + 1} / {pictures.length}
+                        </span>
+                      )}
                     </button>
                     {pictures.length > 1 && (
                       <div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
@@ -554,10 +685,7 @@ export default function SoftwareDetailPage() {
                     )}
                   </div>
                 ) : (
-                  <div className="flex items-center gap-3 text-text-muted/70">
-                    <ImageIcon size={18} />
-                    <EmptyBlock message="No gallery images uploaded." />
-                  </div>
+                  <EmptyBlock icon={ImageIcon} message="No gallery images uploaded yet." />
                 )}
               </section>
             </Reveal>
@@ -565,7 +693,7 @@ export default function SoftwareDetailPage() {
             {/* Deep dive */}
             <Reveal>
               <section id="deep-dive" className="scroll-mt-24">
-                <CompactSectionHeader subtitle="Details" title="Deep dive" />
+                <CompactSectionHeader subtitle="Details" title="Deep dive" icon={Layers} />
                 {deepDive.length > 0 ? (
                   <div>
                     <div className="flex flex-wrap gap-1.5 rounded-full bg-surface-sunken p-1.5">
@@ -597,7 +725,7 @@ export default function SoftwareDetailPage() {
                     )}
                   </div>
                 ) : (
-                  <EmptyBlock message="Deep dive sections not filled in yet." />
+                  <EmptyBlock icon={Layers} message="Deep dive details coming soon." />
                 )}
               </section>
             </Reveal>
@@ -605,7 +733,7 @@ export default function SoftwareDetailPage() {
             {/* Market sentiment */}
             <Reveal>
               <section id="sentiments" className="scroll-mt-24">
-                <CompactSectionHeader subtitle="Buyer signal" title="Market sentiment" />
+                <CompactSectionHeader subtitle="Buyer signal" title="Market sentiment" icon={TrendingUp} />
                 {validSentiments.length > 0 ? (
                   <div className="grid gap-4 sm:grid-cols-2">
                     {validSentiments.map((row, idx) => {
@@ -636,7 +764,7 @@ export default function SoftwareDetailPage() {
                     })}
                   </div>
                 ) : (
-                  <EmptyBlock message="No sentiment breakdown published for this product." />
+                  <EmptyBlock icon={TrendingUp} message="No sentiment breakdown published yet." />
                 )}
               </section>
             </Reveal>
@@ -644,20 +772,20 @@ export default function SoftwareDetailPage() {
             {/* Specifications */}
             <Reveal>
               <section id="specifications" className="scroll-mt-24">
-                <CompactSectionHeader subtitle="Tech sheet" title="Specifications" />
+                <CompactSectionHeader subtitle="Tech sheet" title="Specifications" icon={Settings} />
                 {specEntries.length > 0 ? (
-                  <dl className="grid gap-3 sm:grid-cols-2">
+                  <dl className="grid gap-px overflow-hidden rounded-3xl border border-border-subtle bg-border-subtle sm:grid-cols-2">
                     {specEntries.map(([key, value]) => (
-                      <div key={key} className="rounded-2xl bg-white border border-border-subtle p-4">
-                        <dt className="font-mono text-[10px] font-bold uppercase tracking-wider text-text-muted/70">
+                      <div key={key} className="flex items-center justify-between gap-4 bg-white px-5 py-3.5">
+                        <dt className="text-xs font-semibold uppercase tracking-wide text-text-muted/80">
                           {key}
                         </dt>
-                        <dd className="mt-1 text-sm font-bold text-primary-navy">{value}</dd>
+                        <dd className="text-right text-sm font-bold text-primary-navy">{value}</dd>
                       </div>
                     ))}
                   </dl>
                 ) : (
-                  <EmptyBlock message="No specification fields added." />
+                  <EmptyBlock icon={Settings} message="Specifications coming soon." />
                 )}
               </section>
             </Reveal>
@@ -665,7 +793,7 @@ export default function SoftwareDetailPage() {
             {/* FAQs */}
             <Reveal>
               <section id="faqs" className="scroll-mt-24">
-                <CompactSectionHeader subtitle="Questions" title="FAQs" />
+                <CompactSectionHeader subtitle="Questions" title="FAQs" icon={Info} />
                 {validFaqs.length > 0 ? (
                   <div className="divide-y divide-border-subtle overflow-hidden rounded-3xl border border-border-subtle bg-white">
                     {validFaqs.map((faq, idx) => (
@@ -686,7 +814,7 @@ export default function SoftwareDetailPage() {
                           />
                         </button>
                         {expandedFaqs[idx] && faq.answer?.trim() && (
-                          <div className="px-5 pb-4">
+                          <div className="anim-fade-in px-5 pb-4">
                             <p className="text-sm leading-relaxed text-text-muted whitespace-pre-line">
                               {faq.answer}
                             </p>
@@ -696,7 +824,7 @@ export default function SoftwareDetailPage() {
                     ))}
                   </div>
                 ) : (
-                  <EmptyBlock message="No FAQs published for this product." />
+                  <EmptyBlock icon={Info} message="No FAQs published yet." />
                 )}
               </section>
             </Reveal>
@@ -718,20 +846,18 @@ export default function SoftwareDetailPage() {
                 <ul className="mt-1 space-y-0.5">
                   {sections.map((s) => {
                     const active = activeSection === s.id;
+                    const Icon = s.icon;
                     return (
                       <li key={s.id}>
                         <a
                           href={`#${s.id}`}
-                          className={`flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold transition-colors ${
+                          className={`flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-semibold transition-colors ${
                             active
                               ? "bg-brand-green/10 text-brand-green-dark"
                               : "text-text-muted hover:bg-surface-muted hover:text-primary-navy"
                           }`}
                         >
-                          <span
-                            className={`h-1.5 w-1.5 rounded-full ${active ? "bg-brand-green" : "bg-border-subtle"}`}
-                            aria-hidden
-                          />
+                          <Icon size={14} className="shrink-0" />
                           {s.label}
                         </a>
                       </li>
@@ -753,13 +879,9 @@ export default function SoftwareDetailPage() {
               <p className="text-xs text-text-muted">★ {rating.toFixed(1)}</p>
             )}
           </div>
-          <button
-            type="button"
-            onClick={scrollToDemo}
-            className="shrink-0 rounded-full bg-brand-green px-4 py-2.5 text-xs font-bold text-white shadow-[0_4px_16px_-2px_rgba(95,194,74,0.45)] transition-all hover:bg-brand-green-dark"
-          >
+          <Button size="sm" className="shrink-0" onClick={scrollToDemo}>
             Request demo
-          </button>
+          </Button>
         </div>
       </div>
 

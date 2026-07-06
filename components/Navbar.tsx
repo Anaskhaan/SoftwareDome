@@ -2,10 +2,10 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Icons } from "@/assets/icons";
 import Logo from "@/components/Logo";
+import { GradientButton } from "@/components/Button";
 
 const navLinks = [
   { name: "Software Categories", href: "/categories" },
@@ -117,81 +117,7 @@ export default function Navbar({ onMenuClick }: { onMenuClick: () => void }) {
               style={{ gap: "10px" }}
             >
               {/* ── Green pill CTA button ── */}
-              {/* Outer glow ring: 229×61, rgba(176,255,159,0.2), radius 100px */}
-              <div
-                style={{
-                  width: "229px",
-                  height: "61px",
-                  background: "rgba(176, 255, 159, 0.2)",
-                  borderRadius: "100px",
-                  padding: "6px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                {/* Inner pill: 217×49, lime gradient */}
-                <Link
-                  href="/signup"
-                  className="relative flex items-center overflow-hidden"
-                  style={{
-                    width: "217px",
-                    height: "49px",
-                    background:
-                      "linear-gradient(180deg, #B0FE5E 0%, #5BA40D 100%)",
-                    boxShadow:
-                      "0px 5px 23px rgba(214, 253, 112, 0.3), inset -4px -4px 8px rgba(255, 255, 255, 0.3), inset 4px 4px 8px rgba(255, 255, 255, 0.3)",
-                    borderRadius: "100px",
-                    padding: "12px 54px 12px 30px",
-                  }}
-                >
-                  {/* Label */}
-                  <span
-                    style={{
-                      fontFamily: "var(--font-sora), Sora, sans-serif",
-                      fontWeight: 600,
-                      fontSize: "16px",
-                      lineHeight: "23px",
-                      color: "#FFFFFF",
-                      position: "relative",
-                      zIndex: 0,
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    Get started now
-                  </span>
-
-                  {/* Right arrow circle: 32×32, absolute, right ~8.5px */}
-                  <div
-                    className="absolute flex items-center justify-center"
-                    style={{
-                      width: "32px",
-                      height: "32px",
-                      right: "8.5px",
-                      top: "8.5px",
-                      background: "#FFFFFF",
-                      borderRadius: "100px",
-                      zIndex: 2,
-                    }}
-                  >
-                    <svg
-                      width="13"
-                      height="9"
-                      viewBox="0 0 13 9"
-                      fill="none"
-                      aria-hidden
-                    >
-                      <path
-                        d="M1 4.5H12M8.5 1L12 4.5L8.5 8"
-                        stroke="#1D1D1D"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </div>
-                </Link>
-              </div>
+              <GradientButton href="/signup">Get started now</GradientButton>
 
               {/* ── Vertical divider: 1px × 44px ── */}
               <div
@@ -212,20 +138,10 @@ export default function Navbar({ onMenuClick }: { onMenuClick: () => void }) {
                 >
                   <button
                     className="flex items-center justify-center cursor-pointer"
-                    style={{
-                      width: "55px",
-                      height: "55px",
-                      background: "rgba(255, 255, 255, 0.2)",
-                      borderRadius: "171.875px",
-                      flexShrink: 0,
-                    }}
+                    style={{ width: "55px", height: "55px", borderRadius: "171.875px", flexShrink: 0 }}
+                    aria-label="Account menu"
                   >
-                    <Image
-                      src="/login-icon.png"
-                      alt="Login"
-                      width={26}
-                      height={26}
-                    />
+                    <LoginIcon />
                   </button>
 
                   {showTooltip && (
@@ -274,20 +190,10 @@ export default function Navbar({ onMenuClick }: { onMenuClick: () => void }) {
                 <Link
                   href="/login"
                   className="flex items-center justify-center"
-                  style={{
-                    width: "55px",
-                    height: "55px",
-                    background: "rgba(255, 255, 255, 0.2)",
-                    borderRadius: "171.875px",
-                    flexShrink: 0,
-                  }}
+                  style={{ width: "55px", height: "55px", borderRadius: "171.875px", flexShrink: 0 }}
+                  aria-label="Login"
                 >
-                  <Image
-                    src="/login-icon.png"
-                    alt="Login"
-                    width={26}
-                    height={26}
-                  />
+                  <LoginIcon />
                 </Link>
               )}
             </div>
@@ -298,25 +204,25 @@ export default function Navbar({ onMenuClick }: { onMenuClick: () => void }) {
   );
 }
 
-/* User icon — two vectors matching the Figma spec */
-function NavUserIcon() {
+/* User/login icon — matches the Figma spec, includes its own translucent circle backdrop */
+function LoginIcon() {
   return (
-    <svg
-      width="26"
-      height="26"
-      viewBox="0 0 26 26"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden
-    >
-      {/* Head — #5FC24A */}
-      <circle cx="13" cy="9.5" r="3.5" fill="#5FC24A" />
-      {/* Body — rgba(95,194,74,0.6) */}
+    <svg width="55" height="55" viewBox="0 0 55 55" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
       <path
-        d="M5.5 22C6 17.5 9.2 14.5 13 14.5C16.8 14.5 20 17.5 20.5 22"
-        stroke="rgba(95, 194, 74, 0.6)"
-        strokeWidth="2"
-        strokeLinecap="round"
+        d="M0 27.5C0 12.3122 12.3122 0 27.5 0C42.6878 0 55 12.3122 55 27.5C55 42.6878 42.6878 55 27.5 55C12.3122 55 0 42.6878 0 27.5Z"
+        fill="white"
+        fillOpacity="0.2"
+      />
+      <path
+        d="M27.4993 27.5C29.8926 27.5 31.8327 25.5599 31.8327 23.1667C31.8327 20.7735 29.8926 18.8334 27.4993 18.8334C25.1061 18.8334 23.166 20.7735 23.166 23.1667C23.166 25.5599 25.1061 27.5 27.4993 27.5Z"
+        fill="#5FC24A"
+      />
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M27.499 28.5834C23.5232 28.5834 20.2623 31.205 19.9417 34.5417C19.9135 34.8396 20.1583 35.0834 20.4573 35.0834H34.5407C34.6111 35.0852 34.6812 35.0723 34.7463 35.0454C34.8115 35.0185 34.8703 34.9782 34.9189 34.9271C34.9675 34.8761 35.0048 34.8154 35.0285 34.749C35.0522 34.6826 35.0617 34.612 35.0563 34.5417C34.7357 31.205 31.4748 28.5834 27.499 28.5834Z"
+        fill="#5FC24A"
+        fillOpacity="0.6"
       />
     </svg>
   );

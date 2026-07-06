@@ -105,7 +105,7 @@ export default function CategoryPage() {
       <Navbar onMenuClick={() => setIsMenuOpen(true)} />
       <Sidebar isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
 
-      <section className="border-b border-zinc-100 bg-white py-10">
+      <section className="border-b border-zinc-100 bg-white pb-10 pt-[120px] lg:pt-[140px]">
         <Container>
           <Link
             href="/categories"

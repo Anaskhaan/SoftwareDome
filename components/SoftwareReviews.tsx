@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { MessageSquare, Loader2 } from "@/lib/fa-icons";
+import { MessageSquare } from "@/lib/fa-icons";
 import CompactSectionHeader from "@/components/CompactSectionHeader";
+import Button from "@/components/Button";
 
 type ReviewUser = {
   id: string;
@@ -116,7 +117,7 @@ export default function SoftwareReviews({ slug }: { slug: string }) {
 
   return (
     <section id="reviews" className="scroll-mt-24">
-      <CompactSectionHeader subtitle="From the community" title="User reviews" />
+      <CompactSectionHeader subtitle="From the community" title="User reviews" icon={MessageSquare} />
 
       <div className="space-y-6">
         {user ? (
@@ -135,14 +136,9 @@ export default function SoftwareReviews({ slug }: { slug: string }) {
             />
             <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
               <span className="text-xs text-text-muted">{content.length}/2000</span>
-              <button
-                type="submit"
-                disabled={submitting}
-                className="inline-flex items-center gap-2 rounded-full bg-brand-green px-4 py-2 text-xs font-bold text-white shadow-[0_4px_16px_-2px_rgba(95,194,74,0.45)] transition-all hover:-translate-y-0.5 hover:bg-brand-green-dark disabled:translate-y-0 disabled:opacity-60"
-              >
-                {submitting && <Loader2 size={14} className="animate-spin" />}
+              <Button type="submit" size="sm" loading={submitting}>
                 {ownReview ? "Update review" : "Post review"}
-              </button>
+              </Button>
             </div>
             {error && <p className="mt-2 text-xs font-medium text-red-600">{error}</p>}
             {success && <p className="mt-2 text-xs font-medium text-emerald-600">{success}</p>}

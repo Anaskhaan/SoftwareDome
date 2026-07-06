@@ -57,7 +57,7 @@ export default function BlogDetailPage() {
         <div>
           <Navbar onMenuClick={() => setIsMenuOpen(true)} />
           <Sidebar isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
-          <div className="w-full px-6 py-12 lg:px-16">
+          <div className="w-full px-6 pb-12 pt-[120px] lg:px-16 lg:pt-[140px]">
             <div className="h-4 w-24 bg-zinc-200 animate-pulse rounded-md mb-6" />
             <div className="h-10 w-2/3 bg-zinc-200 animate-pulse rounded-md mb-4" />
             <div className="h-64 w-full bg-zinc-200 animate-pulse rounded-md mb-6 animate-pulse" />
@@ -79,7 +79,7 @@ export default function BlogDetailPage() {
         <div>
           <Navbar onMenuClick={() => setIsMenuOpen(true)} />
           <Sidebar isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
-          <div className="w-full px-6 py-28 text-center lg:px-16">
+          <div className="w-full px-6 pb-28 pt-[120px] text-center lg:px-16 lg:pt-[140px]">
             <span className="font-mono text-[10px] font-bold uppercase tracking-[0.35em] text-primary-navy/45">
               Not found
             </span>
@@ -108,7 +108,7 @@ export default function BlogDetailPage() {
         <Sidebar isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
 
         {/* Hero Header Section */}
-        <header className="w-full bg-zinc-50 border-b border-zinc-200/60 px-6 py-10 lg:px-16 lg:py-16">
+        <header className="w-full bg-zinc-50 border-b border-zinc-200/60 px-6 pb-10 pt-[120px] lg:px-16 lg:pb-16 lg:pt-[140px]">
           <div className="w-full">
             {/* Breadcrumb */}
             <div className="mb-6">

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { submitDemoRequest } from "@/app/dashboard/demo-requests/actions";
+import Button from "@/components/Button";
 
 const inputClass =
   "w-full rounded-xl border border-border-subtle bg-surface-muted/40 px-3.5 py-2.5 text-sm outline-none transition-all placeholder-zinc-400 focus:border-brand-green/50 focus:bg-white focus:ring-2 focus:ring-brand-green/15";
@@ -86,13 +87,9 @@ export default function DemoRequestForm({
           required
           className={inputClass}
         />
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full rounded-full bg-brand-green px-4 py-2.5 text-sm font-bold text-white shadow-[0_4px_16px_-2px_rgba(95,194,74,0.45)] transition-all hover:-translate-y-0.5 hover:bg-brand-green-dark disabled:translate-y-0 disabled:opacity-50"
-        >
+        <Button type="submit" disabled={loading} fullWidth>
           {loading ? "Sending…" : "Request demo"}
-        </button>
+        </Button>
         {status && (
           <p
             className={`text-xs font-semibold ${

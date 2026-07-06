@@ -100,7 +100,7 @@ export default function ProfilePage() {
   if (loading) return (
     <div className="w-full min-h-screen bg-white">
       <Navbar onMenuClick={() => setIsMenuOpen(true)} />
-      <div className="p-10 flex items-center gap-3">
+      <div className="px-10 pb-10 pt-[120px] flex items-center gap-3 lg:pt-[140px]">
         <div className="w-1.5 h-1.5 bg-primary-navy animate-ping"></div>
         <span className="text-[10px] font-black uppercase tracking-[0.5em] text-gray-300">Loading_System_Data</span>
       </div>
@@ -110,7 +110,7 @@ export default function ProfilePage() {
   if (!user) return (
     <div className="w-full min-h-screen bg-white">
       <Navbar onMenuClick={() => setIsMenuOpen(true)} />
-      <div className="p-10 text-[10px] font-black uppercase tracking-[0.5em] text-red-500">Authentication_Failure</div>
+      <div className="px-10 pb-10 pt-[120px] text-[10px] font-black uppercase tracking-[0.5em] text-red-500 lg:pt-[140px]">Authentication_Failure</div>
     </div>
   );
 
@@ -119,7 +119,7 @@ export default function ProfilePage() {
       <Navbar onMenuClick={() => setIsMenuOpen(true)} />
       <Sidebar isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
       <form onSubmit={handleUpdate} className="w-full">
-        <div className="p-8 lg:p-20 flex flex-col gap-16">
+        <div className="px-8 pb-8 pt-[120px] flex flex-col gap-16 lg:px-20 lg:pb-20 lg:pt-[140px]">
           <div className='flex items-center gap-3'>
             <img src={formData.image || "/logo.png"} alt="user-profile-imaeg" className='size-32 object-cover' />
 

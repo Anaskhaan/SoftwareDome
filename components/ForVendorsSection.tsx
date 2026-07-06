@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { ArrowRight } from "@/lib/fa-icons";
 import { useInView } from "@/hooks/useInView";
+import Button from "@/components/Button";
 
 /* ── Static chart values — no Math.random(), SSR-safe ── */
 const BARS = [
@@ -15,7 +15,7 @@ const DONUT_R = 22;
 const DONUT_C = 2 * Math.PI * DONUT_R;
 const DONUT_PCT = 0.88; // 88% from the reference image
 
-export default function ForVendorsSection() {
+export default function ForVendorsSection({ showHeader = true }: { showHeader?: boolean }) {
   const { ref, visible } = useInView(0.05);
 
   return (
@@ -25,55 +25,57 @@ export default function ForVendorsSection() {
       style={{ gap: "40px" }}
     >
       {/* ── Header Container ── */}
-      <div
-        className="flex flex-col items-center text-center w-full"
-        style={{ gap: "16px" }}
-      >
-        <div className="flex flex-col items-center" style={{ gap: "8px" }}>
-          {/* GET LEADS */}
-          <span
+      {showHeader && (
+        <div
+          className="flex flex-col items-center text-center w-full"
+          style={{ gap: "16px" }}
+        >
+          <div className="flex flex-col items-center" style={{ gap: "8px" }}>
+            {/* GET LEADS */}
+            <span
+              style={{
+                fontFamily: 'var(--font-jakarta), "Plus Jakarta Sans", sans-serif',
+                fontWeight: 700,
+                fontSize: "16px",
+                lineHeight: "28px",
+                textTransform: "uppercase",
+                color: "#2F6C25",
+                letterSpacing: "0.05em",
+              }}
+            >
+              Get Leads
+            </span>
+            {/* Are you a vendor? */}
+            <h2
+              style={{
+                fontFamily: 'var(--font-jakarta), "Plus Jakarta Sans", sans-serif',
+                fontWeight: 700,
+                fontSize: "clamp(28px, 4vw, 46px)",
+                lineHeight: "clamp(36px, 5.5vw, 60px)",
+                letterSpacing: "-1.04px",
+                color: "#23252C",
+                margin: 0,
+              }}
+            >
+              Are you a vendor?
+            </h2>
+          </div>
+          {/* Description from reference image */}
+          <p
             style={{
-              fontFamily: 'var(--font-jakarta), "Plus Jakarta Sans", sans-serif',
-              fontWeight: 700,
-              fontSize: "16px",
-              lineHeight: "28px",
-              textTransform: "uppercase",
-              color: "#2F6C25",
-              letterSpacing: "0.05em",
-            }}
-          >
-            Get Leads
-          </span>
-          {/* Are you a vendor? */}
-          <h2
-            style={{
-              fontFamily: 'var(--font-jakarta), "Plus Jakarta Sans", sans-serif',
-              fontWeight: 700,
-              fontSize: "clamp(28px, 4vw, 46px)",
-              lineHeight: "clamp(36px, 5.5vw, 60px)",
-              letterSpacing: "-1.04px",
-              color: "#23252C",
+              fontFamily: "var(--font-sora), Sora, sans-serif",
+              fontWeight: 400,
+              fontSize: "clamp(15px, 1.8vw, 20px)",
+              lineHeight: "32px",
+              color: "#54565B",
+              maxWidth: "762px",
               margin: 0,
             }}
           >
-            Are you a vendor?
-          </h2>
+            SoftwareDome keeps discovery and listing operations in one visual language catalog above, path below, footer to close.
+          </p>
         </div>
-        {/* Description from reference image */}
-        <p
-          style={{
-            fontFamily: "var(--font-sora), Sora, sans-serif",
-            fontWeight: 400,
-            fontSize: "clamp(15px, 1.8vw, 20px)",
-            lineHeight: "32px",
-            color: "#54565B",
-            maxWidth: "762px",
-            margin: 0,
-          }}
-        >
-          SoftwareDome keeps discovery and listing operations in one visual language catalog above, path below, footer to close.
-        </p>
-      </div>
+      )}
 
       {/* ── Cards Container ── */}
       <div
@@ -122,35 +124,15 @@ export default function ForVendorsSection() {
               </p>
             </div>
 
-            <Link
+            <Button
               href="/login?mode=signup&role=VENDOR"
-              className="flex flex-row items-center justify-center hover:opacity-90 transition-opacity"
-              style={{
-                height: "50px",
-                padding: "10px 20px",
-                gap: "8px",
-                background: "#072929",
-                boxShadow: "0px 4px 18px -2px rgba(95, 194, 74, 0.05)",
-                borderRadius: "33554432px",
-                textDecoration: "none",
-                boxSizing: "border-box",
-                whiteSpace: "nowrap",
-              }}
+              variant="dark"
+              icon={ArrowRight}
+              iconPosition="right"
+              style={{ fontFamily: "var(--font-sora), Sora, sans-serif" }}
             >
-              <span
-                style={{
-                  fontFamily: "var(--font-sora), Sora, sans-serif",
-                  fontWeight: 600,
-                  fontSize: "14px",
-                  lineHeight: "21px",
-                  color: "#FFFFFF",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                Get Sales - Ready Leads
-              </span>
-              <ArrowRight size={12} />
-            </Link>
+              Get Sales - Ready Leads
+            </Button>
           </div>
 
           {/* Right Column: Interactive Illustration */}
@@ -301,35 +283,15 @@ export default function ForVendorsSection() {
               </p>
             </div>
 
-            <Link
+            <Button
               href="/login?mode=signup&role=VENDOR"
-              className="flex flex-row items-center justify-center hover:opacity-90 transition-opacity"
-              style={{
-                height: "50px",
-                padding: "10px 20px",
-                gap: "8px",
-                background: "#072929",
-                boxShadow: "0px 4px 18px -2px rgba(95, 194, 74, 0.05)",
-                borderRadius: "33554432px",
-                textDecoration: "none",
-                boxSizing: "border-box",
-                whiteSpace: "nowrap",
-              }}
+              variant="dark"
+              icon={ArrowRight}
+              iconPosition="right"
+              style={{ fontFamily: "var(--font-sora), Sora, sans-serif" }}
             >
-              <span
-                style={{
-                  fontFamily: "var(--font-sora), Sora, sans-serif",
-                  fontWeight: 600,
-                  fontSize: "14px",
-                  lineHeight: "21px",
-                  color: "#FFFFFF",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                List Now & Get Seen!
-              </span>
-              <ArrowRight size={12} />
-            </Link>
+              List Now & Get Seen!
+            </Button>
           </div>
 
           {/* Right Column: Stacked App Icons + Profile Card */}

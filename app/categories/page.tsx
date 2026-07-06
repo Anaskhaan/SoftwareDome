@@ -28,7 +28,7 @@ export default function CategoriesPage() {
       <Navbar onMenuClick={() => setIsMenuOpen(true)} />
       <Sidebar isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
 
-      <section className="border-b border-zinc-100 bg-zinc-50/60 py-12">
+      <section className="border-b border-zinc-100 bg-zinc-50/60 pb-12 pt-[120px] lg:pt-[140px]">
         <Container>
           <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.3em] text-brand-green-dark">
             <span className="h-1.5 w-1.5 rounded-full bg-brand-green" aria-hidden />

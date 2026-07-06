@@ -23,7 +23,7 @@ export default function VendorsPage() {
 
       {/* ── Hero ───────────────────────────────────────────────────────── */}
       <section
-        className="relative overflow-hidden pb-44 pt-24 text-center"
+        className="relative overflow-hidden pb-44 pt-[120px] text-center lg:pt-[140px]"
         style={{
           background: "linear-gradient(120deg, var(--navy-800) 0%, var(--navy-700) 45%, var(--green-700) 100%)",
         }}
@@ -56,7 +56,7 @@ export default function VendorsPage() {
       {/* ── Two cards floating over hero bottom ────────────────────────── */}
       <section className="relative z-10 -mt-28 pb-10">
         <Container>
-          <ForVendorsSection />
+          <ForVendorsSection showHeader={false} />
         </Container>
       </section>
 
