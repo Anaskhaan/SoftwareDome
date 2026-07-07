@@ -31,7 +31,7 @@ export default function Hero({ softwares }: { softwares?: SoftwareForCard[] }) {
           <div
             key={i}
             aria-hidden
-            className="pointer-events-none absolute flex items-center justify-center bg-white w-9 h-9 sm:w-12 sm:h-12 md:w-16 md:h-16 lg:w-24 lg:h-24 xl:w-32 xl:h-32"
+            className="pointer-events-none absolute flex items-center justify-center bg-white w-7 h-7 sm:w-9 sm:h-9 md:w-12 md:h-12 lg:w-16 lg:h-16 xl:w-24 xl:h-24"
             style={{
               left: card.left,
               top: card.top,
@@ -47,7 +47,7 @@ export default function Hero({ softwares }: { softwares?: SoftwareForCard[] }) {
               width={40}
               height={40}
               unoptimized={card.src.endsWith(".svg")}
-              className="object-contain w-4 h-4 sm:w-5 sm:h-5 md:w-7 md:h-7 lg:w-10 lg:h-10 xl:w-14 xl:h-14"
+              className="object-contain w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 lg:w-10 lg:h-10 xl:w-16 xl:h-16"
             />
           </div>
         ))}
