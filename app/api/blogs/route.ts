@@ -4,6 +4,7 @@ import { verifyJWT } from "@/lib/jwt";
 import prisma from "@/lib/prisma";
 import { requireAdmin } from "@/lib/require-admin";
 import { generateUniqueBlogSlug, parseStringArray } from "@/lib/blog-utils";
+import { sanitizeBlogHtml } from "@/lib/blog-sanitize";
 import {
   blogSelect,
   CreateBlogInput,
@@ -123,7 +124,7 @@ export async function POST(req: Request) {
       data: {
         title,
         slug,
-        content,
+        content: sanitizeBlogHtml(content),
         excerpt: body.excerpt?.trim() || null,
         coverImage: body.coverImage?.trim() || null,
         images: parseStringArray(body.images),

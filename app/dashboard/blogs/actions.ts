@@ -4,7 +4,8 @@ import prisma from "@/lib/prisma";
 import { requireAdmin } from "@/lib/require-admin";
 import { generateUniqueBlogSlug, parseStringArray } from "@/lib/blog-utils";
 import { blogSelect, resolvePublishedAt, validateBlogStatus } from "@/lib/blog-types";
-import { uploadManyToCloudinary, uploadToCloudinary } from "@/lib/cloudinary-upload";
+import { uploadToCloudinary } from "@/lib/cloudinary-upload";
+import { sanitizeBlogHtml } from "@/lib/blog-sanitize";
 
 async function getAdminSession() {
   const auth = await requireAdmin();
@@ -97,17 +98,10 @@ async function parseBlogFormData(formData: FormData) {
     coverImage = await uploadToCloudinary(coverFile, "blogs");
   }
 
-  const images = parseStringArray(formData.get("existingImages"));
-  const newImageFiles = formData.getAll("images") as File[];
-  const uploadedImages = await uploadManyToCloudinary(
-    newImageFiles.filter((f) => f instanceof File && f.size > 0),
-    "blogs"
-  );
-
   return {
     data: {
       title,
-      content,
+      content: sanitizeBlogHtml(content),
       excerpt,
       slugInput,
       status,
@@ -115,7 +109,6 @@ async function parseBlogFormData(formData: FormData) {
       metaDescription,
       tags,
       coverImage,
-      images: [...images, ...uploadedImages],
     },
   };
 }
@@ -144,7 +137,6 @@ export async function createBlog(formData: FormData) {
         content: data.content,
         excerpt: data.excerpt,
         coverImage: data.coverImage,
-        images: data.images,
         tags: data.tags,
         status: data.status,
         metaTitle: data.metaTitle,
@@ -195,7 +187,6 @@ export async function updateBlog(id: string, formData: FormData) {
         content: data.content,
         excerpt: data.excerpt,
         coverImage: data.coverImage,
-        images: data.images,
         tags: data.tags,
         status: data.status,
         metaTitle: data.metaTitle,
