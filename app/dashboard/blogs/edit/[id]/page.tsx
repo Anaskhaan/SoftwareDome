@@ -1,14 +1,9 @@
 "use client";
 
 import React from "react";
-import {
-  AlertCircle,
-  Loader2,
-  Plus,
-  Upload,
-  X,
-} from "@/lib/fa-icons";
+import { AlertCircle, Loader2, Upload, X } from "@/lib/fa-icons";
 import AdminOutletHeading from "@/components/dashboard/AdminOutletHeading";
+import BlogEditor from "@/components/dashboard/BlogEditor";
 import { getBlogById, updateBlog } from "../../actions";
 import { useRouter, useParams } from "next/navigation";
 
@@ -35,9 +30,6 @@ export default function EditBlogPage() {
   const [coverFile, setCoverFile] = React.useState<File | null>(null);
   const [coverPreview, setCoverPreview] = React.useState<string | null>(null);
   const [existingCover, setExistingCover] = React.useState<string | null>(null);
-  const [existingImages, setExistingImages] = React.useState<string[]>([]);
-  const [galleryFiles, setGalleryFiles] = React.useState<File[]>([]);
-  const [galleryPreviews, setGalleryPreviews] = React.useState<string[]>([]);
 
   React.useEffect(() => {
     async function loadBlog() {
@@ -56,7 +48,6 @@ export default function EditBlogPage() {
           tags: blog.tags.join(", "),
         });
         setExistingCover(blog.coverImage);
-        setExistingImages(blog.images || []);
       } else {
         setError(result.error || "Blog not found");
       }
@@ -70,23 +61,6 @@ export default function EditBlogPage() {
     if (!file) return;
     setCoverFile(file);
     setCoverPreview(URL.createObjectURL(file));
-  };
-
-  const handleGalleryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    if (files.length === 0) return;
-    setGalleryFiles((prev) => [...prev, ...files]);
-    setGalleryPreviews((prev) => [...prev, ...files.map((f) => URL.createObjectURL(f))]);
-    e.target.value = "";
-  };
-
-  const removeExistingImage = (index: number) => {
-    setExistingImages((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const removeNewGalleryItem = (index: number) => {
-    setGalleryFiles((prev) => prev.filter((_, i) => i !== index));
-    setGalleryPreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -112,10 +86,8 @@ export default function EditBlogPage() {
       )
     );
     formData.append("existingCoverImage", coverPreview ? "" : existingCover || "");
-    formData.append("existingImages", JSON.stringify(existingImages));
 
     if (coverFile) formData.append("coverImage", coverFile);
-    galleryFiles.forEach((file) => formData.append("images", file));
 
     try {
       const result = await updateBlog(id, formData);
@@ -216,12 +188,9 @@ export default function EditBlogPage() {
 
         <section className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
           <h3 className="text-sm font-bold text-[#0a192f] uppercase tracking-wide">Content</h3>
-          <textarea
-            required
-            rows={12}
+          <BlogEditor
             value={form.content}
-            onChange={(e) => setForm({ ...form, content: e.target.value })}
-            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-blue-500/20 resize-y"
+            onChange={(html) => setForm((f) => ({ ...f, content: html }))}
           />
         </section>
 
@@ -251,47 +220,6 @@ export default function EditBlogPage() {
                 <Upload size={20} className="text-slate-400 mb-1" />
                 <span className="text-[10px] font-bold text-slate-500 uppercase">Upload</span>
                 <input type="file" accept="image/*" className="hidden" onChange={handleCoverChange} />
-              </label>
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Gallery images</label>
-            <div className="flex flex-wrap gap-3">
-              {existingImages.map((src, idx) => (
-                <div key={`existing-${idx}`} className="relative w-24 h-24 rounded-xl overflow-hidden border border-slate-200">
-                  <img src={src} alt="" className="h-full w-full object-cover" />
-                  <button
-                    type="button"
-                    onClick={() => removeExistingImage(idx)}
-                    className="absolute top-1 right-1 p-1 bg-white/90 rounded-lg text-red-600"
-                  >
-                    <X size={14} />
-                  </button>
-                </div>
-              ))}
-              {galleryPreviews.map((src, idx) => (
-                <div key={`new-${idx}`} className="relative w-24 h-24 rounded-xl overflow-hidden border border-slate-200">
-                  <img src={src} alt="" className="h-full w-full object-cover" />
-                  <button
-                    type="button"
-                    onClick={() => removeNewGalleryItem(idx)}
-                    className="absolute top-1 right-1 p-1 bg-white/90 rounded-lg text-red-600"
-                  >
-                    <X size={14} />
-                  </button>
-                </div>
-              ))}
-              <label className="flex flex-col items-center justify-center w-24 h-24 border-2 border-dashed border-slate-200 rounded-xl cursor-pointer hover:border-blue-300 hover:bg-blue-50/50 transition-colors">
-                <Plus size={18} className="text-slate-400 mb-1" />
-                <span className="text-[10px] font-bold text-slate-500 uppercase">Add</span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  className="hidden"
-                  onChange={handleGalleryChange}
-                />
               </label>
             </div>
           </div>

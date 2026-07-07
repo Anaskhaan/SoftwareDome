@@ -586,3 +586,74 @@ small,
 .anim-pop-in {
   animation: pop-in 0.16s cubic-bezier(0.22, 1, 0.36, 1);
 }
+
+/* ---- Blog article body — typography for rendered post HTML ---- */
+.blog-content {
+  color: var(--text-muted);
+}
+
+.blog-content > :first-child {
+  margin-top: 0;
+}
+
+.blog-content h2,
+.blog-content h3 {
+  margin-top: 2em;
+  margin-bottom: 0.6em;
+  scroll-margin-top: 6rem;
+}
+
+.blog-content p {
+  margin-bottom: 1.25em;
+}
+
+.blog-content ul,
+.blog-content ol {
+  margin: 0 0 1.25em 1.25em;
+  padding-left: 1rem;
+}
+
+.blog-content ul {
+  list-style: disc;
+}
+
+.blog-content ol {
+  list-style: decimal;
+}
+
+.blog-content li {
+  margin-bottom: 0.4em;
+  line-height: 1.65;
+}
+
+.blog-content a {
+  color: var(--brand-green-dark);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.blog-content a:hover {
+  color: var(--brand-green);
+}
+
+.blog-content blockquote {
+  margin: 1.5em 0;
+  padding: 0.75em 1.25em;
+  border-left: 3px solid var(--brand-green);
+  background: var(--surface-muted);
+  border-radius: 0 0.5rem 0.5rem 0;
+  font-style: italic;
+  color: var(--primary-navy);
+}
+
+.blog-content img {
+  width: 100%;
+  height: auto;
+  border-radius: 0.75rem;
+  margin: 1.5em 0;
+}
+
+.blog-content strong {
+  color: var(--primary-navy);
+}
