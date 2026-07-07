@@ -31,7 +31,7 @@ export default function Hero({ softwares }: { softwares?: SoftwareForCard[] }) {
           <div
             key={i}
             aria-hidden
-            className="pointer-events-none absolute flex items-center justify-center bg-white w-7 h-7 sm:w-9 sm:h-9 md:w-12 md:h-12 lg:w-16 lg:h-16 xl:w-24 xl:h-24"
+            className="pointer-events-none absolute hidden items-center justify-center bg-white sm:flex sm:w-9 sm:h-9 md:w-12 md:h-12 lg:w-16 lg:h-16 xl:w-24 xl:h-24"
             style={{
               left: card.left,
               top: card.top,
