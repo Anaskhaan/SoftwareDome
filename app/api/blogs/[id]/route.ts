@@ -4,6 +4,7 @@ import { verifyJWT } from "@/lib/jwt";
 import prisma from "@/lib/prisma";
 import { requireAdmin } from "@/lib/require-admin";
 import { generateUniqueBlogSlug, parseStringArray } from "@/lib/blog-utils";
+import { sanitizeBlogHtml } from "@/lib/blog-sanitize";
 import {
   blogSelect,
   CreateBlogInput,
@@ -75,7 +76,7 @@ export async function PATCH(req: Request, context: RouteContext) {
       if (!content) {
         return NextResponse.json({ error: "Content cannot be empty." }, { status: 400 });
       }
-      updateData.content = content;
+      updateData.content = sanitizeBlogHtml(content);
     }
 
     if (body.excerpt !== undefined) {
