@@ -47,7 +47,7 @@ export default function Hero({ softwares }: { softwares?: SoftwareForCard[] }) {
               width={40}
               height={40}
               unoptimized={card.src.endsWith(".svg")}
-              className="object-contain w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-16 lg:h-16 xl:w-20 xl:h-20"
+              className="object-contain w-4 h-4 sm:w-5 sm:h-5 md:w-7 md:h-7 lg:w-10 lg:h-10 xl:w-14 xl:h-14"
             />
           </div>
         ))}
