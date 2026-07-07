@@ -31,17 +31,23 @@ export default function Hero({ softwares }: { softwares?: SoftwareForCard[] }) {
           <div
             key={i}
             aria-hidden
-            className="pointer-events-none absolute flex"
-            style={{ left: card.left, top: card.top }}
+            className="pointer-events-none absolute flex items-center justify-center bg-white w-9 h-9 sm:w-12 sm:h-12 md:w-16 md:h-16 lg:w-24 lg:h-24 xl:w-32 xl:h-32"
+            style={{
+              left: card.left,
+              top: card.top,
+              borderRadius: "16px",
+              boxShadow:
+                "0px 0px 0px 1px rgba(255, 255, 255, 0.2), 0px 25px 50px -10px rgba(0, 0, 0, 0.15)",
+              transform: `rotate(${card.rotate})`,
+            }}
           >
             <Image
               src={card.src}
               alt={card.alt}
-              width={100}
-              height={100}
+              width={40}
+              height={40}
               unoptimized={card.src.endsWith(".svg")}
-              className="object-contain w-9 h-9 sm:w-12 sm:h-12 md:w-16 md:h-16 lg:w-24 lg:h-24 xl:w-32 xl:h-32"
-              style={{ transform: `rotate(${card.rotate})` }}
+              className="object-contain w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-16 lg:h-16 xl:w-20 xl:h-20"
             />
           </div>
         ))}
