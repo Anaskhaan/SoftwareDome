@@ -1,6 +1,7 @@
 import HeroSearch from "@/components/HeroSearch";
 import NavWrapper from "@/components/NavWrapper";
 import Image from "next/image";
+import { pickFloatingCards, type SoftwareForCard } from "@/lib/hero-floating-cards";
 
 const trustedLogos = [
   { name: "Paychex", src: "/vendors/paychex.avif", w: 96 },
@@ -17,57 +18,28 @@ const trustedLogos = [
   { name: "Epicor", src: "/vendors/epicor.avif", w: 96 },
 ];
 
-const floatingCards = [
-  {
-    src: "/heroIcon1.webp",
-    name: "ModMed",
-    left: "4.05%",
-    top: "40%",
-    rotate: "-8deg",
-  },
-  {
-    src: "/heroIcon2.webp",
-    name: "athenahealth",
-    left: "91.2%",
-    top: "35%",
-    rotate: "10deg",
-  },
-  {
-    src: "/heroIcon3.webp",
-    name: "RXNT",
-    left: "6.11%",
-    top: "58%",
-    rotate: "6deg",
-  },
-  {
-    src: "/heroIcon4.webp",
-    name: "UKG",
-    left: "89.2%",
-    top: "55%",
-    rotate: "-10deg",
-  },
-];
-
-export default function Hero() {
+export default function Hero({ softwares }: { softwares?: SoftwareForCard[] }) {
   return (
     <div className="">
       <section className="relative bg-gradient-to-b from-[#A7FF4AA3] to-[#F7FFEF99] flex flex-col overflow-hidden lg:min-h-dvh">
         {/* Navbar lives inside the hero section */}
         <NavWrapper />
 
-        {/* Floating decorative cards — absolute, visible at every breakpoint, scaled down on small screens */}
-        {floatingCards.map((card) => (
+        {/* Floating decorative cards — absolute, visible at every breakpoint, scaled down on small screens.
+            Sourced from top-rated software and re-picked on each ISR regeneration (~every 10 min). */}
+        {pickFloatingCards(softwares).map((card, i) => (
           <div
-            key={card.name}
+            key={i}
             aria-hidden
             className="pointer-events-none absolute flex"
             style={{ left: card.left, top: card.top }}
           >
             <Image
               src={card.src}
-              alt="software vendor logo"
+              alt={card.alt}
               width={100}
               height={100}
+              unoptimized={card.src.endsWith(".svg")}
               className="object-contain w-9 h-9 sm:w-12 sm:h-12 md:w-16 md:h-16 lg:w-24 lg:h-24 xl:w-32 xl:h-32"
               style={{ transform: `rotate(${card.rotate})` }}
             />

@@ -37,7 +37,7 @@ export default async function Home() {
 
   return (
     <main className="min-h-screen bg-white">
-      <Hero />
+      <Hero softwares={softwares} />
 
       <SoftwareSection initialData={softwares} />
 
