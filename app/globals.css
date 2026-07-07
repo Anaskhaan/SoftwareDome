@@ -515,12 +515,15 @@ small,
 }
 
 /* Infinite logo marquee — two rows, opposite directions */
+/* Track renders 6 copies of the logo set so there's always enough
+   duplicated content ahead of the wrap point to fill even very wide
+   screens without a gap; -100%/6 scrolls exactly one set's width. */
 @keyframes marquee-scroll {
   from {
     transform: translateX(0);
   }
   to {
-    transform: translateX(-50%);
+    transform: translateX(calc(-100% / 6));
   }
 }
 
