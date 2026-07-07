@@ -64,6 +64,17 @@ import {
   faCircleXmark,
   faBolt,
   faPhone,
+  faBold,
+  faItalic,
+  faListUl,
+  faListOl,
+  faQuoteRight,
+  faLink,
+  faLinkSlash,
+  faClock,
+  faRotateLeft,
+  faRotateRight,
+  faCopy,
 } from "@fortawesome/free-solid-svg-icons";
 import {
   faFacebookF,
@@ -164,6 +175,17 @@ export const X = makeIcon(faXmark);
 export const XCircle = makeIcon(faCircleXmark);
 export const Zap = makeIcon(faBolt);
 export const Phone = makeIcon(faPhone);
+export const Bold = makeIcon(faBold);
+export const Italic = makeIcon(faItalic);
+export const ListUl = makeIcon(faListUl);
+export const ListOl = makeIcon(faListOl);
+export const Quote = makeIcon(faQuoteRight);
+export const LinkIcon = makeIcon(faLink);
+export const Unlink = makeIcon(faLinkSlash);
+export const Clock = makeIcon(faClock);
+export const Undo = makeIcon(faRotateLeft);
+export const Redo = makeIcon(faRotateRight);
+export const Copy = makeIcon(faCopy);
 export const Facebook = makeIcon(faFacebookF);
 export const LinkedinIcon = makeIcon(faLinkedinIn);
 export const XTwitter = makeIcon(faXTwitter);
