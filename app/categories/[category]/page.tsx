@@ -9,7 +9,7 @@ import Footer from "@/components/Footer";
 import Container from "@/components/Container";
 import Pagination from "@/components/Pagination";
 import { Star, ArrowLeft, Box, Filter, ArrowDownUp, MessageSquare, ArrowUpRight } from "@/lib/fa-icons";
-import { getSoftwaresByCategory, getCategories } from "@/app/dashboard/softwares/actions";
+import { getSoftwaresByCategory, getCategoryWithSubcategories } from "@/app/categories/actions";
 
 const sortOptions = [
   { value: "rating", label: "Highest rated" },
@@ -49,7 +49,11 @@ export default function CategoryPage() {
     totalPages: number;
     categoryName: string | null;
   } | null>(null);
-  const [categories, setCategories] = useState<{ name: string; slug: string; count: number }[]>([]);
+  const [categoryDetail, setCategoryDetail] = useState<{
+    name: string;
+    slug: string;
+    subcategories: { id: string; name: string; slug: string; isGeneral: boolean; count: number }[];
+  } | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -68,10 +72,10 @@ export default function CategoryPage() {
   }, [categorySlug, page, q]);
 
   useEffect(() => {
-    getCategories().then((res) => {
-      if (res.success) setCategories((res.data as any) || []);
+    getCategoryWithSubcategories(categorySlug).then((res) => {
+      if (res.success) setCategoryDetail((res.data as any) ?? null);
     });
-  }, []);
+  }, [categorySlug]);
 
   const qSuffix = q ? `&q=${encodeURIComponent(q)}` : "";
 
@@ -172,23 +176,21 @@ export default function CategoryPage() {
                 <div className="rounded-2xl border border-zinc-200 bg-white p-5">
                   <div className="mb-4 flex items-center gap-2 text-sm font-bold text-primary-navy">
                     <Filter size={14} className="text-brand-green-dark" />
-                    Other categories
+                    Subcategories
                   </div>
-                  <div className="space-y-1">
-                    {categories.slice(0, 8).map((cat) => (
-                      <Link
-                        key={cat.slug}
-                        href={`/categories/${cat.slug}`}
-                        className={`flex items-center justify-between rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${
-                          cat.slug === categorySlug
-                            ? "bg-primary-navy text-white"
-                            : "text-zinc-600 hover:bg-zinc-50"
-                        }`}
-                      >
-                        <span className="truncate">{cat.name}</span>
-                        <span className="ml-2 shrink-0 text-xs opacity-70">{cat.count}</span>
-                      </Link>
-                    ))}
+                  <div className="max-h-96 space-y-1 overflow-y-auto">
+                    {(categoryDetail?.subcategories ?? [])
+                      .filter((s) => !s.isGeneral)
+                      .map((sub) => (
+                        <Link
+                          key={sub.id}
+                          href={`/categories/${categorySlug}/${sub.slug}`}
+                          className="flex items-center justify-between rounded-lg px-3 py-2 text-sm font-semibold text-zinc-600 transition-colors hover:bg-zinc-50"
+                        >
+                          <span className="truncate">{sub.name}</span>
+                          <span className="ml-2 shrink-0 text-xs opacity-70">{sub.count}</span>
+                        </Link>
+                      ))}
                   </div>
                 </div>
               </div>
