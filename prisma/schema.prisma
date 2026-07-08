@@ -77,33 +77,35 @@ model Software {
   slug              String   @unique
   logo              String?
   category          String?
-  
+  subcategoryId     String?
+  subcategory       Subcategory? @relation(fields: [subcategoryId], references: [id], onDelete: SetNull)
+
   // Section: Ratings and Reports
   rating            Float?   @default(0)
   reportUrl         String?
-  
+
   // Section: Introduction & Verdict
   introduction      String?  @db.Text
   ourVerdict        String?  @db.Text
-  
+
   // Section: Lists
-  keyTakeaways      String[] 
+  keyTakeaways      String[]
   pros              String[]
   cons              String[]
-  
+
   // Section: Media
   pictures          String[] // Gallery URLs
-  
+
   // Section: Content Parts
   howItWorks        String?  @db.Text
   whoIsItFor        String?  @db.Text
   howItIsDifferent  String?  @db.Text
   sentiments        Json?    // Array of { "theme": "...", "sentiment": "Positive|Negative|Neutral|Mixed", "summary": "..." }
-  
+
   // Section: Flexible Data (Different for all softwares)
   specifications    Json?    // Key-value pairs like { "Platform": "Windows", "License": "SaaS" }
   faqs              Json?    // Array of { "question": "...", "answer": "..." }
-  
+
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
   vendorId          String?
@@ -113,6 +115,36 @@ model Software {
 
   @@index([slug])
   @@index([vendorId])
+  @@index([subcategoryId])
+}
+
+model Category {
+  id            String        @id @default(cuid())
+  name          String        @unique
+  slug          String        @unique
+  icon          String?
+  order         Int           @default(0)
+  subcategories Subcategory[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([slug])
+}
+
+model Subcategory {
+  id         String     @id @default(cuid())
+  name       String
+  slug       String
+  isGeneral  Boolean    @default(false)
+  order      Int        @default(0)
+  categoryId String
+  category   Category   @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  softwares  Software[]
+  createdAt  DateTime   @default(now())
+
+  @@unique([categoryId, name])
+  @@unique([categoryId, slug])
+  @@index([categoryId])
 }
 
 model DemoRequest {
