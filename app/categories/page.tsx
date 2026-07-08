@@ -6,18 +6,34 @@ import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 import Footer from "@/components/Footer";
 import Container from "@/components/Container";
-import { Box } from "@/lib/fa-icons";
-import { getCategories } from "@/app/dashboard/softwares/actions";
+import { ChevronRight } from "@/lib/fa-icons";
+import * as Icons from "@/lib/fa-icons";
+import { getCategories } from "@/app/categories/actions";
+
+type Subcategory = { id: string; name: string; slug: string; isGeneral: boolean; count: number };
+type CategoryListItem = {
+  id: string;
+  name: string;
+  slug: string;
+  icon: string | null;
+  count: number;
+  subcategories: Subcategory[];
+};
+
+function CategoryIcon({ name }: { name: string | null }) {
+  const IconComponent = (name && (Icons as any)[name]) || Icons.Box;
+  return <IconComponent size={20} className="text-brand-green-dark" />;
+}
 
 export default function CategoriesPage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [categories, setCategories] = useState<{ name: string; slug: string; count: number }[]>([]);
+  const [categories, setCategories] = useState<CategoryListItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function load() {
       const res = await getCategories();
-      if (res.success) setCategories((res.data as any) || []);
+      if (res.success) setCategories((res.data as CategoryListItem[]) || []);
       setLoading(false);
     }
     load();
@@ -38,7 +54,8 @@ export default function CategoriesPage() {
             Software categories
           </h1>
           <p className="mt-2 max-w-xl text-sm text-zinc-500">
-            Browse every admin-verified listing in the SoftwareDome index, grouped by category.
+            Browse every software category in the SoftwareDome directory, from broad platforms to
+            specific industry and role niches.
           </p>
         </Container>
       </section>
@@ -46,39 +63,44 @@ export default function CategoriesPage() {
       <section className="py-12">
         <Container>
           {loading ? (
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="h-28 animate-pulse rounded-2xl border border-slate-100 bg-slate-50/60" />
+            <div className="space-y-6">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="h-40 animate-pulse rounded-2xl border border-slate-100 bg-slate-50/60" />
               ))}
             </div>
           ) : categories.length === 0 ? (
             <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-slate-50/50 px-6 py-16 text-center">
-              <Box size={28} className="mb-3 text-zinc-300" />
+              <Icons.Box size={28} className="mb-3 text-zinc-300" />
               <h3 className="text-base font-bold text-primary-navy">No categories yet</h3>
               <p className="mt-1 max-w-sm text-xs text-zinc-500">
-                Categories will appear here once softwares are added to the directory.
+                Categories will appear here once the taxonomy has been seeded.
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="space-y-8">
               {categories.map((cat) => (
-                <Link
-                  key={cat.slug}
-                  href={`/categories/${cat.slug}`}
-                  className="group flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-6 transition-all hover:-translate-y-1 hover:border-brand-green/40 hover:shadow-lg"
-                >
-                  <div>
-                    <h3 className="text-base font-bold text-primary-navy transition-colors group-hover:text-brand-green-dark">
-                      {cat.name}
-                    </h3>
-                    <p className="mt-1 text-xs font-semibold text-zinc-400">
-                      {cat.count} software{cat.count === 1 ? "" : "s"}
-                    </p>
+                <div key={cat.id} id={cat.slug} className="rounded-2xl border border-slate-200 bg-white p-6">
+                  <div className="mb-5 flex items-center gap-3">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-green/10">
+                      <CategoryIcon name={cat.icon} />
+                    </span>
+                    <h2 className="font-brand text-lg font-bold text-primary-navy">{cat.name}</h2>
                   </div>
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-green/10 text-brand-green-dark transition-colors group-hover:bg-brand-green group-hover:text-white">
-                    →
-                  </span>
-                </Link>
+                  <div className="grid grid-cols-1 gap-x-8 gap-y-2 sm:grid-cols-2 lg:grid-cols-3">
+                    {cat.subcategories
+                      .filter((s) => !s.isGeneral)
+                      .map((sub) => (
+                        <Link
+                          key={sub.id}
+                          href={`/categories/${cat.slug}/${sub.slug}`}
+                          className="group flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-sm font-semibold text-primary-navy/80 transition-colors hover:bg-brand-green/5 hover:text-brand-green-dark"
+                        >
+                          <span className="truncate">{sub.name}</span>
+                          <ChevronRight size={13} className="shrink-0 text-zinc-300 group-hover:text-brand-green-dark" />
+                        </Link>
+                      ))}
+                  </div>
+                </div>
               ))}
             </div>
           )}
