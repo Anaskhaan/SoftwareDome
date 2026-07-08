@@ -460,6 +460,7 @@ type CsvRow = {
   slug: string;
   logo: string;
   category: string;
+  subcategory: string;
   rating: string;
   reportUrl: string;
   introduction: string;
@@ -529,6 +530,7 @@ type ImportJobState = {
   created: number;
   skipped: number;
   failed: number;
+  uncategorized?: number;
   errors: string[];
   done: boolean;
 };
@@ -537,6 +539,24 @@ type ImportJobState = {
 // Node process (e.g. one PM2 instance) — a CSV import kicked off here keeps
 // running after the request returns, since there's no serverless teardown.
 const importJobs = new Map<string, ImportJobState>();
+
+async function resolveSubcategoryId(categoryName: string | undefined, subcategoryName: string | undefined): Promise<string | null> {
+  if (!categoryName) return null;
+  const category = await prisma.category.findFirst({
+    where: { name: { equals: categoryName.trim(), mode: "insensitive" } },
+  });
+  if (!category) return null;
+
+  if (subcategoryName?.trim()) {
+    const subcategory = await prisma.subcategory.findFirst({
+      where: { categoryId: category.id, name: { equals: subcategoryName.trim(), mode: "insensitive" } },
+    });
+    if (subcategory) return subcategory.id;
+  }
+
+  const general = await prisma.subcategory.findFirst({ where: { categoryId: category.id, isGeneral: true } });
+  return general?.id ?? null;
+}
 
 async function runCsvImportJob(jobId: string, rows: CsvRow[]) {
   const state = importJobs.get(jobId);
@@ -557,6 +577,10 @@ async function runCsvImportJob(jobId: string, rows: CsvRow[]) {
       existingSlugs.add(row.slug);
 
       const logoUrl = row.logo ? await uploadFromUrl(row.logo) : "";
+      const subcategoryId = await resolveSubcategoryId(row.category, row.subcategory);
+      if (!subcategoryId) {
+        state.uncategorized = (state.uncategorized ?? 0) + 1;
+      }
 
       const pictureUrls: string[] = [];
       for (const pic of parseJsonArray(row.pictures)) {
@@ -572,7 +596,7 @@ async function runCsvImportJob(jobId: string, rows: CsvRow[]) {
           name: row.name,
           slug: row.slug,
           logo: logoUrl,
-          category: row.category || "",
+          subcategoryId,
           rating: parseFloat(row.rating) || 0,
           reportUrl: row.reportUrl || null,
           introduction: row.introduction || null,
@@ -635,6 +659,7 @@ export async function importSoftwaresFromCsv(formData: FormData) {
       created: 0,
       skipped: 0,
       failed: 0,
+      uncategorized: 0,
       errors: [],
       done: false,
     });

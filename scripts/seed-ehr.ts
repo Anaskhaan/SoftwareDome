@@ -14,16 +14,25 @@ function parseJson(v: string | number | null) {
   return JSON.parse(String(v));
 }
 
+async function getGeneralEmrSubcategoryId(): Promise<string | null> {
+  const category = await prisma.category.findUnique({ where: { slug: "emr-software" } });
+  if (!category) return null;
+  const general = await prisma.subcategory.findFirst({ where: { categoryId: category.id, isGeneral: true } });
+  return general?.id ?? null;
+}
+
 async function main() {
   const file = path.join(process.cwd(), "data", "ehr-emr-software-seed.json");
   const rows: Row[] = JSON.parse(fs.readFileSync(file, "utf-8"));
+
+  const subcategoryId = await getGeneralEmrSubcategoryId();
 
   for (const row of rows) {
     const data = {
       name: String(row.name),
       slug: String(row.slug),
       logo: row.logo ? String(row.logo) : null,
-      category: row.category ? String(row.category) : null,
+      subcategoryId,
       rating: row.rating ? Number(row.rating) : 0,
       reportUrl: row.reportUrl ? String(row.reportUrl) : null,
       introduction: row.introduction ? String(row.introduction) : null,
