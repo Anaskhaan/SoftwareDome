@@ -187,7 +187,7 @@ export async function createSoftware(formData: FormData) {
     const { session } = auth;
 
     const name = formData.get("name") as string;
-    const category = formData.get("category") as string || "";
+    const subcategoryId = (formData.get("subcategoryId") as string) || null;
     const introduction = formData.get("introduction") as string;
     const ourVerdict = formData.get("ourVerdict") as string;
     const rating = parseFloat(formData.get("rating") as string) || 0;
@@ -242,7 +242,7 @@ export async function createSoftware(formData: FormData) {
         name,
         slug,
         logo: logoUrl,
-        category,
+        subcategoryId,
         rating,
         reportUrl,
         introduction,
@@ -299,7 +299,7 @@ export async function updateSoftware(id: string, formData: FormData) {
     if (access.error) return { success: false, error: access.error };
 
     const name = formData.get("name") as string;
-    const category = formData.get("category") as string || "";
+    const subcategoryId = (formData.get("subcategoryId") as string) || null;
     const introduction = formData.get("introduction") as string;
     const ourVerdict = formData.get("ourVerdict") as string;
     const rating = parseFloat(formData.get("rating") as string) || 0;
@@ -330,7 +330,7 @@ export async function updateSoftware(id: string, formData: FormData) {
     const updateData: any = {
       name,
       slug,
-      category,
+      subcategoryId,
       rating,
       reportUrl,
       introduction,
