@@ -76,7 +76,6 @@ model Software {
   name              String
   slug              String   @unique
   logo              String?
-  category          String?
   subcategoryId     String?
   subcategory       Subcategory? @relation(fields: [subcategoryId], references: [id], onDelete: SetNull)
 
