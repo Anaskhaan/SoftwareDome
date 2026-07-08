@@ -13,9 +13,14 @@ import {
   requireDashboardUser,
   type DashboardSession,
 } from "@/lib/require-dashboard";
+import { getCategories } from "@/app/categories/actions";
 
 const fetchSoftwares = unstable_cache(
-  async () => prisma.software.findMany({ orderBy: { createdAt: "desc" } }),
+  async () =>
+    prisma.software.findMany({
+      orderBy: { createdAt: "desc" },
+      include: { subcategory: { include: { category: true } } },
+    }),
   ["softwares-list"],
   { revalidate: 60, tags: ["softwares"] }
 );
@@ -40,6 +45,7 @@ export async function getDashboardSoftwares() {
     const softwares = await prisma.software.findMany({
       where: isAdmin(session) ? undefined : { vendorId: session.userId },
       orderBy: { createdAt: "desc" },
+      include: { subcategory: { include: { category: true } } },
     });
     return { success: true, data: softwares };
   } catch (error) {
@@ -49,7 +55,10 @@ export async function getDashboardSoftwares() {
 }
 
 async function getOwnedSoftware(id: string, session: DashboardSession) {
-  const software = await prisma.software.findUnique({ where: { id } });
+  const software = await prisma.software.findUnique({
+    where: { id },
+    include: { subcategory: { include: { category: true } } },
+  });
   if (!software) {
     return { error: "Software not found." as const, software: null };
   }
@@ -88,20 +97,32 @@ export async function findBestCategoryForQuery(query: string) {
       (c) => c.name.toLowerCase().includes(qLower) || qLower.includes(c.name.toLowerCase())
     );
     if (directCategory) {
-      return { success: true, data: { categorySlug: directCategory.slug, categoryName: directCategory.name } };
+      return {
+        success: true,
+        data: { categorySlug: directCategory.slug, subcategorySlug: null, categoryName: directCategory.name },
+      };
     }
 
     const matches = await prisma.software.findMany({
-      where: { name: { contains: q, mode: "insensitive" }, category: { not: null } },
-      select: { name: true, category: true },
+      where: { name: { contains: q, mode: "insensitive" }, subcategoryId: { not: null } },
+      select: {
+        name: true,
+        subcategory: { select: { slug: true, category: { select: { slug: true, name: true } } } },
+      },
     });
     if (matches.length === 0) return { success: true, data: null };
 
     const best = matches.reduce((a, b) => (nameMatchScore(a.name, q) <= nameMatchScore(b.name, q) ? a : b));
-    const matchedCategory = categories.find((c) => c.name === best.category);
-    if (!matchedCategory) return { success: true, data: null };
+    if (!best.subcategory) return { success: true, data: null };
 
-    return { success: true, data: { categorySlug: matchedCategory.slug, categoryName: matchedCategory.name } };
+    return {
+      success: true,
+      data: {
+        categorySlug: best.subcategory.category.slug,
+        subcategorySlug: best.subcategory.slug,
+        categoryName: best.subcategory.category.name,
+      },
+    };
   } catch (error) {
     console.error("Error resolving search category:", error);
     return { success: false, error: "Failed to resolve search category" };
@@ -118,7 +139,14 @@ export async function searchSoftwareSuggestions(query: string) {
 
     const matches = await prisma.software.findMany({
       where: { name: { contains: q, mode: "insensitive" } },
-      select: { id: true, name: true, slug: true, logo: true, category: true, rating: true },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        logo: true,
+        rating: true,
+        subcategory: { select: { name: true } },
+      },
       take: 20,
     });
 
@@ -133,95 +161,6 @@ export async function searchSoftwareSuggestions(query: string) {
   } catch (error) {
     console.error("Error searching software suggestions:", error);
     return { success: false, error: "Failed to search softwares" };
-  }
-}
-
-export async function getCategories() {
-  try {
-    const grouped = await prisma.software.groupBy({
-      by: ["category"],
-      _count: { _all: true },
-      where: { category: { not: null } },
-    });
-
-    const categories = grouped
-      .filter((g) => g.category && g.category.trim())
-      .map((g) => ({
-        name: g.category as string,
-        slug: slugify(g.category as string),
-        count: g._count._all,
-      }))
-      .sort((a, b) => b.count - a.count);
-
-    return { success: true, data: categories };
-  } catch (error) {
-    console.error("Error fetching categories:", error);
-    return { success: false, error: "Failed to fetch categories" };
-  }
-}
-
-export async function getSoftwaresByCategory(
-  categorySlug: string,
-  options: { page?: number; pageSize?: number; q?: string } = {}
-) {
-  try {
-    const page = Math.max(options.page || 1, 1);
-    const pageSize = options.pageSize || 12;
-    const q = options.q?.trim();
-
-    const allCategories = await prisma.software.findMany({
-      where: { category: { not: null } },
-      select: { category: true },
-      distinct: ["category"],
-    });
-    const matchingCategories = allCategories
-      .map((c) => c.category as string)
-      .filter((c) => slugify(c) === categorySlug);
-
-    if (matchingCategories.length === 0) {
-      return { success: true, data: { softwares: [], total: 0, page, pageSize, totalPages: 0, categoryName: null } };
-    }
-
-    const where = { category: { in: matchingCategories } };
-
-    // With a search term, every listing in the category still shows — it's just
-    // ranked by how closely its name matches the query (best match first).
-    let softwares;
-    let total;
-    if (q) {
-      const all = await prisma.software.findMany({ where, orderBy: { createdAt: "desc" } });
-      const ranked = all
-        .map((s) => ({ s, score: nameMatchScore(s.name, q) }))
-        .sort((a, b) => a.score - b.score || (b.s.rating || 0) - (a.s.rating || 0))
-        .map((r) => r.s);
-      total = ranked.length;
-      softwares = ranked.slice((page - 1) * pageSize, (page - 1) * pageSize + pageSize);
-    } else {
-      [softwares, total] = await Promise.all([
-        prisma.software.findMany({
-          where,
-          orderBy: { createdAt: "desc" },
-          skip: (page - 1) * pageSize,
-          take: pageSize,
-        }),
-        prisma.software.count({ where }),
-      ]);
-    }
-
-    return {
-      success: true,
-      data: {
-        softwares,
-        total,
-        page,
-        pageSize,
-        totalPages: Math.max(Math.ceil(total / pageSize), 1),
-        categoryName: matchingCategories[0],
-      },
-    };
-  } catch (error) {
-    console.error("Error fetching softwares by category:", error);
-    return { success: false, error: "Failed to fetch softwares" };
   }
 }
 
@@ -504,7 +443,10 @@ export async function getSoftwareBySlug(slug: string) {
   try {
     const software = await prisma.software.findUnique({
       where: { slug },
-      include: { _count: { select: { reviews: true } } },
+      include: {
+        _count: { select: { reviews: true } },
+        subcategory: { include: { category: true } },
+      },
     });
     return { success: true, data: software };
   } catch (error) {
