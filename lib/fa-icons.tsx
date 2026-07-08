@@ -75,6 +75,24 @@ import {
   faRotateLeft,
   faRotateRight,
   faCopy,
+  faCalculator,
+  faTractor,
+  faChartLine,
+  faRobot,
+  faCarSide,
+  faHeadset,
+  faWrench,
+  faPeopleGroup,
+  faHardHat,
+  faAddressBook,
+  faPalette,
+  faBriefcase,
+  faScrewdriverWrench,
+  faTruck,
+  faLandmark,
+  faHotel,
+  faUmbrella,
+  faScaleBalanced,
 } from "@fortawesome/free-solid-svg-icons";
 import {
   faFacebookF,
@@ -190,3 +208,21 @@ export const Facebook = makeIcon(faFacebookF);
 export const LinkedinIcon = makeIcon(faLinkedinIn);
 export const XTwitter = makeIcon(faXTwitter);
 export const Youtube = makeIcon(faYoutube);
+export const Calculator = makeIcon(faCalculator);
+export const Tractor = makeIcon(faTractor);
+export const ChartLine = makeIcon(faChartLine);
+export const Robot = makeIcon(faRobot);
+export const CarSide = makeIcon(faCarSide);
+export const Headset = makeIcon(faHeadset);
+export const Wrench = makeIcon(faWrench);
+export const PeopleGroup = makeIcon(faPeopleGroup);
+export const HardHat = makeIcon(faHardHat);
+export const AddressBook = makeIcon(faAddressBook);
+export const Palette = makeIcon(faPalette);
+export const Briefcase = makeIcon(faBriefcase);
+export const ScrewdriverWrench = makeIcon(faScrewdriverWrench);
+export const Truck = makeIcon(faTruck);
+export const Landmark = makeIcon(faLandmark);
+export const Hotel = makeIcon(faHotel);
+export const Umbrella = makeIcon(faUmbrella);
+export const Scale = makeIcon(faScaleBalanced);
