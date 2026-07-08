@@ -193,7 +193,7 @@ export default function SoftwareSection({ initialData }: { initialData?: any[] }
   // Default to whichever tab has data, fallback to index 1 (EMR)
   const [activeIndex, setActiveIndex] = useState(() => {
     const idx = TABS.findIndex((tab) =>
-      softwares.some((s: any) => s.category?.toLowerCase().includes(tab.match))
+      softwares.some((s: any) => s.subcategory?.category?.name?.toLowerCase().includes(tab.match))
     );
     return idx > -1 ? idx : 1;
   });
@@ -202,7 +202,7 @@ export default function SoftwareSection({ initialData }: { initialData?: any[] }
   const filtered = useMemo(
     () =>
       softwares
-        .filter((s: any) => s.category?.toLowerCase().includes(TABS[activeIndex].match))
+        .filter((s: any) => s.subcategory?.category?.name?.toLowerCase().includes(TABS[activeIndex].match))
         .sort((a: any, b: any) => (b.rating ?? 0) - (a.rating ?? 0))
         .slice(0, 10),
     [softwares, activeIndex]

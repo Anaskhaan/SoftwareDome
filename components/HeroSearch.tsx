@@ -29,7 +29,7 @@ type Suggestion = {
   name: string;
   slug: string;
   logo: string | null;
-  category: string | null;
+  subcategory: { name: string } | null;
   rating: number | null;
 };
 
@@ -48,9 +48,10 @@ export default function HeroSearch() {
   const goToBestCategory = async (term: string) => {
     const res = await findBestCategoryForQuery(term);
     if (res.success && res.data) {
-      router.push(
-        `/categories/${res.data.categorySlug}?q=${encodeURIComponent(term)}`,
-      );
+      const path = res.data.subcategorySlug
+        ? `/categories/${res.data.categorySlug}/${res.data.subcategorySlug}`
+        : `/categories/${res.data.categorySlug}`;
+      router.push(`${path}?q=${encodeURIComponent(term)}`);
     } else {
       router.push("/categories");
     }
@@ -314,9 +315,9 @@ export default function HeroSearch() {
                         <p className="truncate text-sm font-bold text-primary-navy">
                           {s.name}
                         </p>
-                        {s.category && (
+                        {s.subcategory?.name && (
                           <p className="truncate text-xs text-text-muted">
-                            {s.category}
+                            {s.subcategory.name}
                           </p>
                         )}
                       </div>
