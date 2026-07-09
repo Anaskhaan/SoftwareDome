@@ -56,12 +56,9 @@ export default function Navbar({ onMenuClick }: { onMenuClick: () => void }) {
   };
 
   return (
-    <div
-      className="fixed inset-x-0 top-0 z-50 flex justify-center px-4 sm:px-6"
-      style={{ paddingTop: "10px" }}
-    >
+    <div className="fixed inset-x-0 top-0 z-50 flex justify-center px-4 sm:px-6 pt-1">
       <header
-        className="flex md:px-2 md:py-5 backdrop-blur-xl backdrop-saturate-150 border border-white/50 rounded-4xl px-3 py-1 w-[1440px] h-[85px] flex-col justify-center"
+        className="flex md:px-2 md:py-5 backdrop-blur-xl backdrop-saturate-150 border border-white/50 rounded-4xl px-3 py-1 w-[1440px] h-[70px] flex-col justify-center"
         style={{
           backgroundColor: "#FFFFFF",
           boxShadow:
@@ -138,7 +135,12 @@ export default function Navbar({ onMenuClick }: { onMenuClick: () => void }) {
                 >
                   <button
                     className="flex items-center justify-center cursor-pointer"
-                    style={{ width: "55px", height: "55px", borderRadius: "171.875px", flexShrink: 0 }}
+                    style={{
+                      width: "55px",
+                      height: "55px",
+                      borderRadius: "171.875px",
+                      flexShrink: 0,
+                    }}
                     aria-label="Account menu"
                   >
                     <LoginIcon />
@@ -190,7 +192,12 @@ export default function Navbar({ onMenuClick }: { onMenuClick: () => void }) {
                 <Link
                   href="/login"
                   className="flex items-center justify-center"
-                  style={{ width: "55px", height: "55px", borderRadius: "171.875px", flexShrink: 0 }}
+                  style={{
+                    width: "55px",
+                    height: "55px",
+                    borderRadius: "171.875px",
+                    flexShrink: 0,
+                  }}
                   aria-label="Login"
                 >
                   <LoginIcon />
@@ -207,7 +214,14 @@ export default function Navbar({ onMenuClick }: { onMenuClick: () => void }) {
 /* User/login icon — matches the Figma spec, includes its own translucent circle backdrop */
 function LoginIcon() {
   return (
-    <svg width="55" height="55" viewBox="0 0 55 55" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+    <svg
+      width="55"
+      height="55"
+      viewBox="0 0 55 55"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden
+    >
       <path
         d="M0 27.5C0 12.3122 12.3122 0 27.5 0C42.6878 0 55 12.3122 55 27.5C55 42.6878 42.6878 55 27.5 55C12.3122 55 0 42.6878 0 27.5Z"
         fill="white"

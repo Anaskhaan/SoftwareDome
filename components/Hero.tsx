@@ -1,7 +1,10 @@
 import HeroSearch from "@/components/HeroSearch";
 import NavWrapper from "@/components/NavWrapper";
 import Image from "next/image";
-import { pickFloatingCards, type SoftwareForCard } from "@/lib/hero-floating-cards";
+import {
+  pickFloatingCards,
+  type SoftwareForCard,
+} from "@/lib/hero-floating-cards";
 
 const trustedLogos = [
   { name: "Paychex", src: "/vendors/paychex.avif", w: 96 },
@@ -31,7 +34,7 @@ export default function Hero({ softwares }: { softwares?: SoftwareForCard[] }) {
           <div
             key={i}
             aria-hidden
-            className="pointer-events-none absolute hidden items-center justify-center bg-white sm:flex sm:w-9 sm:h-9 md:w-12 md:h-12 lg:w-16 lg:h-16 xl:w-24 xl:h-24"
+            className="pointer-events-none absolute hidden items-center justify-center bg-white sm:flex sm:w-9 sm:h-9 md:w-12 md:h-12 lg:w-10 lg:h-12 xl:w-14 xl:h-14"
             style={{
               left: card.left,
               top: card.top,
@@ -44,15 +47,15 @@ export default function Hero({ softwares }: { softwares?: SoftwareForCard[] }) {
             <Image
               src={card.src}
               alt={card.alt}
-              width={40}
-              height={40}
+              width={100}
+              height={100}
               unoptimized={card.src.endsWith(".svg")}
-              className="object-contain w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 lg:w-10 lg:h-10 xl:w-16 xl:h-16"
+              className="object-contain w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 lg:w-10 lg:h-10 xl:w-12 xl:h-12"
             />
           </div>
         ))}
 
-        <div className="flex flex-col items-center justify-center gap-4 px-4 pt-[120px] pb-14 md:pt-[130px] md:pb-16 lg:pt-[140px] lg:pb-20 lg:flex-1 xl:pb-[50px] text-center">
+        <div className="flex flex-col items-center justify-center gap-4 px-4 pt-[120px] pb-14 md:pt-[130px] md:pb-16 lg:pt-[95px] lg:pb-10 lg:flex-1 xl:pb-[50px] text-center">
           <h1
             className="font-bold tracking-tight"
             style={{
@@ -88,7 +91,7 @@ export default function Hero({ softwares }: { softwares?: SoftwareForCard[] }) {
         </div>
 
         {/* ── Trusted by Top Vendors strip ─────────────────────────────── */}
-        <div className="flex justify-center pb-10">
+        <div className="flex justify-center pb-8">
           <span
             className="font-bold uppercase leading-4"
             style={{
