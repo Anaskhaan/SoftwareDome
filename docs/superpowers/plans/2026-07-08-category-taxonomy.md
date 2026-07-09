@@ -2516,6 +2516,28 @@ git commit -m "test: add category taxonomy verification script"
 
 ## Post-deploy reminder
 
-Per this project's standing deployment process: after this branch is merged and deployed, SSH into the VPS and run `npx prisma db push` there too (schema changes don't reach the VPS database via `git pull` alone). Also re-run `npx tsx scripts/seed-categories.ts` on the VPS after that `db push`, since the VPS database needs the same taxonomy seed the local/dev database got in Task 3 — a fresh schema push alone only creates empty `Category`/`Subcategory` tables.
+**The VPS database is a separate database from the one this plan was built and tested against** (`.env` is gitignored; confirmed via project history — see the VPS-deploy memory on `prisma db push`). It has its own pre-existing `Software` rows with legacy `category` text that this branch's final schema silently discards (`Software.category` is dropped entirely in favor of the nullable `subcategoryId`).
 
-Note: `scripts/backfill-software-subcategories.ts` (Task 4's one-time migration) was deleted in Task 14 once its job was done and it became a build-breaking dead reference to the dropped `category` column — it no longer exists to re-run. If the VPS database is a **separate** database from the one this plan ran against (not just the same Neon project accessed from a different host) and it has its own pre-existing `Software` rows with legacy category data, those rows will end up with `subcategoryId: null` after the schema push and need manual reassignment via the dashboard's cascading category/subcategory picker (Task 11) — there is no automated backfill path anymore. If the VPS points at the same database this plan already modified directly, no further action is needed beyond the schema push.
+**Do not just `git pull && npm install` this branch onto the VPS.** `npm install`'s `postinstall` runs `prisma generate && prisma db push`, and pushing this branch's *final* schema in one shot adds the new tables **and** drops `category` in the same operation — any production software row that hasn't been backfilled yet loses its category text permanently and ends up `subcategoryId: null` (uncategorized: it silently disappears from every `/categories/...` page, homepage category tab, and category-filtered search, though the row itself is not deleted). `prisma db push` will refuse to do this without `--accept-data-loss`, so it fails loudly rather than corrupting data silently — but do not respond to that failure by simply re-running with `--accept-data-loss`, since at that point the category data is still unmigrated.
+
+Instead, run the migration in two passes so the old `category` column and the new `subcategoryId` column coexist just long enough to backfill one from the other:
+
+```bash
+# --- Pass 1: add the new tables/column without touching `category` yet ---
+git fetch origin
+git checkout 1ae8b80 -- prisma/schema.prisma scripts/backfill-software-subcategories.ts
+npx prisma generate
+npx prisma db push                       # additive only — no --accept-data-loss needed
+npx tsx scripts/seed-categories.ts       # populates Category/Subcategory tables
+npx tsx scripts/backfill-software-subcategories.ts   # maps existing category text -> subcategoryId
+npx tsx scripts/verify-categories-seed.ts            # must print "0 unassigned software"
+
+# --- Pass 2: now safe to drop the old column ---
+git checkout <this-branch-head> -- prisma/schema.prisma scripts/
+npx prisma generate
+npx prisma db push --accept-data-loss    # only drops `category`; subcategoryId is already populated
+npm run build
+# restart the app process (pm2/systemd, per standing process)
+```
+
+If `verify-categories-seed.ts` does not print `0 unassigned software` after Pass 1, stop and investigate before proceeding to Pass 2 — Pass 2 is irreversible.
