@@ -1,0 +1,446 @@
+[
+  {
+    "name": "Accounting Software",
+    "icon": "Calculator",
+    "subcategories": [
+      "Accounting Practice Management Software", "Accounts Payable Software", "Accounts Receivable Software",
+      "AI-Charged Accounting Tools", "Audit Software", "Bank Accounting Software",
+      "Billing and Invoice Software", "Budgeting Software", "Compliance Software",
+      "DCAA Compliant Accounting Software", "Debt Collection Software", "Expense Management Software",
+      "Expense Report Software", "Financial Reporting Software", "Fund Management Software",
+      "General Ledger Software", "Government Contract Accounting Software", "Hotel Accounting Software",
+      "Insurance Accounting Software", "Investment Management Software", "Legal Accounting Software",
+      "Media and Newspaper Accounting Software", "Medical Accounting Software", "Mobile Accounting",
+      "Real Estate Accounting Software", "Restaurant Accounting Software", "Sales Tax Software",
+      "School Accounting Software", "Small Business Invoicing Software"
+    ]
+  },
+  {
+    "name": "Agriculture Software",
+    "icon": "Tractor",
+    "subcategories": [
+      "Crop Management Software", "Dairy Farm Software", "Farm Management Software",
+      "Irrigation Management Software", "Livestock Management Software", "Precision Agriculture Software"
+    ]
+  },
+  {
+    "name": "Analytics Tools & Software",
+    "icon": "ChartLine",
+    "subcategories": [
+      "Analytics Software Platforms and Tools", "Business Intelligence Software", "Data Integration Tools",
+      "Data Virtualization Software", "Drone Analytics Software", "Enterprise Search Software",
+      "Insight Engines Software", "Predictive Analytics Tools and Software", "Statistical Analysis Software",
+      "Text Analysis Software", "Time Series Intelligence Software", "Visitor Behavior Intelligence Software"
+    ]
+  },
+  {
+    "name": "Artificial Intelligence Software",
+    "icon": "Robot",
+    "subcategories": [
+      "Active Learning Tools", "AIOps Platform", "Conversational Intelligence Software",
+      "Data Labeling Software", "Data Science & Machine Learning Platforms", "Deep Learning Software",
+      "Generative AI Software", "Machine Learning Software", "MLOps Platforms",
+      "Robotic Process Automation Software", "Sentiment Analysis Software", "Synthetic Data Software",
+      "Video Surveillance Software", "Voice Dubbing Software"
+    ]
+  },
+  {
+    "name": "Auto Repair Software",
+    "icon": "CarSide",
+    "subcategories": [
+      "Auto Body Software", "Auto Dealer Software", "Auto Repair Shop Management Software",
+      "Collision Repair & Estimating Software", "CRMs for Auto Shops", "Diagnostic & Repair Information Software",
+      "Digital Vehicle Inspection (DVI) Software", "Parts & Inventory Management Software"
+    ]
+  },
+  {
+    "name": "Call Center Software",
+    "icon": "Headset",
+    "subcategories": [
+      "Auto Dialer Software", "Call Recording Software", "Call Tracking Software",
+      "Contact Center Software", "Customer Support Software", "IVR Software",
+      "Predictive Dialer Software", "Telephony Software", "VoIP Software"
+    ]
+  },
+  {
+    "name": "CMMS Software",
+    "icon": "Wrench",
+    "subcategories": [
+      "AI-Optimized Maintenance Systems", "Asset Tracking Software", "Aviation MRO Software",
+      "Calibration Management Software", "EAM Software", "Equipment Maintenance Software",
+      "Preventive Maintenance Software", "Tool Management Software", "Web Based CMMS Software",
+      "Work Order Software"
+    ]
+  },
+  {
+    "name": "Collaboration and Productivity Software",
+    "icon": "PeopleGroup",
+    "subcategories": [
+      "AI Meeting Assistants Software", "Audio Conferencing Software", "Board Management Software",
+      "Bookmark Manager Software", "Business Scheduling Software", "Calendar Software",
+      "Cloud PBX Platforms Software", "Collaborative Whiteboard Software", "Decision-Making Software",
+      "Digital Adoption Platforms", "Document Creation Software", "Document Generation Software",
+      "Document Scanning Software", "Email Client Software", "Email Management Software",
+      "Email Software", "Email Verification Software", "Employee Intranet Software",
+      "File Converter Software", "File Reader Software", "Handwritten Notes Software",
+      "Idea Management Software", "Internal Communications Software", "Internal Newsletter Software",
+      "Meeting Management Software", "Mind Mapping Software", "Noise Cancellation Software",
+      "Note-Taking Software", "Objectives and Key Results (OKR) Software", "Office Suites Software",
+      "Online Appointment Scheduling Software", "Online Fax Software", "Other Collaboration Software",
+      "PDF Editors", "Plagiarism Checker Software", "Presentation Software",
+      "Productivity Bots Software", "Push-To-Talk (PTT) Software", "Screen and Video Capture Software",
+      "Screen Sharing Software", "Social Network Platforms", "Spreadsheets Software",
+      "Survey Software", "Text Expanders Software", "Transcription Software",
+      "UCaaS Platforms", "Unified Workspaces Software", "Virtual Workspaces",
+      "Visual Collaboration Platforms"
+    ]
+  },
+  {
+    "name": "Construction Management Software",
+    "icon": "HardHat",
+    "subcategories": [
+      "AI-Driven Construction Management", "Building Information Modeling Software", "Concrete Estimating Software",
+      "Construction Accounting Software", "Construction Bidding Software", "Construction Estimating Software",
+      "Construction Scheduling Software", "Earthworks Estimating Software", "Electrical Contractor Software",
+      "Electrical Estimating Software", "Flooring Estimating Software", "Plumbing Estimating Software",
+      "Real Estate Development Software", "Roofing Software", "Web Construction Management Software"
+    ]
+  },
+  {
+    "name": "Content Management Software",
+    "icon": "FileText",
+    "subcategories": [
+      "Client Portal Software", "Cloud Content Collaboration Software", "CMS Tools",
+      "Commenting Systems", "Component Content Management Systems", "Content Moderation Tools",
+      "Desktop Search Software", "Digital Asset Management Software", "Digital Experience Orchestration Platforms",
+      "Digital Experience Platforms (DXP)", "Digital Rights Management (DRM) Software", "Document Management Software",
+      "Enterprise Content Management Systems", "File Migration Software", "Headless CMS Software",
+      "Image Optimization Software", "Live Blog Software", "Markup Software",
+      "Online Proofing Software", "Other Content Software", "Translation Management Software",
+      "User-Generated Content Platforms", "Video CMS Software", "Virtual Data Room Software",
+      "Web Content Management Software", "Website Builder Software", "Website Change Monitoring Software",
+      "WordPress Management Tools"
+    ]
+  },
+  {
+    "name": "CRM Software",
+    "icon": "AddressBook",
+    "subcategories": [
+      "Account Management Software", "AI-Integrated CRM Solutions", "Android CRM Software",
+      "Auto Dealership CRM Software", "Banking CRM Software", "Bookkeepers CRM",
+      "Casino CRM Software", "Channel Management Software", "Cloud Based CRM For Small Business",
+      "Complaint Management Software", "Consulting CRM Software", "Contact Management Software",
+      "CRM For Accounting Firms", "CRM For B2B Sales", "CRM For Car Dealerships",
+      "CRM For Charities", "CRM For Churches", "CRM For Cleaning Business",
+      "CRM For Coaches", "CRM For Commercial Real Estate", "CRM For Construction Company",
+      "CRM For Consultants", "CRM For Consulting Business", "CRM For Contractors",
+      "CRM For CPA Firms", "CRM For Creatives", "CRM For Customer Service Software",
+      "CRM For Design Agency", "CRM For Digital Marketing Agency", "CRM For Direct Sales",
+      "CRM For Distributors", "CRM For Doctors", "CRM For Education",
+      "CRM For Enterprise", "CRM For Event Management", "CRM For Facebook",
+      "CRM For Field Sales", "CRM For Financial Advisors", "CRM For Financial Services",
+      "CRM For Freelancers", "CRM For Freight Brokers", "CRM For Fundraising",
+      "CRM For Google Workspace", "CRM For Graphic Designers", "CRM For Gyms",
+      "CRM For Healthcare", "CRM For Health Insurance Agents", "CRM For Higher Education",
+      "CRM For Home Improvement", "CRM For Independent Sales Reps", "CRM For Individuals",
+      "CRM For Insurance Agents", "CRM For Insurance Brokers", "CRM For Investment Bankers",
+      "CRM For Investors", "CRM For iOS", "CRM For Law Firms",
+      "CRM For Life Coaches", "CRM For LinkedIn", "CRM For Loan Officers",
+      "CRM For Logistics Industry", "CRM For Magento", "CRM For Manufacturing Businesses",
+      "CRM For Marketing", "CRM For Marketing Agency", "CRM For Medical Practice",
+      "CRM For Membership Organizations", "CRM For MLM", "CRM For Mortgage",
+      "CRM For Mortgage Brokers", "CRM For Mortgage Lenders", "CRM For Mortgage Loan Officers",
+      "CRM For Moving Company", "CRM For MSP", "CRM For Network Marketing",
+      "CRM For Outlook", "CRM For Outside Sales Reps", "CRM For Painting Contractors",
+      "CRM For Personal Trainers", "CRM For Photographers", "CRM For Plumbers",
+      "CRM For Political Campaigns", "CRM For Pressure Washing Business", "CRM For Private Equity",
+      "CRM For Professional Services", "CRM For Property Management", "CRM For Real Estate",
+      "CRM For Real Estate Agents", "CRM For Real Estate Brokers", "CRM For Real Estate Investors",
+      "CRM For Real Estate Teams", "CRM For Real Estate Wholesalers", "CRM For Realtors",
+      "CRM For Remodelers", "CRM For Restaurants", "CRM For Retail",
+      "CRM For SaaS Companies", "CRM For SaaS Startups", "CRM For Schools",
+      "CRM For Service Providers", "CRM For Shopify", "CRM For Social Media Marketing",
+      "CRM For Solar Business", "CRM For Solopreneurs", "CRM For Staffing Agencies",
+      "CRM For Tax Professionals", "CRM For Tour Operators", "CRM For Travel Agents",
+      "CRM For Universities", "CRM For Wealth Management", "CRM For Wholesalers",
+      "CRM Software For Accountants", "CRM Software For HVAC", "CRM Software For Mac",
+      "CRM Software For Recruiting", "Customer Engagement Platform", "Distribution CRM",
+      "Ecommerce CRM Software", "Event Management Platforms", "Financial CRM Software",
+      "Franchise CRM Software", "HIPAA Compliant CRM Software", "Hotel CRM Software",
+      "Inside Sales Software", "Insurance CRM", "Investment Advisor CRM",
+      "iPad CRM", "IT Ticketing Systems", "Knowledge Base Software",
+      "Medicare Agents CRM", "Mobile CRM Software", "Nonprofit CRM Software",
+      "Omnichannel CRM Software", "Online CRM Software", "Pharmaceutical CRM Software",
+      "Project Management CRM Software", "Roofing Companies CRM", "SaaS CRM",
+      "SaaS CRM For Small Business", "Sales Acceleration Software", "Sales Enablement Tools",
+      "Sales Engagement Platforms", "Sales Force Automation Software", "Sales Mapping Software",
+      "Sales Teams CRM Software", "Sales Tracking Software", "Service Dispatch Software",
+      "Small Business CRM Software", "Startups CRM", "Venture Capital CRM Software"
+    ]
+  },
+  {
+    "name": "Customer Service Software",
+    "icon": "MessageSquare",
+    "subcategories": [
+      "Automated Appointment Reminder", "Co-Browsing Software", "Contact Center Outsourcing",
+      "Contact Center Payments Software", "Conversational Support Software", "Customer Communications Tools",
+      "Customer Education Software", "Customer Self-Service Software", "Customer Service Automation Software",
+      "Customer Success Software", "Digital Customer Service Platforms", "Enterprise Feedback Management Software",
+      "Experience Management Software", "Feedback Analytics Software", "Help Desk Software",
+      "Live Chat Software", "Multilingual Customer Support Software", "Other Customer Service Software",
+      "Proactive Customer Retention Software", "Proactive Notification Software", "Remote Video Support Software",
+      "Social Customer Service Software"
+    ]
+  },
+  {
+    "name": "CyberSecurity",
+    "icon": "ShieldCheck",
+    "subcategories": [
+      "AI-Infused Cybersecurity", "Breach and Attack Simulation (BAS) Software", "Deception Technology Software",
+      "Digital Forensics Software", "Digital Risk Protection (DRP) Platforms", "Endpoint Protection Software",
+      "Incident Response Software", "IoT Security Solutions", "Malware Analysis Tools",
+      "Managed Detection & Response Software", "OT Secure Remote Access Software", "Password Managers Software & Tools",
+      "Security Compliance Software", "Security Info and Event Management", "Single Sign On",
+      "SOAR Software", "Threat Intelligence Software"
+    ]
+  },
+  {
+    "name": "Design Software",
+    "icon": "Palette",
+    "subcategories": [
+      "3D Design And Modeling Software", "Audio Editing Software", "Photo Editing Software",
+      "Video Editing Software"
+    ]
+  },
+  {
+    "name": "E-Commerce Software",
+    "icon": "Store",
+    "subcategories": [
+      "Age Verification Software", "B2B E-Commerce Platform Software", "Brand Protection Software",
+      "Catalog Management Software", "Drop Shipping Software", "E-Commerce Analytics Software",
+      "E-Commerce Fraud Protection Software", "E-Commerce Personalization Software", "E-Commerce Search Software",
+      "E-Commerce Tools", "E-Merchandising Software", "Headless E-Commerce Software",
+      "Live Commerce Software", "Multi-Channel E-Commerce Software", "Multichannel Retail Software",
+      "Review Management Software", "Shopping Cart Software", "Small Business E-Commerce"
+    ]
+  },
+  {
+    "name": "EMR Software",
+    "icon": "HeartPulse",
+    "subcategories": [
+      "Aesthetic Practice EMR Software", "AI EMR/EHR Platforms", "AI Medical Scribe Software",
+      "Allergy EHR Software", "Alternative & Holistic Medicine EMR Software", "Ambulatory Software",
+      "Anesthesiology EHR Software", "Appointment Reminder Software", "Assisted Living Software",
+      "Audiology EHR Software", "Bariatrics/Obesity EMR Software", "Billing Services EHR Software",
+      "Cardiology EHR/EMRs", "Chiropractic EMR Software", "Chronic Care Management (CCM)",
+      "Cloud-Based EMR Software", "Concierge Medicine EMR Software", "Correctional Health EMRs",
+      "Dentistry EHR Software", "Dermatology EMR Software", "Dialysis Clinic EMR Software",
+      "Direct Primary Care Software", "eMAR System", "Emergency Medicine EMR Software",
+      "EMR For Otolaryngology Practices", "Endocrinology EMR Software", "Enterprise Medical Software",
+      "E-Prescribing Software", "Family Practice EMR", "FQHC EHR Software",
+      "Free EMR Software", "Gastroenterology EHR Software", "General Practice EHR Software",
+      "General Surgery EHR Software", "Geriatric EMR Software", "Home Health Care Software",
+      "Hospice Software", "Integrative & Functional Medicine Software", "Internal Medicine EHR Software",
+      "iPad EMR Software", "IVF EMR Software", "Lab Information System (LIS) Software",
+      "Long Term Care EMR Software", "Mac EMR Software", "Medical Billing Software",
+      "Medical Inventory Software", "Medical Practice Management Software", "Medical Scheduling Software",
+      "Medical Spa Software", "Mental & Behavioral Health EMR Software", "Mental Health EHR Software",
+      "Mental Health Practice Management Software", "Mobile EMR Software", "Multi-Specialty EMR Software",
+      "Nephrology EHR Software", "Neurology EHR Software", "Ob-Gyn EMR Software",
+      "Occupational Medicine EMR", "Occupational Therapy EMR", "ONC-ATCB Certified EMR Software",
+      "Oncology EMR Software", "Ophthalmology EMR/EHR Software", "Optometry EMR Software",
+      "Optometry Practice Management Software", "Orthopedics EMR Software", "PACS Systems",
+      "Pain Management EMR Software", "Patient Engagement Software", "Patient Intake EMR Software",
+      "Patient Kiosk EMR Software", "Patient Portal Software", "Patient Scheduling EHR Software",
+      "Pediatric Home Health Software", "Pediatrics EHR Software", "Physical Therapy EHR Software",
+      "Plastic Surgery EMR", "Podiatry EMR/EHR Software", "Practice Analytics EMR Software",
+      "Primary Care", "Psychiatry EMR Software", "Public Health EHR Software",
+      "Pulmonology EHR Software", "Radiology/Imaging EMR Software", "Remote Patient Monitoring (RPM)",
+      "Revenue Cycle Management Software", "Rheumatology EHR Software", "Server Based EMR Software",
+      "Sleep Medicine EMR", "Speech Therapy EHR Software", "Substance Abuse EMR Software",
+      "Surgery Center Software", "Surgery EMR Software", "Telemedicine Software",
+      "Urgent Care EMR Software", "Urology EHR Software", "Vascular Surgery EMR",
+      "Wound Care EHR/EMR"
+    ]
+  },
+  {
+    "name": "Enterprise Resource Planning Software",
+    "icon": "Briefcase",
+    "subcategories": [
+      "Aerospace ERP Software", "Agriculture ERP Software", "AI ERP",
+      "Apparel ERP Software", "Automotive ERP Software", "Aviation ERP Software",
+      "Cloud-Based ERP For Manufacturing", "Cloud Based ERP Software", "Cosmetic ERP Software",
+      "Discrete Manufacturing ERP", "Distribution ERP Software", "E-Commerce ERP Software",
+      "Engineering ERP", "Enterprise Architecture Software", "Enterprise ERP Software",
+      "ERP Accounting Software", "ERP Apps for Android", "ERP For Banking Industry",
+      "ERP For Chemical Industry", "ERP For Dairy Industry", "ERP For Electrical Contractors",
+      "ERP For Electronics Industry", "ERP For Energy", "ERP For Finance",
+      "ERP For Furniture Industry", "ERP For Industrial Machinery", "ERP For Law Firms",
+      "ERP For Life Sciences", "ERP For Meat Processing", "ERP For Medium Sized Business",
+      "ERP For Metal Industry", "ERP For Mining Industry", "ERP For Pharmaceutical Industry",
+      "ERP For Professional Services Industry", "ERP For Real Estate", "ERP For Restaurants",
+      "ERP For Solar Industry", "ERP For Startups", "ERP For Textile Industry",
+      "ERP For Trading Business", "ERP For Travel Industry", "ERP For Warehouse Management",
+      "ERP Software For Cement Industry", "ERP Software For Construction", "ERP Software For Contractors",
+      "ERP Software For Logistics Companies", "ERP Software For Printing Industry", "ERP Software For Service Industry",
+      "ERP Software For Supply Chain Management", "ERP Software For The Packaging Industry", "ERP Software For The Plastic Industry",
+      "ERP Software For Utilities", "ERP Software for Windows", "ERP Solution For Equipment Rental Business",
+      "ERP System For Hospitality", "ERP Systems", "Field Service ERP",
+      "Flexible Packaging ERP Software", "Food And Beverage ERP", "Footwear ERP Software",
+      "Government Contractor ERP Software", "Government ERP Software", "Healthcare ERP",
+      "Hybrid ERP", "Insurance ERP Software", "Machine Shop ERP",
+      "Manufacturing ERP Software", "Medical Device ERP", "Metal Fabrication ERP Software",
+      "Microsoft Implementation Partners", "Nonprofit ERP Software", "Odoo Implementation Partners",
+      "Oil And Gas ERP Software", "On-Premise ERP", "Open-Source ERP",
+      "Oracle ERP Resellers", "Poultry ERP Software", "Process ERP Software",
+      "Property Management ERP", "Retail ERP Software", "SAP Implementation Partners",
+      "Seafood ERP"
+    ]
+  },
+  {
+    "name": "Event Management Software",
+    "icon": "Calendar",
+    "subcategories": [
+      "Audience Response Software", "Box Office Software", "Event Networking and Matchmaking",
+      "Event Planning Software", "Event Registration and Ticketing Software"
+    ]
+  },
+  {
+    "name": "Facility Management Software",
+    "icon": "Building2",
+    "subcategories": [
+      "Asset Management Software (Facilities)", "EHS Management Software", "Energy Management Software",
+      "Integrated Workplace Management System", "Parking Management Software", "School Facilities Management Software",
+      "Space Management Software", "Visitor Management Systems", "Workplace Management Software"
+    ]
+  },
+  {
+    "name": "Field Service Software",
+    "icon": "ScrewdriverWrench",
+    "subcategories": [
+      "Appliance Repair Software", "Arborist Software", "Carpet Cleaning Software",
+      "Cleaning Service Software", "Field Service Mobile Apps", "GPS Tracking Software",
+      "HVAC Software", "Lawn Care Software", "Locksmith Software",
+      "Pest Control Software", "Plumbing Software", "Pool Service Software",
+      "Service Order Software"
+    ]
+  },
+  {
+    "name": "Fleet Management Software",
+    "icon": "Truck",
+    "subcategories": [
+      "Aviation Maintenance Software", "Building Maintenance Software", "Driver Management Software",
+      "Fleet Maintenance Software", "Fleet Management Consulting Providers", "Fleet Tracking Software",
+      "Fuel Management Software", "Maintenance Management Software", "Moving Software",
+      "Route Planning Software", "Towing Software", "Transportation Dispatch Software",
+      "Transportation Management Software"
+    ]
+  },
+  {
+    "name": "Governance, Risk & Compliance Software",
+    "icon": "Landmark",
+    "subcategories": [
+      "Anti-Money Laundering Software", "Audit Management Software", "Carbon Accounting Software",
+      "Enterprise Risk Management Software", "Environmental, Social, and Governance (ESG) Reporting Software", "GRC Tools",
+      "Operational Risk Management Software", "Policy Management Software", "Regulatory Change Management Software",
+      "Risk Intelligence Software", "Third Party & Supplier Risk Management Software"
+    ]
+  },
+  {
+    "name": "Hotel Management Software",
+    "icon": "Hotel",
+    "subcategories": [
+      "Guest Experience & Messaging Software", "Hotel Booking Engines", "Hotel Channel Managers",
+      "Hotel CRM Systems", "Hotel Housekeeping Software", "Hotel Point of Sale (POS)",
+      "Hotel Property Management Systems (PMS)", "Hotel Reputation Management Software", "Hotel Revenue Management Systems",
+      "Sales, Events & Catering Software"
+    ]
+  },
+  {
+    "name": "Human Resource Software",
+    "icon": "Users",
+    "subcategories": [
+      "1099 Payroll Software", "360 Degree Feedback Software", "Absence Management Software",
+      "AI Applicant Tracking System", "AI-Assisted HR Management", "AI Payroll Software",
+      "AI Recruiting Software", "Applicant Tracking Systems", "Assessment Software",
+      "Automated Onboarding Software", "Awards and Recognition", "Background Check Software",
+      "Benefits Administration Software", "Campus Recruitment Software", "Care Agency Recruitment Software",
+      "Certified Payroll Software", "Church Payroll Software", "Clinical Trial Recruitment Software",
+      "Cloud Based Payroll Software", "Cloud-Based Recruitment Software", "Cloud-Based Talent Management Software",
+      "Cloud-Based Workforce Management Software", "Cloud HRMS", "Cloud Payroll Software For Accountants",
+      "College Recruitment Software", "Compensation Management Software", "Construction Onboarding Software",
+      "Contractor Management", "Corporate Recruitment Software", "Corporate Social Responsibility Software",
+      "Corporate Volunteering Platform", "Credentialing Software", "Desktop Payroll Software For Small Business",
+      "EAP Providers", "Earned Wage Access Software", "Employee Database Software",
+      "Employee Engagement Software", "Employee Monitoring Software", "Employee Offboarding Software",
+      "Employee Perk Software", "Employee Records Management Software", "Employee Referral Software",
+      "Employee Scheduling Software", "Employee Wellness Software", "Employer Of Record Software",
+      "Enterprise Onboarding Software", "Enterprise Payroll Software For Large Companies", "Enterprise Workforce Management Software",
+      "E-Recruitment Software", "Executive Recruitment Software", "Freelance Management Software",
+      "Global HRMS Software", "Global Recruitment Software", "Government HR Software",
+      "Government Payroll Software", "HCM For Small Business", "HCM Software",
+      "Healthcare Onboarding Software", "Healthcare Payroll Software", "Healthcare Recruitment Software",
+      "Home Care Payroll Software", "Hospitality Payroll Software", "Hospitality Recruitment Software",
+      "HR Analytics Software", "HR Case Management Software", "HR Compliance Software",
+      "HR Delivery Service Software", "HR Employee Onboarding Software", "HR Help Desk Software",
+      "HRIS For Large Companies", "HRIS For Small Business", "HRIS Software",
+      "HRMS For Small Business", "HRMS Software", "HR Reporting Software",
+      "HR Software For Retail", "Human Resource Apps", "In-house Recruitment Software",
+      "Internal Recruitment Software", "Interview Scheduling Software", "Job Board Software",
+      "Leave Management System", "Manufacturing HR Software For Onboarding", "Marine Recruitment Software",
+      "Mentorship Software", "Mobile Workforce Management Software", "Multi-Country Payroll Software",
+      "Nursing Recruitment Software", "OKR Software", "Onboarding Employees Software For Childcare",
+      "Onboarding Software For Aged Care", "Onboarding Software For Camp Employees", "Onboarding Software For Mining",
+      "Onboarding Software For Staffing Firms", "Open Source HRMS", "Org Chart Software",
+      "Patient Recruitment Software", "Pay Equity Software", "Payroll Software",
+      "Payroll Software Canada", "Payroll Software For Accountants", "Payroll Software For Construction Companies",
+      "Payroll Software For Mac", "Payroll Software For Non-Profit Organizations", "Payroll Software For Payroll Service Providers",
+      "Payroll Software For Pharma Industry", "Payroll Software For Recruitment Agencies", "Payroll Software For Remote Teams",
+      "Payroll Software For Retail", "Payroll Software For Schools", "Performance Management Software",
+      "Physician Onboarding Software", "Recruiting Software", "Recruitment Automation Software",
+      "Recruitment CRM", "Recruitment Database Software", "Recruitment Marketing Software",
+      "Recruitment Software For Recruitment Agencies", "Recruitment Software For Startups", "Recruitment Tracking Software",
+      "Reference Check Software", "Remote Onboarding Software", "Remote Workforce Management Software",
+      "Restaurant Employee Onboarding Software", "Restaurant Payroll Software", "Restaurant Scheduling Software",
+      "Retail Recruitment Software", "Security Guard Payroll Software", "Small Business Payroll Software",
+      "Social Recruiting Software", "Succession Planning Software", "Talent Management Software",
+      "Technical Skills Screening software", "Time and Attendance Software", "Time Clock Software",
+      "Trucking Accounting Software", "Trucking Payroll Software", "Vacation Tracking Software",
+      "Video Interviewing Software", "Web-Based HRMS Software", "Web Based Recruitment Software",
+      "Workforce Management Software", "Workforce Management Software For Hospitality"
+    ]
+  },
+  {
+    "name": "Insurance Software",
+    "icon": "Umbrella",
+    "subcategories": [
+      "Auto Insurance Software", "Health Insurance Software", "Insurance Agent Software",
+      "Insurance Broker Software", "Insurance Claims Management Software", "Insurance Compliance Software",
+      "Insurance Fraud Detection Software", "Insurance Policy Management Software", "Insurance Rating Software",
+      "Insurance Underwriting Software", "Life Insurance Management Software", "Reinsurance Software"
+    ]
+  },
+  {
+    "name": "IT Management Software",
+    "icon": "Settings",
+    "subcategories": [
+      "Cloud Cost Management Software", "Data Governance Software", "Incident Management Software",
+      "Infrastructure Monitoring Tools", "IT Asset Management Software", "IT Financial Management Software",
+      "IT Inventory Management Software", "IT Operations Management Software", "Observability Platforms",
+      "Privileged Access Management Software", "Remote Desktop Software", "Unified Endpoint Management Software"
+    ]
+  },
+  {
+    "name": "Legal Software",
+    "icon": "Scale",
+    "subcategories": [
+      "Alternative Dispute Resolution Software", "Bankruptcy Software", "Civil Litigation Software",
+      "Cloud Based Legal Billing Software", "Cloud Based Legal Case Management Software", "Cloud Based Legal Software",
+      "Contract Lifecycle Management Software", "Criminal Case Management Software", "Criminal Law Software",
+      "eDiscovery Software", "eDiscovery Software For Small Law Firms", "Enterprise Legal Management Software",
+      "Estate Planning Software For Attorneys", "Evidence Management Software", "Family Law Software",
+      "Immigration Law Firm Software", "In-House Legal Software", "Law Firm Client Management Software",
+      "Law Firm Conflict Check Software", "Legal AI Chatbot", "Legal AI Software"
+    ]
+  }
+]

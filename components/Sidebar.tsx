@@ -39,7 +39,10 @@ export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose:
     if (!term) { router.push('/categories'); return; }
     const res = await findBestCategoryForQuery(term);
     if (res.success && res.data) {
-      router.push(`/categories/${res.data.categorySlug}?q=${encodeURIComponent(term)}`);
+      const path = res.data.subcategorySlug
+        ? `/categories/${res.data.categorySlug}/${res.data.subcategorySlug}`
+        : `/categories/${res.data.categorySlug}`;
+      router.push(`${path}?q=${encodeURIComponent(term)}`);
     } else {
       router.push('/categories');
     }

@@ -10,6 +10,13 @@ async function uploadFromUrl(url: string): Promise<string> {
   return res.secure_url;
 }
 
+async function getGeneralEmrSubcategoryId(): Promise<string | null> {
+  const category = await prisma.category.findUnique({ where: { slug: "emr-software" } });
+  if (!category) return null;
+  const general = await prisma.subcategory.findFirst({ where: { categoryId: category.id, isGeneral: true } });
+  return general?.id ?? null;
+}
+
 // Items that map onto software already seeded — update logo only, by existing slug.
 const existingUpdates: { slug: string; image: string }[] = [
   { slug: "veradigm-allscripts", image: "https://software-finder-prod.blr1.digitaloceanspaces.com/Allscripts_EMR_01_73e69cbe87.svg" },
@@ -64,6 +71,8 @@ const newSoftwares = [
 ];
 
 async function main() {
+  const subcategoryId = await getGeneralEmrSubcategoryId();
+
   for (const item of existingUpdates) {
     const existing = await prisma.software.findUnique({ where: { slug: item.slug } });
     if (!existing) {
@@ -87,7 +96,7 @@ async function main() {
       data: {
         name: item.name,
         slug,
-        category: "EHR/EMR",
+        subcategoryId,
         logo: logoUrl,
         introduction: item.introduction,
         rating: 0,

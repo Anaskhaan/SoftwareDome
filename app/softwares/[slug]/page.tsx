@@ -47,7 +47,11 @@ type SoftwareRecord = {
   name: string;
   slug: string;
   logo: string | null;
-  category?: string | null;
+  subcategory?: {
+    name: string;
+    slug: string;
+    category: { name: string; slug: string };
+  } | null;
   rating: number | null;
   reportUrl: string | null;
   introduction: string | null;
@@ -86,10 +90,6 @@ const deepDiveIcons: Record<string, React.ElementType> = {
   "who-is-it-for": Users,
   "how-it-is-different": GitCompare,
 };
-
-function slugifyCategory(name: string) {
-  return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
-}
 
 function filterStrings(items: string[] | undefined | null) {
   return (items || [])
@@ -408,14 +408,21 @@ export default function SoftwareDetailPage() {
                     <ArrowLeft size={13} />
                     Catalog
                   </Link>
-                  {software.category?.trim() && (
+                  {software.subcategory && (
                     <>
                       <span className="text-text-muted/30">/</span>
                       <Link
-                        href={`/categories/${slugifyCategory(software.category)}`}
+                        href={`/categories/${software.subcategory.category.slug}`}
                         className="text-text-muted transition-colors hover:text-primary-navy"
                       >
-                        {software.category}
+                        {software.subcategory.category.name}
+                      </Link>
+                      <span className="text-text-muted/30">/</span>
+                      <Link
+                        href={`/categories/${software.subcategory.category.slug}/${software.subcategory.slug}`}
+                        className="text-text-muted transition-colors hover:text-primary-navy"
+                      >
+                        {software.subcategory.name}
                       </Link>
                     </>
                   )}
@@ -468,7 +475,7 @@ export default function SoftwareDetailPage() {
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="inline-flex items-center rounded-full bg-brand-green/10 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-brand-green-dark">
-                          {software.category || "Uncategorized"}
+                          {software.subcategory?.name || "Uncategorized"}
                         </span>
                         {software.vendorId && (
                           <span className="inline-flex items-center gap-1 rounded-full bg-navy-50 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-navy-600">

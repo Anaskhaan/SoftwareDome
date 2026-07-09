@@ -9,7 +9,7 @@ import Footer from "@/components/Footer";
 import Container from "@/components/Container";
 import Pagination from "@/components/Pagination";
 import { Star, ArrowLeft, Box, Filter, ArrowDownUp, MessageSquare, ArrowUpRight } from "@/lib/fa-icons";
-import { getSoftwaresByCategory, getCategoryWithSubcategories } from "@/app/categories/actions";
+import { getSoftwaresBySubcategory, getCategoryWithSubcategories } from "@/app/categories/actions";
 
 const sortOptions = [
   { value: "rating", label: "Highest rated" },
@@ -32,11 +32,12 @@ function StarRating({ rating }: { rating: number }) {
   );
 }
 
-export default function CategoryPage() {
+export default function SubcategoryPage() {
   const params = useParams();
   const router = useRouter();
   const searchParams = useSearchParams();
   const categorySlug = params.category as string;
+  const subcategorySlug = params.subcategory as string;
   const page = Math.max(parseInt(searchParams.get("page") || "1", 10) || 1, 1);
   const sort = searchParams.get("sort") || "rating";
   const q = searchParams.get("q") || "";
@@ -48,6 +49,7 @@ export default function CategoryPage() {
     total: number;
     totalPages: number;
     categoryName: string | null;
+    subcategoryName: string | null;
   } | null>(null);
   const [categoryDetail, setCategoryDetail] = useState<{
     name: string;
@@ -59,7 +61,7 @@ export default function CategoryPage() {
     let cancelled = false;
     async function load() {
       setLoading(true);
-      const res = await getSoftwaresByCategory(categorySlug, { page, pageSize: 12, q });
+      const res = await getSoftwaresBySubcategory(categorySlug, subcategorySlug, { page, pageSize: 12, q });
       if (!cancelled && res.success) {
         setData(res.data as any);
       }
@@ -69,7 +71,7 @@ export default function CategoryPage() {
     return () => {
       cancelled = true;
     };
-  }, [categorySlug, page, q]);
+  }, [categorySlug, subcategorySlug, page, q]);
 
   useEffect(() => {
     getCategoryWithSubcategories(categorySlug).then((res) => {
@@ -81,17 +83,15 @@ export default function CategoryPage() {
 
   const handlePageChange = useCallback(
     (newPage: number) => {
-      router.push(`/categories/${categorySlug}?page=${newPage}&sort=${sort}${qSuffix}`);
+      router.push(`/categories/${categorySlug}/${subcategorySlug}?page=${newPage}&sort=${sort}${qSuffix}`);
     },
-    [router, categorySlug, sort, qSuffix]
+    [router, categorySlug, subcategorySlug, sort, qSuffix]
   );
 
   const handleSortChange = (newSort: string) => {
-    router.push(`/categories/${categorySlug}?page=1&sort=${newSort}${qSuffix}`);
+    router.push(`/categories/${categorySlug}/${subcategorySlug}?page=1&sort=${newSort}${qSuffix}`);
   };
 
-  // With an active search term the list is already ranked by name relevance
-  // server-side — applying the rating/newest/name sort here would discard that.
   const sortedSoftwares = data
     ? q
       ? data.softwares
@@ -102,7 +102,7 @@ export default function CategoryPage() {
         })
     : [];
 
-  const categoryLabel = data?.categoryName || (loading ? "Loading…" : "Category");
+  const subcategoryLabel = data?.subcategoryName || (loading ? "Loading…" : "Subcategory");
 
   return (
     <main className="min-h-screen bg-zinc-50/40">
@@ -111,33 +111,30 @@ export default function CategoryPage() {
 
       <section className="border-b border-zinc-100 bg-white pb-10 pt-[120px] lg:pt-[140px]">
         <Container>
-          <Link
-            href="/categories"
-            className="mb-3 inline-flex items-center gap-1.5 text-xs font-bold text-zinc-500 hover:text-primary-navy"
-          >
-            <ArrowLeft size={13} />
-            All categories
-          </Link>
+          <div className="mb-3 flex flex-wrap items-center gap-1.5 text-xs font-bold text-zinc-500">
+            <Link href="/categories" className="hover:text-primary-navy">All categories</Link>
+            <span>/</span>
+            <Link href={`/categories/${categorySlug}`} className="hover:text-primary-navy">
+              {data?.categoryName || categoryDetail?.name || categorySlug}
+            </Link>
+          </div>
           <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.3em] text-brand-green-dark">
             <span className="h-1.5 w-1.5 rounded-full bg-brand-green" aria-hidden />
-            Category
+            Subcategory
           </span>
           <h1 className="mt-2 font-brand text-3xl font-bold text-primary-navy lg:text-4xl">
-            Best {categoryLabel} List
+            Best {subcategoryLabel} List
           </h1>
           {data && (
             <p className="mt-2 max-w-xl text-sm text-zinc-500">
-              Compare {data.total} admin-verified {categoryLabel.toLowerCase()} listing
+              Compare {data.total} admin-verified {subcategoryLabel.toLowerCase()} listing
               {data.total === 1 ? "" : "s"} and find the right fit for your team.
             </p>
           )}
           {q && (
             <p className="mt-3 inline-flex items-center gap-2 text-xs font-semibold text-zinc-500">
-              Showing results for <span className="text-primary-navy">“{q}”</span>
-              <Link
-                href={`/categories/${categorySlug}`}
-                className="text-brand-green-dark hover:underline"
-              >
+              Showing results for <span className="text-primary-navy">"{q}"</span>
+              <Link href={`/categories/${categorySlug}/${subcategorySlug}`} className="text-brand-green-dark hover:underline">
                 Clear search
               </Link>
             </p>
@@ -148,7 +145,6 @@ export default function CategoryPage() {
       <section className="py-10">
         <Container>
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-[260px_1fr]">
-            {/* Sidebar */}
             <aside className="hidden lg:block">
               <div className="sticky top-24 space-y-6">
                 <div className="rounded-2xl border border-zinc-200 bg-white p-5">
@@ -176,7 +172,7 @@ export default function CategoryPage() {
                 <div className="rounded-2xl border border-zinc-200 bg-white p-5">
                   <div className="mb-4 flex items-center gap-2 text-sm font-bold text-primary-navy">
                     <Filter size={14} className="text-brand-green-dark" />
-                    Subcategories
+                    Other subcategories
                   </div>
                   <div className="max-h-96 space-y-1 overflow-y-auto">
                     {(categoryDetail?.subcategories ?? [])
@@ -185,7 +181,11 @@ export default function CategoryPage() {
                         <Link
                           key={sub.id}
                           href={`/categories/${categorySlug}/${sub.slug}`}
-                          className="flex items-center justify-between rounded-lg px-3 py-2 text-sm font-semibold text-zinc-600 transition-colors hover:bg-zinc-50"
+                          className={`flex items-center justify-between rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${
+                            sub.slug === subcategorySlug
+                              ? "bg-primary-navy text-white"
+                              : "text-zinc-600 hover:bg-zinc-50"
+                          }`}
                         >
                           <span className="truncate">{sub.name}</span>
                           <span className="ml-2 shrink-0 text-xs opacity-70">{sub.count}</span>
@@ -196,7 +196,6 @@ export default function CategoryPage() {
               </div>
             </aside>
 
-            {/* List */}
             <div>
               {loading ? (
                 <div className="space-y-4">
@@ -209,13 +208,13 @@ export default function CategoryPage() {
                   <Box size={28} className="mb-3 text-zinc-300" />
                   <h3 className="mb-1 text-base font-bold text-primary-navy">No softwares found</h3>
                   <p className="max-w-sm text-xs text-zinc-500">
-                    We couldn't find any listings for this category. Browse other categories instead.
+                    We couldn't find any listings for this subcategory yet. Browse other subcategories instead.
                   </p>
                   <Link
-                    href="/categories"
+                    href={`/categories/${categorySlug}`}
                     className="mt-5 inline-flex items-center justify-center rounded-full bg-brand-green-light px-6 py-2.5 text-sm font-bold text-primary-navy shadow-sm transition-all hover:bg-brand-green hover:text-white"
                   >
-                    Browse categories
+                    Browse {data?.categoryName || categoryDetail?.name || "category"}
                   </Link>
                 </div>
               ) : (
@@ -281,10 +280,9 @@ export default function CategoryPage() {
                 </>
               )}
 
-              {/* CTA banner */}
               <div className="mt-12 overflow-hidden rounded-2xl bg-primary-navy px-8 py-10 text-center sm:px-12">
                 <h3 className="font-brand text-2xl font-bold text-white">
-                  Need help finding the right {categoryLabel.toLowerCase()}?
+                  Need help finding the right {subcategoryLabel.toLowerCase()}?
                 </h3>
                 <p className="mx-auto mt-2 max-w-md text-sm text-zinc-300">
                   Tell us what you're looking for and our team will help you shortlist the best fit

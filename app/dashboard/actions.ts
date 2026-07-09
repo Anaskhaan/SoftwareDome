@@ -67,13 +67,17 @@ export async function getDashboardAnalytics() {
       ...(userCounts ? { users: userCounts[i] } : {}),
     }));
 
-    const categoryGroups = await prisma.software.groupBy({
-      by: ["category"],
+    const softwareWithCategory = await prisma.software.findMany({
       where: admin ? undefined : { vendorId: session.userId },
-      _count: true,
+      select: { subcategory: { select: { category: { select: { name: true } } } } },
     });
-    const categoryBreakdown = categoryGroups
-      .map((g) => ({ category: g.category || "Uncategorized", count: g._count as unknown as number }))
+    const categoryCounts = new Map<string, number>();
+    for (const s of softwareWithCategory) {
+      const name = s.subcategory?.category.name ?? "Uncategorized";
+      categoryCounts.set(name, (categoryCounts.get(name) ?? 0) + 1);
+    }
+    const categoryBreakdown = Array.from(categoryCounts.entries())
+      .map(([category, count]) => ({ category, count }))
       .sort((a, b) => b.count - a.count)
       .slice(0, 6);
 

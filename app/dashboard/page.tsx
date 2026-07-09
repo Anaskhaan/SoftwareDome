@@ -93,7 +93,7 @@ export default function DashboardPage() {
             id: s.id,
             type: "Software" as const,
             title: s.name,
-            meta: s.category || "Uncategorized",
+            meta: s.subcategory?.name || "Uncategorized",
             status: "Active",
             createdAt: s.createdAt,
             href: `/dashboard/softwares/edit/${s.id}`,

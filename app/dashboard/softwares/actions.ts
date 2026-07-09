@@ -13,9 +13,14 @@ import {
   requireDashboardUser,
   type DashboardSession,
 } from "@/lib/require-dashboard";
+import { getCategories } from "@/app/categories/actions";
 
 const fetchSoftwares = unstable_cache(
-  async () => prisma.software.findMany({ orderBy: { createdAt: "desc" } }),
+  async () =>
+    prisma.software.findMany({
+      orderBy: { createdAt: "desc" },
+      include: { subcategory: { include: { category: true } } },
+    }),
   ["softwares-list"],
   { revalidate: 60, tags: ["softwares"] }
 );
@@ -40,6 +45,7 @@ export async function getDashboardSoftwares() {
     const softwares = await prisma.software.findMany({
       where: isAdmin(session) ? undefined : { vendorId: session.userId },
       orderBy: { createdAt: "desc" },
+      include: { subcategory: { include: { category: true } } },
     });
     return { success: true, data: softwares };
   } catch (error) {
@@ -49,7 +55,10 @@ export async function getDashboardSoftwares() {
 }
 
 async function getOwnedSoftware(id: string, session: DashboardSession) {
-  const software = await prisma.software.findUnique({ where: { id } });
+  const software = await prisma.software.findUnique({
+    where: { id },
+    include: { subcategory: { include: { category: true } } },
+  });
   if (!software) {
     return { error: "Software not found." as const, software: null };
   }
@@ -88,20 +97,32 @@ export async function findBestCategoryForQuery(query: string) {
       (c) => c.name.toLowerCase().includes(qLower) || qLower.includes(c.name.toLowerCase())
     );
     if (directCategory) {
-      return { success: true, data: { categorySlug: directCategory.slug, categoryName: directCategory.name } };
+      return {
+        success: true,
+        data: { categorySlug: directCategory.slug, subcategorySlug: null, categoryName: directCategory.name },
+      };
     }
 
     const matches = await prisma.software.findMany({
-      where: { name: { contains: q, mode: "insensitive" }, category: { not: null } },
-      select: { name: true, category: true },
+      where: { name: { contains: q, mode: "insensitive" }, subcategoryId: { not: null } },
+      select: {
+        name: true,
+        subcategory: { select: { slug: true, category: { select: { slug: true, name: true } } } },
+      },
     });
     if (matches.length === 0) return { success: true, data: null };
 
     const best = matches.reduce((a, b) => (nameMatchScore(a.name, q) <= nameMatchScore(b.name, q) ? a : b));
-    const matchedCategory = categories.find((c) => c.name === best.category);
-    if (!matchedCategory) return { success: true, data: null };
+    if (!best.subcategory) return { success: true, data: null };
 
-    return { success: true, data: { categorySlug: matchedCategory.slug, categoryName: matchedCategory.name } };
+    return {
+      success: true,
+      data: {
+        categorySlug: best.subcategory.category.slug,
+        subcategorySlug: best.subcategory.slug,
+        categoryName: best.subcategory.category.name,
+      },
+    };
   } catch (error) {
     console.error("Error resolving search category:", error);
     return { success: false, error: "Failed to resolve search category" };
@@ -118,7 +139,14 @@ export async function searchSoftwareSuggestions(query: string) {
 
     const matches = await prisma.software.findMany({
       where: { name: { contains: q, mode: "insensitive" } },
-      select: { id: true, name: true, slug: true, logo: true, category: true, rating: true },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        logo: true,
+        rating: true,
+        subcategory: { select: { name: true } },
+      },
       take: 20,
     });
 
@@ -133,95 +161,6 @@ export async function searchSoftwareSuggestions(query: string) {
   } catch (error) {
     console.error("Error searching software suggestions:", error);
     return { success: false, error: "Failed to search softwares" };
-  }
-}
-
-export async function getCategories() {
-  try {
-    const grouped = await prisma.software.groupBy({
-      by: ["category"],
-      _count: { _all: true },
-      where: { category: { not: null } },
-    });
-
-    const categories = grouped
-      .filter((g) => g.category && g.category.trim())
-      .map((g) => ({
-        name: g.category as string,
-        slug: slugify(g.category as string),
-        count: g._count._all,
-      }))
-      .sort((a, b) => b.count - a.count);
-
-    return { success: true, data: categories };
-  } catch (error) {
-    console.error("Error fetching categories:", error);
-    return { success: false, error: "Failed to fetch categories" };
-  }
-}
-
-export async function getSoftwaresByCategory(
-  categorySlug: string,
-  options: { page?: number; pageSize?: number; q?: string } = {}
-) {
-  try {
-    const page = Math.max(options.page || 1, 1);
-    const pageSize = options.pageSize || 12;
-    const q = options.q?.trim();
-
-    const allCategories = await prisma.software.findMany({
-      where: { category: { not: null } },
-      select: { category: true },
-      distinct: ["category"],
-    });
-    const matchingCategories = allCategories
-      .map((c) => c.category as string)
-      .filter((c) => slugify(c) === categorySlug);
-
-    if (matchingCategories.length === 0) {
-      return { success: true, data: { softwares: [], total: 0, page, pageSize, totalPages: 0, categoryName: null } };
-    }
-
-    const where = { category: { in: matchingCategories } };
-
-    // With a search term, every listing in the category still shows — it's just
-    // ranked by how closely its name matches the query (best match first).
-    let softwares;
-    let total;
-    if (q) {
-      const all = await prisma.software.findMany({ where, orderBy: { createdAt: "desc" } });
-      const ranked = all
-        .map((s) => ({ s, score: nameMatchScore(s.name, q) }))
-        .sort((a, b) => a.score - b.score || (b.s.rating || 0) - (a.s.rating || 0))
-        .map((r) => r.s);
-      total = ranked.length;
-      softwares = ranked.slice((page - 1) * pageSize, (page - 1) * pageSize + pageSize);
-    } else {
-      [softwares, total] = await Promise.all([
-        prisma.software.findMany({
-          where,
-          orderBy: { createdAt: "desc" },
-          skip: (page - 1) * pageSize,
-          take: pageSize,
-        }),
-        prisma.software.count({ where }),
-      ]);
-    }
-
-    return {
-      success: true,
-      data: {
-        softwares,
-        total,
-        page,
-        pageSize,
-        totalPages: Math.max(Math.ceil(total / pageSize), 1),
-        categoryName: matchingCategories[0],
-      },
-    };
-  } catch (error) {
-    console.error("Error fetching softwares by category:", error);
-    return { success: false, error: "Failed to fetch softwares" };
   }
 }
 
@@ -248,7 +187,7 @@ export async function createSoftware(formData: FormData) {
     const { session } = auth;
 
     const name = formData.get("name") as string;
-    const category = formData.get("category") as string || "";
+    const subcategoryId = (formData.get("subcategoryId") as string) || null;
     const introduction = formData.get("introduction") as string;
     const ourVerdict = formData.get("ourVerdict") as string;
     const rating = parseFloat(formData.get("rating") as string) || 0;
@@ -303,7 +242,7 @@ export async function createSoftware(formData: FormData) {
         name,
         slug,
         logo: logoUrl,
-        category,
+        subcategoryId,
         rating,
         reportUrl,
         introduction,
@@ -360,7 +299,7 @@ export async function updateSoftware(id: string, formData: FormData) {
     if (access.error) return { success: false, error: access.error };
 
     const name = formData.get("name") as string;
-    const category = formData.get("category") as string || "";
+    const subcategoryId = (formData.get("subcategoryId") as string) || null;
     const introduction = formData.get("introduction") as string;
     const ourVerdict = formData.get("ourVerdict") as string;
     const rating = parseFloat(formData.get("rating") as string) || 0;
@@ -391,7 +330,7 @@ export async function updateSoftware(id: string, formData: FormData) {
     const updateData: any = {
       name,
       slug,
-      category,
+      subcategoryId,
       rating,
       reportUrl,
       introduction,
@@ -504,7 +443,10 @@ export async function getSoftwareBySlug(slug: string) {
   try {
     const software = await prisma.software.findUnique({
       where: { slug },
-      include: { _count: { select: { reviews: true } } },
+      include: {
+        _count: { select: { reviews: true } },
+        subcategory: { include: { category: true } },
+      },
     });
     return { success: true, data: software };
   } catch (error) {
@@ -518,6 +460,7 @@ type CsvRow = {
   slug: string;
   logo: string;
   category: string;
+  subcategory: string;
   rating: string;
   reportUrl: string;
   introduction: string;
@@ -587,6 +530,7 @@ type ImportJobState = {
   created: number;
   skipped: number;
   failed: number;
+  uncategorized?: number;
   errors: string[];
   done: boolean;
 };
@@ -595,6 +539,24 @@ type ImportJobState = {
 // Node process (e.g. one PM2 instance) — a CSV import kicked off here keeps
 // running after the request returns, since there's no serverless teardown.
 const importJobs = new Map<string, ImportJobState>();
+
+async function resolveSubcategoryId(categoryName: string | undefined, subcategoryName: string | undefined): Promise<string | null> {
+  if (!categoryName) return null;
+  const category = await prisma.category.findFirst({
+    where: { name: { equals: categoryName.trim(), mode: "insensitive" } },
+  });
+  if (!category) return null;
+
+  if (subcategoryName?.trim()) {
+    const subcategory = await prisma.subcategory.findFirst({
+      where: { categoryId: category.id, name: { equals: subcategoryName.trim(), mode: "insensitive" } },
+    });
+    if (subcategory) return subcategory.id;
+  }
+
+  const general = await prisma.subcategory.findFirst({ where: { categoryId: category.id, isGeneral: true } });
+  return general?.id ?? null;
+}
 
 async function runCsvImportJob(jobId: string, rows: CsvRow[]) {
   const state = importJobs.get(jobId);
@@ -615,6 +577,10 @@ async function runCsvImportJob(jobId: string, rows: CsvRow[]) {
       existingSlugs.add(row.slug);
 
       const logoUrl = row.logo ? await uploadFromUrl(row.logo) : "";
+      const subcategoryId = await resolveSubcategoryId(row.category, row.subcategory);
+      if (!subcategoryId) {
+        state.uncategorized = (state.uncategorized ?? 0) + 1;
+      }
 
       const pictureUrls: string[] = [];
       for (const pic of parseJsonArray(row.pictures)) {
@@ -630,7 +596,7 @@ async function runCsvImportJob(jobId: string, rows: CsvRow[]) {
           name: row.name,
           slug: row.slug,
           logo: logoUrl,
-          category: row.category || "",
+          subcategoryId,
           rating: parseFloat(row.rating) || 0,
           reportUrl: row.reportUrl || null,
           introduction: row.introduction || null,
@@ -693,6 +659,7 @@ export async function importSoftwaresFromCsv(formData: FormData) {
       created: 0,
       skipped: 0,
       failed: 0,
+      uncategorized: 0,
       errors: [],
       done: false,
     });

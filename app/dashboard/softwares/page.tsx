@@ -357,7 +357,7 @@ export default function SoftwaresPage() {
                         </div>
                         <div className="flex flex-col">
                           <span className="font-bold text-primary-navy">{software.name}</span>
-                          <span className="text-xs text-text-muted">{software.category || "Uncategorized"}</span>
+                          <span className="text-xs text-text-muted">{software.subcategory?.name || "Uncategorized"}</span>
                         </div>
                       </div>
                     </td>
@@ -526,6 +526,7 @@ export default function SoftwaresPage() {
               <p className="font-semibold text-primary-navy">
                 Created {importResult.created} · Skipped {importResult.skipped} · Failed{" "}
                 {importResult.failed}
+                {(importResult as any).uncategorized ? ` · ${(importResult as any).uncategorized} uncategorized (review category/subcategory columns)` : ""}
               </p>
               {importResult.errors.length > 0 && (
                 <p className="mt-1 text-xs text-text-muted">

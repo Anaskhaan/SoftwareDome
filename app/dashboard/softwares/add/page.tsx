@@ -23,6 +23,7 @@ import {
 } from "@/lib/fa-icons";
 import AdminOutletHeading from "@/components/dashboard/AdminOutletHeading";
 import { createSoftware } from "../actions";
+import { getCategories } from "@/app/categories/actions";
 import { useRouter } from "next/navigation";
 
 export default function AddSoftwarePage() {
@@ -34,11 +35,26 @@ export default function AddSoftwarePage() {
   // Form State
   const [basicInfo, setBasicInfo] = React.useState({
     name: "",
-    category: "",
     rating: 0,
     reportUrl: "",
     introduction: "",
   });
+  const [categories, setCategories] = React.useState<
+    { id: string; name: string; slug: string; subcategories: { id: string; name: string; isGeneral: boolean }[] }[]
+  >([]);
+  const [categorySlug, setCategorySlug] = React.useState("");
+  const [subcategoryId, setSubcategoryId] = React.useState("");
+
+  React.useEffect(() => {
+    getCategories().then((res) => {
+      if (res.success) setCategories((res.data as any) || []);
+    });
+  }, []);
+
+  const selectedCategory = categories.find((c) => c.slug === categorySlug);
+  const subcategoryOptions = selectedCategory
+    ? [...selectedCategory.subcategories].sort((a, b) => (a.isGeneral === b.isGeneral ? 0 : a.isGeneral ? -1 : 1))
+    : [];
   const [analysis, setAnalysis] = React.useState({
     ourVerdict: "",
     keyTakeaways: ["", "", ""],
@@ -108,7 +124,7 @@ export default function AddSoftwarePage() {
     
     // Basic Info
     formData.append("name", basicInfo.name);
-    formData.append("category", basicInfo.category);
+    formData.append("subcategoryId", subcategoryId);
     formData.append("rating", basicInfo.rating.toString());
     formData.append("reportUrl", basicInfo.reportUrl);
     formData.append("introduction", basicInfo.introduction);
@@ -248,13 +264,30 @@ export default function AddSoftwarePage() {
                     <label className="text-sm font-bold text-slate-700 flex items-center gap-2">
                       <Layers size={16} className="text-brand-green-dark" /> Category
                     </label>
-                    <input
-                      type="text"
+                    <select
                       className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-green/15 outline-none transition-all font-medium"
-                      placeholder="e.g. CRM, Healthcare, ERP"
-                      value={basicInfo.category}
-                      onChange={(e) => setBasicInfo({...basicInfo, category: e.target.value})}
-                    />
+                      value={categorySlug}
+                      onChange={(e) => {
+                        setCategorySlug(e.target.value);
+                        setSubcategoryId("");
+                      }}
+                    >
+                      <option value="">Select a category…</option>
+                      {categories.map((c) => (
+                        <option key={c.id} value={c.slug}>{c.name}</option>
+                      ))}
+                    </select>
+                    <select
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-green/15 outline-none transition-all font-medium disabled:opacity-50"
+                      value={subcategoryId}
+                      onChange={(e) => setSubcategoryId(e.target.value)}
+                      disabled={!selectedCategory}
+                    >
+                      <option value="">Select a subcategory…</option>
+                      {subcategoryOptions.map((s) => (
+                        <option key={s.id} value={s.id}>{s.isGeneral ? s.name : s.name}</option>
+                      ))}
+                    </select>
                   </div>
                 </div>
 
