@@ -93,6 +93,7 @@ import {
   faHotel,
   faUmbrella,
   faScaleBalanced,
+  faListCheck,
 } from "@fortawesome/free-solid-svg-icons";
 import {
   faFacebookF,
@@ -226,3 +227,4 @@ export const Landmark = makeIcon(faLandmark);
 export const Hotel = makeIcon(faHotel);
 export const Umbrella = makeIcon(faUmbrella);
 export const Scale = makeIcon(faScaleBalanced);
+export const ListChecks = makeIcon(faListCheck);
