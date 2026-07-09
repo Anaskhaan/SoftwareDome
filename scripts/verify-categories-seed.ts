@@ -4,8 +4,8 @@ import prisma from "@/lib/prisma";
 async function main() {
   const categoryCount = await prisma.category.count();
   assert.ok(
-    categoryCount === 29 || categoryCount === 30,
-    `Expected 29 or 30 categories (30 if the "Other Software" fallback was created), got ${categoryCount}`
+    categoryCount === 27 || categoryCount === 28,
+    `Expected 27 or 28 categories (28 if the "Other Software" fallback was created), got ${categoryCount}`
   );
 
   const categories = await prisma.category.findMany({ include: { subcategories: true } });

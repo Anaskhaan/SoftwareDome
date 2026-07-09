@@ -442,47 +442,5 @@
       "Immigration Law Firm Software", "In-House Legal Software", "Law Firm Client Management Software",
       "Law Firm Conflict Check Software", "Legal AI Chatbot", "Legal AI Software"
     ]
-  },
-  {
-    "name": "LMS Software",
-    "icon": "GraduationCap",
-    "subcategories": [
-      "AI LMS", "Automotive LMS", "Aviation LMS",
-      "Call Center LMS", "Certification Tracking Software", "Cloud Based LMS Software",
-      "Competency Management Software", "Compliance Training LMS", "Computer Based Training Software",
-      "Course Creation Software", "Ecommerce LMS", "E-Learning Authoring Software",
-      "Employee Training Software", "Energy LMS", "Enterprise LMS",
-      "Extended Enterprise LMS", "Financial Services LMS", "Franchise Training LMS",
-      "Healthcare LMS", "Hospitality LMS", "Learning And Development Software",
-      "Learning Content Management System", "Learning Experience Platform", "LMS For Associations",
-      "LMS For Banking", "LMS For Construction Industry", "LMS For Consulting",
-      "LMS For Corporate Training", "LMS For Employee Onboarding", "LMS For Government",
-      "LMS For Law Firms", "LMS For Manufacturing", "LMS for Nonprofits",
-      "LMS For Pharma", "LMS For Sales Training", "LMS for Schools",
-      "LMS For Small Business", "LMS For Telecommunications", "LMS For Training Companies",
-      "Mobile LMS Software", "Online Course Platforms", "Open Source LMS",
-      "Real Estate LMS", "Restaurant LMS Software", "Retail LMS Software",
-      "SaaS Learning Management System", "Safety Learning Management System", "SCORM-Compliant LMS",
-      "SMB LMS", "Social Learning Platforms", "Virtual Classroom Software"
-    ]
-  },
-  {
-    "name": "Project Management Software",
-    "icon": "ListChecks",
-    "subcategories": [
-      "Accounting Project Management Software", "Advertising Project Management Software", "Agile Project Management Software",
-      "AI-Elevated Project Management Tools", "Commercial Project Management Software", "Construction Project Management Software",
-      "Creative Project Management Software", "Design Project Management Software", "Engineering Project Management Software",
-      "Enterprise Project Management Software", "Gantt Chart Software", "Healthcare Project Management Software",
-      "IT Project Management Software", "Kanban Software", "Legal Project Management Software",
-      "Manufacturing Management Software", "Marketing Project Management Software", "Product Management Software",
-      "Professional Services Automation Software", "Project Management Consulting Software", "Project Management Software for Architects",
-      "Project Management Software For Education", "Project Management Software For Mac", "Project Management Software for Nonprofits",
-      "Project Management Software For Saas", "Project Planning Software", "Project Portfolio Management Software",
-      "Project Tracking Software", "Public Sector Management Software", "Resource Management Software",
-      "Resource Scheduling Software", "Scrum Project Management Software", "Small Business Management Software",
-      "Task Management Software", "Time Tracking Software", "Utility Project Management Software",
-      "Workflow Management Software"
-    ]
   }
 ]
