@@ -13,8 +13,6 @@ const CSV_CATEGORY_TO_TAXONOMY_NAME: Record<string, string> = {
   crm: "CRM Software",
   "emr-software": "EMR Software",
   hr: "Human Resource Software",
-  lms: "LMS Software",
-  "project-management-software": "Project Management Software",
 };
 
 type CsvRow = {
